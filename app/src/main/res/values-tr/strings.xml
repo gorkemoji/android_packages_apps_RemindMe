@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Remind Me</string>
+    <string name="home_page">Yapılacaklar:</string>
+    <string name="add_button">Ekle</string>
+    <string name="settings_button">Ayarlar</string>
+    <string name="task_hint">Görev adı</string>
+    <string name="save">Kaydet</string>
+    <string name="settings">Ayarlar</string>
+    <string name="dark_mode">Karanlık Mod</string>
+</resources>
