@@ -3,7 +3,6 @@ package com.gorkemoji.remindme
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
 import com.gorkemoji.remindme.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
