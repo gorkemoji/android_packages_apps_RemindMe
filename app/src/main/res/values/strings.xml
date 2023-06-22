@@ -2,6 +2,10 @@
     <string name="app_name">Remind Me</string>
     <string name="welcome_text">Welcome to Remind Me!</string>
     <string name="home_page">Your To-Do\'s</string>
-    <string name="add_button">Add button</string>
-    <string name="settings_button">Settings button</string>
+    <string name="add_button">Add</string>
+    <string name="settings_button">Settings</string>
+    <string name="task_hint">Task name</string>
+    <string name="save">Save</string>
+    <string name="settings">Settings</string>
+    <string name="dark_mode">Dark Mode</string>
 </resources>

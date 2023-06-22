@@ -14,7 +14,7 @@
         android:layout_marginTop="25dp"
         android:text="@string/home_page"
         android:textStyle="bold"
-        android:textColor="@color/black"
+        android:textColor="?android:textColorPrimary"
         android:textSize="25sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -46,5 +46,15 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:contentDescription="@string/settings_button" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="25dp"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="50dp"
+        android:nestedScrollingEnabled="true"
+        app:layout_constraintTop_toBottomOf="@id/homePage" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
