@@ -5,12 +5,14 @@ import android.content.Intent
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.room.Room
 import com.gorkemoji.remindme.databinding.ActivityMainBinding
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -50,6 +52,7 @@ class MainActivity : AppCompatActivity() {
             if (!it.isNullOrEmpty()) {
                 list.clear()
                 list.addAll(it)
+                list.reverse()
                 adapter.notifyDataSetChanged()
             }
             else {
@@ -69,7 +72,6 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
             overridePendingTransition(R.anim.slide_out_bottom, R.anim.slide_in_bottom)
         }
-
     }
 
     private fun loadMode(type: String): String? {
@@ -85,4 +87,7 @@ class MainActivity : AppCompatActivity() {
         editor.putString("theme", data)
         editor.apply()
     }
+
+
+
 }

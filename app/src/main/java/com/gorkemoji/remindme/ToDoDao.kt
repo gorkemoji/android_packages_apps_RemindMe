@@ -10,10 +10,4 @@ interface ToDoDao {
 
     @Insert
     fun insert(todo: ToDo)
-
-    @Update
-    fun update(todo: ToDo)
-
-    @Delete
-    fun delete(todo: ToDo)
 }
