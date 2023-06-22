@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
 }
 
 android {
@@ -16,9 +17,11 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
+
     buildFeatures {
         viewBinding true
     }
+    
     buildTypes {
         release {
             minifyEnabled false
@@ -35,6 +38,19 @@ android {
 }
 
 dependencies {
+    def room_version = "2.5.2"
+
+    implementation "androidx.room:room-runtime:$room_version"
+    annotationProcessor"androidx.room:room-compiler:$room_version"
+
+    // To use Kotlin annotation processing tool (kapt)
+    kapt "androidx.room:room-compiler:$room_version"
+
+    // optional - Kotlin Extensions and Coroutines support for Room
+    implementation "androidx.room:room-ktx:$room_version"
+
+    // optional - Test helpers
+    testImplementation "androidx.room:room-testing:$room_version"
 
     implementation 'androidx.core:core-ktx:1.10.1'
     implementation 'androidx.appcompat:appcompat:1.6.1'
