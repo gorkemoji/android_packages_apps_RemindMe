@@ -6,13 +6,12 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "ToDos")
 data class ToDo (
+    @ColumnInfo(name = "title")
+    var toDoTitle: String,
+
+    @ColumnInfo(name = "isChecked")
+    var isChecked: Boolean = false,
+
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "todo")
-    var todo: String,
-
-    @ColumnInfo(name = "date")
-    var date: String,
-
-    @ColumnInfo(name = "time")
-    var time: String
+    var id: Long = 0
 )

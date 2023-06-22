@@ -20,6 +20,7 @@ android {
 
     buildFeatures {
         viewBinding true
+        dataBinding true
     }
     
     buildTypes {
@@ -51,6 +52,12 @@ dependencies {
 
     // optional - Test helpers
     testImplementation "androidx.room:room-testing:$room_version"
+
+    // Preferences DataStore
+    implementation "androidx.datastore:datastore-preferences:1.1.0-alpha04"
+
+    // Proto DataStore
+    implementation "androidx.datastore:datastore-core:1.1.0-alpha04"
 
     implementation 'androidx.core:core-ktx:1.10.1'
     implementation 'androidx.appcompat:appcompat:1.6.1'
