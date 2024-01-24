@@ -1,14 +1,13 @@
-package com.gorkemoji.remindme
+package com.gorkemoji.remindme.database
 
-import android.content.Intent
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.gorkemoji.remindme.databinding.TaskLayoutBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
-class ToDoAdapter(private val toDoList: List<ToDo>) : RecyclerView.Adapter<ToDoAdapter.ToDoViewHolder>() {
-
+class ToDoAdapter(private val toDoList: List<ToDo>, private val dao: ToDoDao, private val coroutineScope: CoroutineScope) : RecyclerView.Adapter<ToDoAdapter.ToDoViewHolder>() {
     class ToDoViewHolder(val binding: TaskLayoutBinding) : RecyclerView.ViewHolder(binding.root) {}
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ToDoViewHolder {
@@ -22,6 +21,9 @@ class ToDoAdapter(private val toDoList: List<ToDo>) : RecyclerView.Adapter<ToDoA
 
         holder.binding.checkBox.setOnCheckedChangeListener { _ , isChecked ->
             toDoList[position].isChecked = isChecked
+            coroutineScope.launch {
+                dao.update(toDoList[position])
+            }
         }
     }
 

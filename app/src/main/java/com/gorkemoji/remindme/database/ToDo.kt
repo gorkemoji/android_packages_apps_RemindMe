@@ -1,4 +1,4 @@
-package com.gorkemoji.remindme
+package com.gorkemoji.remindme.database
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
@@ -9,7 +9,7 @@ data class ToDo (
     @ColumnInfo(name = "title")
     var toDoTitle: String,
 
-    @ColumnInfo(name = "isChecked")
+    @ColumnInfo(name = "done")
     var isChecked: Boolean = false,
 
     @PrimaryKey(autoGenerate = true)

@@ -12,6 +12,9 @@
         android:theme="@style/Theme.RemindMe"
         tools:targetApi="31">
         <activity
+            android:name=".auth.PasswordActivity"
+            android:exported="false" />
+        <activity
             android:name=".TaskActivity"
             android:exported="false" />
         <activity

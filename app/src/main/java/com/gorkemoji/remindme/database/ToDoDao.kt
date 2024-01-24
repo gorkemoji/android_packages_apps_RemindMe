@@ -1,4 +1,4 @@
-package com.gorkemoji.remindme
+package com.gorkemoji.remindme.database
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
@@ -10,4 +10,10 @@ interface ToDoDao {
 
     @Insert
     fun insert(todo: ToDo)
+
+    @Delete
+    fun delete(todo: ToDo)
+
+    @Update
+    fun update(todo: ToDo)
 }

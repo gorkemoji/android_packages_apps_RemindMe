@@ -2,6 +2,8 @@ package com.gorkemoji.remindme
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.gorkemoji.remindme.database.ToDo
+import com.gorkemoji.remindme.database.ToDoDatabase
 import com.gorkemoji.remindme.databinding.ActivityTaskBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope

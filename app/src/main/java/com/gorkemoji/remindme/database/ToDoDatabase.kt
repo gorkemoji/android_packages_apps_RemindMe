@@ -1,4 +1,4 @@
-package com.gorkemoji.remindme
+package com.gorkemoji.remindme.database
 
 import android.content.Context
 import androidx.room.Database
@@ -19,7 +19,7 @@ abstract class ToDoDatabase : RoomDatabase() {
                 return tempInstance
             }
             synchronized(this) {
-                val instance = Room.databaseBuilder(context.applicationContext, ToDoDatabase::class.java, "todos").build()
+                val instance = Room.databaseBuilder(context.applicationContext, ToDoDatabase::class.java, "tasks").allowMainThreadQueries().build()
                 INSTANCE = instance
                 return instance
             }

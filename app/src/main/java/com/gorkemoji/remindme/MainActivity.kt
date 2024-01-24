@@ -5,21 +5,22 @@ import android.content.Intent
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import androidx.room.Room
+import com.gorkemoji.remindme.database.ToDo
+import com.gorkemoji.remindme.database.ToDoAdapter
+import com.gorkemoji.remindme.database.ToDoDatabase
 import com.gorkemoji.remindme.databinding.ActivityMainBinding
-import java.util.*
+import kotlinx.coroutines.MainScope
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var database: ToDoDatabase
     private lateinit var binding: ActivityMainBinding
-    val list = arrayListOf<ToDo>()
-    var adapter = ToDoAdapter(list)
+    private val list = arrayListOf<ToDo>()
+    private lateinit var adapter: ToDoAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,6 +28,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         database = ToDoDatabase.getDatabase(this)
+        adapter = ToDoAdapter(list, database.getDao(), MainScope())
 
         when (loadMode("theme")) {
             "null" -> {
@@ -87,7 +89,5 @@ class MainActivity : AppCompatActivity() {
         editor.putString("theme", data)
         editor.apply()
     }
-
-
 
 }
