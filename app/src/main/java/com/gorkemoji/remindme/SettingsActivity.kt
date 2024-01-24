@@ -20,24 +20,31 @@ class SettingsActivity : AppCompatActivity() {
 
         when (loadMode("theme")) {
             "dark" -> {
-                binding.darkModeSwitch.isChecked = true
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                binding.darkModeSwitch.isChecked = true
             }
-
             "light" -> {
-                binding.darkModeSwitch.isChecked = false
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                binding.darkModeSwitch.isChecked = false
             }
         }
 
-        binding.darkModeSwitch.setOnCheckedChangeListener { compoundButton, isChecked ->
+        binding.bottomNavigationView.selectedItemId = R.id.settings
+
+        binding.bottomNavigationView.setOnNavigationItemSelectedListener { item ->
+            if (item.itemId == R.id.tasks) {
+                startActivity(Intent(applicationContext, MainActivity::class.java))
+                overridePendingTransition(0, 0)
+                true
+            } else item.itemId == R.id.settings
+        }
+
+        binding.darkModeSwitch.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                // Do something when dark mode switch is being on.
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
                 saveMode("dark", "theme")
             }
             else {
-                // Do something when dark mode switch is being off.
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
                 saveMode("light", "theme")
             }
@@ -52,15 +59,14 @@ class SettingsActivity : AppCompatActivity() {
         editor.apply()
     }
 
-    fun loadMode(type: String): String? {
+    private fun loadMode(type: String): String? {
         val pref : SharedPreferences = applicationContext.getSharedPreferences("preferences", Context.MODE_PRIVATE)
 
         return pref.getString("theme", type)
     }
 
-    @Deprecated("Deprecated in Java")
+    @Deprecated("Deprecated in Java", ReplaceWith("finishAffinity()"))
     override fun onBackPressed() {
-        finish()
-        overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_bottom)
+        finishAffinity()
     }
 }

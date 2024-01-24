@@ -8,4 +8,5 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="app_accent">#2C77F3</color>
+    <color name="your_outline_color">#FFFFFF</color>
 </resources>
