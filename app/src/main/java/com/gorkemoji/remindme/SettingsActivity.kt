@@ -9,6 +9,8 @@ import android.widget.Switch
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import com.gorkemoji.remindme.databinding.ActivitySettingsBinding
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 
 class SettingsActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySettingsBinding
@@ -43,10 +45,20 @@ class SettingsActivity : AppCompatActivity() {
             if (isChecked) {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
                 saveMode("dark", "theme")
+                binding.darkModeSwitch.isEnabled = false
+                runBlocking {
+                    delay(3000)
+                }
+                binding.darkModeSwitch.isEnabled = true
             }
             else {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
                 saveMode("light", "theme")
+                binding.darkModeSwitch.isEnabled = false
+                runBlocking {
+                    delay(3000)
+                }
+                binding.darkModeSwitch.isEnabled = true
             }
         }
     }
