@@ -49,6 +49,7 @@ class TaskActivity : AppCompatActivity() {
 
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
+        super.onBackPressed()
         finish()
         overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_bottom)
     }

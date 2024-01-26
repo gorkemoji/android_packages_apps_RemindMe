@@ -4,16 +4,15 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.view.View
-import android.widget.Switch
+import android.os.Handler
+import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import com.gorkemoji.remindme.databinding.ActivitySettingsBinding
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 
 class SettingsActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySettingsBinding
+    private val DEBOUNCE_DELAY = 300L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,15 +20,16 @@ class SettingsActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         when (loadMode("theme")) {
-            "dark" -> {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                binding.darkModeSwitch.isChecked = true
+                "dark" -> {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                    binding.darkModeSwitch.isChecked = true
+                }
+
+                "light" -> {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                    binding.darkModeSwitch.isChecked = false
+                }
             }
-            "light" -> {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                binding.darkModeSwitch.isChecked = false
-            }
-        }
 
         binding.bottomNavigationView.selectedItemId = R.id.settings
 
@@ -41,26 +41,26 @@ class SettingsActivity : AppCompatActivity() {
             } else item.itemId == R.id.settings
         }
 
+        var debounceHandler = Handler(Looper.getMainLooper())
+
         binding.darkModeSwitch.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                saveMode("dark", "theme")
-                binding.darkModeSwitch.isEnabled = false
-                runBlocking {
-                    delay(3000)
+            debounceHandler.removeCallbacksAndMessages(null)
+            debounceHandler.postDelayed({
+                if (isChecked) {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                    saveMode("dark", "theme")
+                } else {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                    saveMode("light", "theme")
                 }
-                binding.darkModeSwitch.isEnabled = true
-            }
-            else {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                saveMode("light", "theme")
-                binding.darkModeSwitch.isEnabled = false
-                runBlocking {
-                    delay(3000)
-                }
-                binding.darkModeSwitch.isEnabled = true
-            }
+            }, DEBOUNCE_DELAY)
         }
+    }
+
+    private fun loadMode(type: String): String? {
+        val pref : SharedPreferences = applicationContext.getSharedPreferences("preferences", Context.MODE_PRIVATE)
+
+        return pref.getString("theme", type)
     }
 
     private fun saveMode(data: String, type: String) {
@@ -71,14 +71,9 @@ class SettingsActivity : AppCompatActivity() {
         editor.apply()
     }
 
-    private fun loadMode(type: String): String? {
-        val pref : SharedPreferences = applicationContext.getSharedPreferences("preferences", Context.MODE_PRIVATE)
-
-        return pref.getString("theme", type)
-    }
-
     @Deprecated("Deprecated in Java", ReplaceWith("finishAffinity()"))
     override fun onBackPressed() {
+        super.onBackPressed()
         finishAffinity()
     }
 }
