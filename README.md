@@ -32,13 +32,14 @@ It's in early stage, it'll have new features.
 
 ## Planning
 
-1. Seperate done tasks and add some animations.
-2. Add onboarding screens.
-3. Improve dark mode.
-4. Add notification service.
-5. Add some UI sounds to make it better.
-6. Take To-Do backups to internal storage.
-7. Add password and biometric protection.
-8. Add more themes to make it fresh.
-9. Use MVVM architecture and Compose UI.
-10. Add widget support and photos to background.
+- [x] Seperate done tasks 
+- [ ] Add some animations.
+- [ ] Add onboarding screens.
+- [ ] Improve dark mode.
+- [ ] Add notification service.
+- [ ] Add some UI sounds to make it better.
+- [ ] Take To-Do backups to internal storage.
+- [ ] Add password and biometric protection.
+- [ ] Add more themes to make it fresh.
+- [ ] Use MVVM architecture and Compose UI.
+- [ ] Add widget support and photos to background.
