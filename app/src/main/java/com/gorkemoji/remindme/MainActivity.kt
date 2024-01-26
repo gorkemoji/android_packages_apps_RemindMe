@@ -8,6 +8,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
+import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -83,75 +84,111 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+        ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
             override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
                 return false
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
-                val temp: ArrayList<ToDo> = ArrayList();
                 val position = viewHolder.adapterPosition
-                MainScope().launch {
-                    temp.add(list[position])
-                    database.getDao().delete(list[position])
+
+                when (swipeDir) {
+                    ItemTouchHelper.LEFT -> {
+                        MainScope().launch {
+                            database.getDao().delete(list[position])
+                        }
+                        adapter.notifyItemRemoved(position)
+                    }
+                    ItemTouchHelper.RIGHT -> {
+                        val intent = Intent(this@MainActivity, TaskActivity::class.java)
+                        intent.putExtra("mode", 2)
+                        intent.putExtra("id", list[position].id)
+                        intent.putExtra("taskName", list[position].toDoTitle)
+                        intent.putExtra("cbState", list[position].isChecked)
+                        startActivity(intent)
+                        overridePendingTransition(R.anim.slide_out_bottom, R.anim.slide_in_bottom)
+                        adapter.notifyDataSetChanged()
+                    }
                 }
-                adapter.notifyItemRemoved(position)
             }
 
             override fun getSwipeThreshold(viewHolder: RecyclerView.ViewHolder): Float {
-                return 1f
+                return 0.5f
             }
 
             override fun onChildDraw(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
-                setDeleteIcon(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+                if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+                    if (dX > 0)
+                        setUpdateIcon(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+                    else
+                        setDeleteIcon(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+                }
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
             }
         }).attachToRecyclerView(binding.recyclerView)
 
         binding.addBtn.setOnClickListener {
             val intent = Intent(this, TaskActivity::class.java)
+            intent.putExtra("mode", 1)
             startActivity(intent)
             overridePendingTransition(R.anim.slide_out_bottom, R.anim.slide_in_bottom)
         }
     }
 
     private fun setDeleteIcon(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
-        var mClearPaint: Paint = Paint()
-        mClearPaint.setXfermode(PorterDuffXfermode(PorterDuff.Mode.CLEAR))
-
-        var mBackground: ColorDrawable = ColorDrawable()
-        var bgColor : Int = Color.parseColor("#b80f0a")
-        var deleteDrawable : Drawable? = ContextCompat.getDrawable(this, R.drawable.ic_delete)
-        var width : Int = deleteDrawable?.intrinsicWidth ?:0
-        var height : Int = deleteDrawable?.intrinsicHeight ?:0
+        val mClearPaint = Paint().apply {
+            xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
+        }
 
         var itemView : View = viewHolder.itemView
-        var itemHeight : Int = itemView.height
 
-        val isCancelled : Boolean = dX.toInt() == 0 && !isCurrentlyActive
-
-        if (isCancelled) {
-            c.drawRect(itemView.right + dX, itemView.top.toFloat(), itemView.right.toFloat(), itemView.bottom.toFloat(), mClearPaint)
-            return
+        val mBackground = ColorDrawable().apply {
+            color = Color.parseColor("#b80f0a")
+            setBounds((itemView.right + dX).toInt(), itemView.top, itemView.right, itemView.bottom)
+            draw(c)
         }
 
-        mBackground.color = bgColor
-        mBackground.setBounds(itemView.right + dX.toInt(), itemView.top, itemView.right, itemView.bottom)
-        mBackground.draw(c)
+        val deleteDrawable: Drawable? = ContextCompat.getDrawable(this, R.drawable.ic_delete)
+        val width: Int = deleteDrawable?.intrinsicWidth ?: 0
+        val height: Int = deleteDrawable?.intrinsicHeight ?: 0
 
-        var deleteIconTop : Int = itemView.top + (itemHeight - height) / 2
-        var deleteIconMargin : Int = (itemHeight - height) / 2
-        var deleteIconLeft : Int = itemView.right - deleteIconMargin - width
-        var deleteIconRight : Int = itemView.right - deleteIconMargin
-        var deleteIconBottom : Int = deleteIconTop + height
+        val itemHeight: Int = itemView.height
+        val deleteIconTop: Int = itemView.top + (itemHeight - height) / 2
+        val deleteIconMargin: Int = (itemHeight - height) / 2
+        val deleteIconLeft: Int = itemView.right - deleteIconMargin - width
+        val deleteIconRight: Int = itemView.right - deleteIconMargin
+        val deleteIconBottom: Int = deleteIconTop + height
 
-        if (deleteDrawable != null) {
-            deleteDrawable.setBounds(deleteIconLeft, deleteIconTop, deleteIconRight, deleteIconBottom)
+        deleteDrawable?.bounds = Rect(deleteIconLeft, deleteIconTop, deleteIconRight, deleteIconBottom)
+        deleteDrawable?.draw(c)
+    }
+
+    private fun setUpdateIcon(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
+        val mClearPaint = Paint().apply {
+            xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
         }
-        if (deleteDrawable != null) {
-            deleteDrawable.draw(c)
+
+        var itemView : View = viewHolder.itemView
+
+        val mBackground = ColorDrawable().apply {
+            color = Color.parseColor("#e88f2c")
+            setBounds(itemView.left, itemView.top, (itemView.left + dX).toInt(), itemView.bottom)
+            draw(c)
         }
 
+        val updateDrawable: Drawable? = ContextCompat.getDrawable(this, R.drawable.ic_edit)
+        val width: Int = updateDrawable?.intrinsicWidth ?: 0
+        val height: Int = updateDrawable?.intrinsicHeight ?: 0
+
+        val itemHeight: Int = itemView.height
+        val updateIconTop: Int = itemView.top + (itemHeight - height) / 2
+        val updateIconMargin: Int = (itemHeight - height) / 2
+        val updateIconLeft: Int = itemView.left + updateIconMargin
+        val updateIconRight: Int = itemView.left + updateIconMargin + width
+        val updateIconBottom: Int = updateIconTop + height
+
+        updateDrawable?.bounds = Rect(updateIconLeft, updateIconTop, updateIconRight, updateIconBottom)
+        updateDrawable?.draw(c)
     }
 
     private fun loadMode(type: String): String? {
