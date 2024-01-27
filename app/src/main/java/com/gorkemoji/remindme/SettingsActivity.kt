@@ -9,6 +9,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import com.gorkemoji.remindme.auth.PasswordActivity
 import com.gorkemoji.remindme.databinding.ActivitySettingsBinding
 
 class SettingsActivity : AppCompatActivity() {
@@ -16,11 +17,16 @@ class SettingsActivity : AppCompatActivity() {
     private val DEBOUNCE_DELAY = 300L
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        if (!loadMode("passkey", "auth").isNullOrEmpty() && loadMode("is_locked", "auth") == "true") {
+            startActivity(Intent(this, PasswordActivity::class.java))
+            finish()
+        }
+
         super.onCreate(savedInstanceState)
         binding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        when (loadMode("theme")) {
+        when (loadMode("theme", "preferences")) {
                 "dark" -> {
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
                     binding.darkModeSwitch.isChecked = true
@@ -49,23 +55,29 @@ class SettingsActivity : AppCompatActivity() {
             debounceHandler.postDelayed({
                 if (isChecked) {
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                    saveMode("theme", "dark")
+                    saveMode("theme", "dark", "preferences")
                 } else {
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                    saveMode("theme", "light")
+                    saveMode("theme", "light", "preferences")
                 }
             }, DEBOUNCE_DELAY)
         }
+/*
+        binding.chnPassword.setOnClickListener {
+            saveMode("is_changing", "true", "auth")
+            startActivity(Intent(this, PasswordActivity::class.java))
+            finish()
+        }*/
     }
 
-    private fun loadMode(type: String): String? {
-        val pref : SharedPreferences = applicationContext.getSharedPreferences("preferences", Context.MODE_PRIVATE)
+    private fun loadMode(type: String, file: String): String? {
+        val pref : SharedPreferences = applicationContext.getSharedPreferences(file, Context.MODE_PRIVATE)
 
         return pref.getString(type, "")
     }
 
-    private fun saveMode(type: String, data: String) {
-        val pref : SharedPreferences = applicationContext.getSharedPreferences("preferences", Context.MODE_PRIVATE)
+    private fun saveMode(type: String, data: String, file: String) {
+        val pref : SharedPreferences = applicationContext.getSharedPreferences(file, Context.MODE_PRIVATE)
         val editor : SharedPreferences.Editor = pref.edit()
 
         editor.putString(type, data)
@@ -75,6 +87,7 @@ class SettingsActivity : AppCompatActivity() {
     @Deprecated("Deprecated in Java", ReplaceWith("finishAffinity()"))
     override fun onBackPressed() {
         super.onBackPressed()
+        saveMode("is_locked", "true", "auth")
         finishAffinity()
     }
 }

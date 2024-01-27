@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.gorkemoji.remindme.auth.PasswordActivity
 import com.gorkemoji.remindme.database.ToDo
 import com.gorkemoji.remindme.database.ToDoAdapter
 import com.gorkemoji.remindme.database.ToDoDatabase
@@ -38,24 +39,29 @@ class MainActivity : AppCompatActivity() {
     private lateinit var adapter: ToDoAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        if (!loadMode("passkey", "auth").isNullOrEmpty() && loadMode("is_locked", "auth") == "true") {
+            startActivity(Intent(this, PasswordActivity::class.java))
+            finish()
+        }
+
         when (isDarkMode(this)) {
             true -> {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                saveMode("theme", "dark")
+                saveMode("theme", "dark", "preferences")
             }
             false -> {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                saveMode("theme", "light")
+                saveMode("theme", "light", "preferences")
             }
         }
 
-        when (loadMode("theme")) {
+        when (loadMode("theme",  "preferences")) {
             "dark" -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
             "light" -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            else -> saveMode("light", "theme")
+            else -> saveMode("light", "theme", "preferences")
         }
 
-        if (loadMode("first_start").isNullOrEmpty()) {
+        if (loadMode("first_start", "preferences").isNullOrEmpty()) {
             startActivity(Intent(this, OnboardingFragment::class.java))
             finish()
         }
@@ -210,14 +216,14 @@ class MainActivity : AppCompatActivity() {
         return configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
     }
 
-    private fun loadMode(type: String): String? {
-        val pref : SharedPreferences = applicationContext.getSharedPreferences("preferences", Context.MODE_PRIVATE)
+    private fun loadMode(type: String, file: String): String? {
+        val pref : SharedPreferences = applicationContext.getSharedPreferences(file, Context.MODE_PRIVATE)
 
         return pref.getString(type, "")
     }
 
-    private fun saveMode(type: String, data: String) {
-        val pref : SharedPreferences = applicationContext.getSharedPreferences("preferences", Context.MODE_PRIVATE)
+    private fun saveMode(type: String, data: String, file: String) {
+        val pref : SharedPreferences = applicationContext.getSharedPreferences(file, Context.MODE_PRIVATE)
         val editor : SharedPreferences.Editor = pref.edit()
 
         editor.putString(type, data)
@@ -227,6 +233,7 @@ class MainActivity : AppCompatActivity() {
     @Deprecated("Deprecated in Java", ReplaceWith("finishAffinity()"))
     override fun onBackPressed() {
         super.onBackPressed()
+        saveMode("is_locked", "true", "auth")
         finishAffinity()
     }
 }

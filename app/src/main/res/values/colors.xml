@@ -10,4 +10,5 @@
     <color name="app_accent">#2C77F3</color>
     <color name="your_outline_color">#FFFFFF</color>
     <color name="dark_card_bg">#191919</color>
+    <color name="red">#972B2B</color>
 </resources>

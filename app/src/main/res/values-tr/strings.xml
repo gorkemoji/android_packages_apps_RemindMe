@@ -18,4 +18,13 @@
     <string name="onboarding_3_desc">Yapılmış görevlerinden bir seri oluştur ve bunları bir raporda gör!</string>
     <string name="next">İleri</string>
     <string name="start">Başlat</string>
+    <string name="enter_a_pin">Bir PIN oluşturun:</string>
+    <string name="enter_your_pin">PIN\'inizi girin:</string>
+    <string name="enter_again">Tekrar girin:</string>
+    <string name="try_again">Tekrar deneyin:</string>
+    <string name="seconds">saniye</string>
+    <string name="pin_created">PIN oluşturuldu: %s</string>
+    <string name="reset_pin">PIN\'imi sıfırla</string>
+    <string name="change_pin">PIN\'imi değiştir</string>
+    <string name="enter_new_pin">Yeni PIN\'inizi girin:</string>
 </resources>
