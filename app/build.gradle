@@ -39,6 +39,7 @@ android {
 }
 
 dependencies {
+    implementation 'androidx.navigation:navigation-fragment:2.7.6'
     def room_version = "2.6.1"
 
     implementation "androidx.room:room-runtime:$room_version"
@@ -58,6 +59,9 @@ dependencies {
 
     // Proto DataStore
     implementation "androidx.datastore:datastore-core:1.1.0-beta01"
+
+    implementation("com.tbuonomo:dotsindicator:5.0")
+    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.17'
 
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")

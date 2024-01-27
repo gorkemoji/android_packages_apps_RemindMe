@@ -3,6 +3,7 @@ package com.gorkemoji.remindme
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.res.Configuration
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -25,6 +26,7 @@ import com.gorkemoji.remindme.database.ToDo
 import com.gorkemoji.remindme.database.ToDoAdapter
 import com.gorkemoji.remindme.database.ToDoDatabase
 import com.gorkemoji.remindme.databinding.ActivityMainBinding
+import com.gorkemoji.remindme.onboarding.OnboardingFragment
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
@@ -36,13 +38,26 @@ class MainActivity : AppCompatActivity() {
     private lateinit var adapter: ToDoAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        when (loadMode("theme")) {
-            "dark" ->
+        when (isDarkMode(this)) {
+            true -> {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            "light" ->
+                saveMode("theme", "dark")
+            }
+            false -> {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            else ->
-                saveMode("light", "theme")
+                saveMode("theme", "light")
+            }
+        }
+
+        when (loadMode("theme")) {
+            "dark" -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            "light" -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            else -> saveMode("light", "theme")
+        }
+
+        if (loadMode("first_start").isNullOrEmpty()) {
+            startActivity(Intent(this, OnboardingFragment::class.java))
+            finish()
         }
 
         super.onCreate(savedInstanceState)
@@ -129,6 +144,7 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, TaskActivity::class.java)
             intent.putExtra("mode", 1)
             startActivity(intent)
+            finish()
             overridePendingTransition(R.anim.slide_out_bottom, R.anim.slide_in_bottom)
         }
     }
@@ -189,17 +205,22 @@ class MainActivity : AppCompatActivity() {
         updateDrawable?.draw(c)
     }
 
+    private fun isDarkMode(context: Context): Boolean {
+        val configuration = context.resources.configuration
+        return configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
+    }
+
     private fun loadMode(type: String): String? {
         val pref : SharedPreferences = applicationContext.getSharedPreferences("preferences", Context.MODE_PRIVATE)
 
-        return pref.getString("theme", type)
+        return pref.getString(type, "")
     }
 
-    private fun saveMode(data: String, type: String) {
+    private fun saveMode(type: String, data: String) {
         val pref : SharedPreferences = applicationContext.getSharedPreferences("preferences", Context.MODE_PRIVATE)
         val editor : SharedPreferences.Editor = pref.edit()
 
-        editor.putString("theme", data)
+        editor.putString(type, data)
         editor.apply()
     }
 

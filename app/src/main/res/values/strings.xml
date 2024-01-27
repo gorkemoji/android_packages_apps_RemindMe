@@ -9,4 +9,12 @@
     <string name="dark_mode">Dark Mode</string>
     <string name="todos">To-Do\'s</string>
     <string name="undo">Undo</string>
+    <string name="onboarding_1_title">Welcome to Remind Me!</string>
+    <string name="onboarding_1_desc">With Remind Me, you\'re closer to your dreams! You\'ll not forget your tasks and be organised like you\'ve never been.</string>
+    <string name="onboarding_2_title">Be Punctual!</string>
+    <string name="onboarding_2_desc">Set the time you should be warned to do your task and here you go!</string>
+    <string name="onboarding_3_title">Build A Streak!</string>
+    <string name="onboarding_3_desc">Build a streak when you mark your tasks done and see them in a report!</string>
+    <string name="next">Next</string>
+    <string name="start">Start</string>
 </resources>

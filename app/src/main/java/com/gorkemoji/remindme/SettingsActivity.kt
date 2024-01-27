@@ -3,6 +3,7 @@ package com.gorkemoji.remindme
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.res.Configuration
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -48,10 +49,10 @@ class SettingsActivity : AppCompatActivity() {
             debounceHandler.postDelayed({
                 if (isChecked) {
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                    saveMode("dark", "theme")
+                    saveMode("theme", "dark")
                 } else {
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                    saveMode("light", "theme")
+                    saveMode("theme", "light")
                 }
             }, DEBOUNCE_DELAY)
         }
@@ -60,14 +61,14 @@ class SettingsActivity : AppCompatActivity() {
     private fun loadMode(type: String): String? {
         val pref : SharedPreferences = applicationContext.getSharedPreferences("preferences", Context.MODE_PRIVATE)
 
-        return pref.getString("theme", type)
+        return pref.getString(type, "")
     }
 
-    private fun saveMode(data: String, type: String) {
+    private fun saveMode(type: String, data: String) {
         val pref : SharedPreferences = applicationContext.getSharedPreferences("preferences", Context.MODE_PRIVATE)
         val editor : SharedPreferences.Editor = pref.edit()
 
-        editor.putString("theme", data)
+        editor.putString(type, data)
         editor.apply()
     }
 

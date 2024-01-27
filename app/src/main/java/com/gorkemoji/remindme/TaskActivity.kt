@@ -1,6 +1,8 @@
 package com.gorkemoji.remindme
 
+import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.gorkemoji.remindme.database.ToDo
 import com.gorkemoji.remindme.database.ToDoDatabase
@@ -42,8 +44,9 @@ class TaskActivity : AppCompatActivity() {
                         }
                     }
                 }
-                finish()
             }
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
         }
     }
 

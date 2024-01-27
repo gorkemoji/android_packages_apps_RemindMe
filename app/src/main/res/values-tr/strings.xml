@@ -10,4 +10,12 @@
     <string name="dark_mode">Karanlık Mod</string>
     <string name="todos">Yapılacaklar</string>
     <string name="undo">Geri Al</string>
+    <string name="onboarding_1_title">Remind Me\'ye Hoş Geldin!</string>
+    <string name="onboarding_1_desc">Remind Me ile hayallerine daha yakınsın! Artık görevlerini unutmayacak ve hiç olmadığın kadar düzenli olacaksın.</string>
+    <string name="onboarding_2_title">Dakik Ol!</string>
+    <string name="onboarding_2_desc">Görevini yapmak için uyarılmak istediğin saate ayarla ve hazırsın!</string>
+    <string name="onboarding_3_title">Seri Oluştur!</string>
+    <string name="onboarding_3_desc">Yapılmış görevlerinden bir seri oluştur ve bunları bir raporda gör!</string>
+    <string name="next">İleri</string>
+    <string name="start">Başlat</string>
 </resources>

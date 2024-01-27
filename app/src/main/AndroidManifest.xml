@@ -12,6 +12,9 @@
         android:theme="@style/Theme.RemindMe"
         tools:targetApi="31">
         <activity
+            android:name=".onboarding.OnboardingFragment"
+            android:exported="false" />
+        <activity
             android:name=".auth.PasswordActivity"
             android:exported="false" />
         <activity
@@ -25,10 +28,8 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
     </application>
-
 </manifest>
