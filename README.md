@@ -43,3 +43,4 @@ It's in early stage, it'll have new features.
 - [ ] Add more themes to make it fresh.
 - [ ] Use MVVM architecture and Compose UI.
 - [ ] Add widget support and photos to background.
+- [ ] Migrate to Datastore.
