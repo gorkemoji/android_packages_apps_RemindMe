@@ -34,7 +34,7 @@ It's in early stage, it'll have new features.
 
 - [x] Seperate done tasks 
 - [ ] Add some animations.
-- [ ] Add onboarding screens.
+- [x] Add onboarding screens.
 - [ ] Improve dark mode.
 - [ ] Add notification service.
 - [ ] Add some UI sounds to make it better.
@@ -43,3 +43,4 @@ It's in early stage, it'll have new features.
 - [ ] Add more themes to make it fresh.
 - [ ] Use MVVM architecture and Compose UI.
 - [ ] Add widget support and photos to background.
+- [ ] Migrate to Datastore.
