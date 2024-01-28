@@ -10,6 +10,7 @@ import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import com.gorkemoji.remindme.auth.PasswordActivity
+import com.gorkemoji.remindme.auth.SecurityActivity
 import com.gorkemoji.remindme.databinding.ActivitySettingsBinding
 
 class SettingsActivity : AppCompatActivity() {
@@ -22,14 +23,14 @@ class SettingsActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         if (!loadMode("passkey", "auth").isNullOrEmpty()) {
-            binding.btnPassword.text = getString(R.string.change_pin)
+           // binding.btnPassword.text = getString(R.string.change_pin)
 
             if (loadMode("is_locked", "auth") == "true") {
                 startActivity(Intent(this, PasswordActivity::class.java))
                 finish()
             }
         } else {
-            binding.btnPassword.text = getString(R.string.secure)
+           // binding.btnPassword.text = getString(R.string.secure)
         }
 
         when (loadMode("theme", "preferences")) {
@@ -69,11 +70,11 @@ class SettingsActivity : AppCompatActivity() {
             }, switchDelay)
         }
 
-        binding.btnPassword.setOnClickListener {
+        binding.security.setOnClickListener {
             if (!loadMode("passkey", "auth").isNullOrEmpty()) {
-                saveMode("is_changing", "true", "auth")
+              //  saveMode("is_changing", "true", "auth")
             }
-            startActivity(Intent(this, PasswordActivity::class.java))
+            startActivity(Intent(this, SecurityActivity::class.java))
             finish()
         }
     }

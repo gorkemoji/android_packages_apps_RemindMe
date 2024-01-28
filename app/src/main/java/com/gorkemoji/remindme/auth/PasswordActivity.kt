@@ -26,6 +26,12 @@ class PasswordActivity : AppCompatActivity() {
         binding = ActivityPasswordBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        if (loadMode("is_last", "auth") == "true") {
+            saveMode("passkey", "", "auth")
+            enterPin()
+            saveMode("is_last", "false", "auth")
+        }
+
         binding.next.isClickable = false
         binding.next.isEnabled = false
 

@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.gorkemoji.remindme.auth.BiometricActivity
 import com.gorkemoji.remindme.auth.PasswordActivity
 import com.gorkemoji.remindme.database.ToDo
 import com.gorkemoji.remindme.database.ToDoAdapter
@@ -39,10 +40,20 @@ class MainActivity : AppCompatActivity() {
     private val list = arrayListOf<ToDo>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        if (!loadMode("passkey", "auth").isNullOrEmpty() && loadMode("is_locked", "auth") == "true") {
+        val biometricsEnabled = !loadMode("biometrics", "auth").isNullOrBlank() && loadMode("biometrics", "auth") == "true"
+        val passkeySet = !loadMode("passkey", "auth").isNullOrBlank()
+        val isLocked = loadMode("is_locked", "auth") == "true"
+
+        if (biometricsEnabled && !passkeySet && isLocked) {
+            startActivity(Intent(this, BiometricActivity::class.java))
+            finish()
+        }
+
+        if (passkeySet && (loadMode("biometrics", "auth").isNullOrBlank() || loadMode("biometrics", "auth") == "false") && isLocked) {
             startActivity(Intent(this, PasswordActivity::class.java))
             finish()
         }
+
 
         when (isDarkMode(this)) {
             true -> {

@@ -51,7 +51,6 @@
         android:layout_margin="20dp"
         android:backgroundTint="@color/app_accent"
         android:text="@string/next"
-        android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
 

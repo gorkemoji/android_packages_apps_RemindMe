@@ -31,4 +31,18 @@
     <string name="success">Success.</string>
     <string name="secure">Protect with a PIN</string>
     <string name="lock_icon">Lock icon</string>
+    <string name="security_type">Security type:</string>
+    <string name="bio_icon">Biometric icon</string>
+    <string name="pin_icon">PIN icon</string>
+    <string name="biometrics">Biometric</string>
+    <string name="pin">PIN</string>
+    <string name="security">Security</string>
+    <string name="biometrics_desc">Use your biometric data to lock/unlock the app. This increases the security.</string>
+    <string name="pin_desc">Use a PIN to lock/unlock the app. This increases the security.</string>
+    <string name="off">Off</string>
+    <string name="on">On</string>
+    <string name="biometric_auth">Biometric Authentication</string>
+    <string name="log_in_with_biometric">Use your biometric data to unlock the app.</string>
+    <string name="cancel">Cancel</string>
+    <string name="already_set">Another security method is already set.</string>
 </resources>
