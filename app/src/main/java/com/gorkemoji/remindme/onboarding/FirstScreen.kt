@@ -8,11 +8,10 @@ import android.view.ViewGroup
 import androidx.viewpager2.widget.ViewPager2
 import com.gorkemoji.remindme.R
 import com.gorkemoji.remindme.databinding.FragmentFirstScreenBinding
-import com.gorkemoji.remindme.databinding.FragmentOnboardingBinding
 
 class FirstScreen : Fragment() {
     private lateinit var binding: FragmentFirstScreenBinding
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentFirstScreenBinding.inflate(inflater, container, false)
         val view = binding.root
 

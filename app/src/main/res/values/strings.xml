@@ -27,4 +27,8 @@
     <string name="reset_pin">Reset my PIN</string>
     <string name="change_pin">Change my PIN</string>
     <string name="enter_new_pin">Enter your new PIN:</string>
+    <string name="cant_be_same">Enter a different PIN:</string>
+    <string name="success">Success.</string>
+    <string name="secure">Protect with a PIN</string>
+    <string name="lock_icon">Lock icon</string>
 </resources>

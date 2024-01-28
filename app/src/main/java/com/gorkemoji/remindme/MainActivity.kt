@@ -1,5 +1,6 @@
 package com.gorkemoji.remindme
 
+import android.app.ActivityOptions
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -32,11 +33,10 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
-
-    private lateinit var database: ToDoDatabase
-    private lateinit var binding: ActivityMainBinding
-    private val list = arrayListOf<ToDo>()
     private lateinit var adapter: ToDoAdapter
+    private lateinit var binding: ActivityMainBinding
+    private lateinit var database: ToDoDatabase
+    private val list = arrayListOf<ToDo>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         if (!loadMode("passkey", "auth").isNullOrEmpty() && loadMode("is_locked", "auth") == "true") {
@@ -76,10 +76,10 @@ class MainActivity : AppCompatActivity() {
 
         binding.bottomNavigationView.selectedItemId = R.id.tasks
 
-        binding.bottomNavigationView.setOnNavigationItemSelectedListener { item ->
+        binding.bottomNavigationView.setOnItemSelectedListener { item ->
             if (item.itemId == R.id.settings) {
-                startActivity(Intent(applicationContext, SettingsActivity::class.java))
-                overridePendingTransition(0, 0)
+                val animationBundle = ActivityOptions.makeCustomAnimation(this, 0, 0).toBundle()
+                startActivity(Intent(applicationContext, SettingsActivity::class.java), animationBundle)
                 true
             } else item.itemId == R.id.tasks
         }
@@ -90,15 +90,10 @@ class MainActivity : AppCompatActivity() {
             itemAnimator = DefaultItemAnimator()
         }
 
-        database.getDao().getAll().observe(this, Observer {
-            if (!it.isNullOrEmpty()) {
-                list.clear()
-                list.addAll(it)
-                list.reverse()
-                adapter.notifyDataSetChanged()
-            }
-            else {
-                list.clear()
+        database.getDao().getAll().observe(this, Observer { newList ->
+            list.apply {
+                clear()
+                addAll(newList?.reversed() ?: emptyList())
                 adapter.notifyDataSetChanged()
             }
         })
@@ -120,13 +115,13 @@ class MainActivity : AppCompatActivity() {
                     }
                     ItemTouchHelper.RIGHT -> {
                         val intent = Intent(this@MainActivity, TaskActivity::class.java)
+                        val animationBundle = ActivityOptions.makeCustomAnimation(applicationContext, R.anim.slide_out_bottom, R.anim.slide_in_bottom).toBundle()
                         intent.putExtra("mode", 2)
                         intent.putExtra("id", list[position].id)
                         intent.putExtra("taskName", list[position].toDoTitle)
                         intent.putExtra("cbState", list[position].isChecked)
-                        startActivity(intent)
-                        overridePendingTransition(R.anim.slide_out_bottom, R.anim.slide_in_bottom)
-                        adapter.notifyDataSetChanged()
+                        startActivity(intent, animationBundle)
+                        adapter.notifyItemChanged(position)
                     }
                 }
             }
@@ -138,9 +133,9 @@ class MainActivity : AppCompatActivity() {
             override fun onChildDraw(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
                 if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
                     if (dX > 0)
-                        setUpdateIcon(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+                        setUpdateIcon(c, viewHolder, dX)
                     else
-                        setDeleteIcon(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+                        setDeleteIcon(c, viewHolder, dX)
                 }
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
             }
@@ -148,19 +143,19 @@ class MainActivity : AppCompatActivity() {
 
         binding.addBtn.setOnClickListener {
             val intent = Intent(this, TaskActivity::class.java)
+            val animationBundle = ActivityOptions.makeCustomAnimation(this, R.anim.slide_out_bottom, R.anim.slide_in_bottom).toBundle()
             intent.putExtra("mode", 1)
-            startActivity(intent)
+            startActivity(intent, animationBundle)
             finish()
-            overridePendingTransition(R.anim.slide_out_bottom, R.anim.slide_in_bottom)
         }
     }
 
-    private fun setDeleteIcon(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
+    private fun setDeleteIcon(c: Canvas, viewHolder: RecyclerView.ViewHolder, dX: Float) {
         val mClearPaint = Paint().apply {
             xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
         }
 
-        var itemView : View = viewHolder.itemView
+        val itemView : View = viewHolder.itemView
 
         val mBackground = ColorDrawable().apply {
             color = Color.parseColor("#b80f0a")
@@ -183,12 +178,12 @@ class MainActivity : AppCompatActivity() {
         deleteDrawable?.draw(c)
     }
 
-    private fun setUpdateIcon(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
+    private fun setUpdateIcon(c: Canvas, viewHolder: RecyclerView.ViewHolder, dX: Float) {
         val mClearPaint = Paint().apply {
             xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
         }
 
-        var itemView : View = viewHolder.itemView
+        val itemView : View = viewHolder.itemView
 
         val mBackground = ColorDrawable().apply {
             color = Color.parseColor("#e88f2c")
@@ -230,7 +225,7 @@ class MainActivity : AppCompatActivity() {
         editor.apply()
     }
 
-    @Deprecated("Deprecated in Java", ReplaceWith("finishAffinity()"))
+    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         super.onBackPressed()
         saveMode("is_locked", "true", "auth")

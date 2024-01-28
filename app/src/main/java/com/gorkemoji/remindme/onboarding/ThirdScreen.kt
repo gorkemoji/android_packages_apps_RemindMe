@@ -8,26 +8,31 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.viewpager2.widget.ViewPager2
 import com.gorkemoji.remindme.MainActivity
-import com.gorkemoji.remindme.R
-import com.gorkemoji.remindme.auth.PasswordActivity
-import com.gorkemoji.remindme.databinding.FragmentFirstScreenBinding
 import com.gorkemoji.remindme.databinding.FragmentThirdScreenBinding
 
 class ThirdScreen : Fragment() {
     private lateinit var binding: FragmentThirdScreenBinding
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentThirdScreenBinding.inflate(inflater, container, false)
         val view = binding.root
 
         val start = binding.start
 
         start.setOnClickListener {
-            startActivity(Intent(activity, PasswordActivity::class.java))
+            saveMode("first_start", "false", "preferences")
+            startActivity(Intent(activity, MainActivity::class.java))
             onDestroyView()
         }
 
         return view
+    }
+
+    private fun saveMode(type: String, data: String, file: String) {
+        val pref: SharedPreferences = requireContext().getSharedPreferences(file, Context.MODE_PRIVATE)
+        val editor: SharedPreferences.Editor = pref.edit()
+
+        editor.putString(type, data)
+        editor.apply()
     }
 }

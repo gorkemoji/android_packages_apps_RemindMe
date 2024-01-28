@@ -4,22 +4,19 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.ColorStateList
-import android.graphics.Color
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.text.Editable
 import android.text.TextWatcher
-import android.widget.Toast
+import androidx.core.content.ContextCompat
 import com.gorkemoji.remindme.MainActivity
 import com.gorkemoji.remindme.R
 import com.gorkemoji.remindme.SettingsActivity
-import com.gorkemoji.remindme.TaskActivity
 import com.gorkemoji.remindme.databinding.ActivityPasswordBinding
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
-import java.util.Timer
-import java.util.TimerTask
 
 class PasswordActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPasswordBinding
@@ -32,158 +29,196 @@ class PasswordActivity : AppCompatActivity() {
         binding.next.isClickable = false
         binding.next.isEnabled = false
 
-        if (loadMode("passkey", "auth").isNullOrEmpty()) {
-            binding.pinArea.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    count: Int,
-                    after: Int
-                ) {
+        if (loadMode("passkey", "auth").isNullOrEmpty())
+            createPin()
+        else if (loadMode("is_changing", "auth") == "true")
+            changePin(1)
+        else
+            enterPin()
+    }
+
+    private fun enterPin() {
+        binding.title.text = getString(R.string.enter_your_pin)
+
+        binding.pinArea.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                if (checkDigit()) {
+                    binding.next.isClickable = true
+                    binding.next.isEnabled = true
                 }
+            }
 
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                    if (binding.pinArea.text.toString().filter { it.isDigit() }.count() == 4) {
-                        binding.next.isClickable = true
-                        binding.next.isEnabled = true
-                    }
-                }
+            override fun afterTextChanged(s: Editable?) {}
+        })
 
-                override fun afterTextChanged(s: Editable?) {}
-            })
-
-            binding.next.setOnClickListener {
-                saveMode("passkey", binding.pinArea.text.toString(), "auth")
-                saveMode("first_start", "false", "preferences")
+        binding.next.setOnClickListener {
+            if (checkPin()) {
                 saveMode("is_locked", "false", "auth")
-                Toast.makeText(
-                    this@PasswordActivity,
-                    getString(R.string.pin_created, binding.pinArea.text.toString()),
-                    Toast.LENGTH_LONG
-                ).show()
                 startActivity(Intent(this, MainActivity::class.java))
                 finish()
-            }
+            } else
+                handleIncorrectPin(1)
         }
-        /*else if(loadMode("is_changing", "auth") == "true"){
+    }
+
+    private fun createPin() {
+        binding.pinArea.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                if (checkDigit()) {
+                    binding.next.isClickable = true
+                    binding.next.isEnabled = true
+                }
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
+        binding.next.setOnClickListener {
+            saveMode("passkey", binding.pinArea.text.toString(), "auth")
+            saveMode("is_locked", "false", "auth")
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
+        }
+    }
+
+    private fun changePin(pageNum: Int) {
+        if (pageNum == 1) {
             binding.title.text = getString(R.string.enter_your_pin)
-            binding.pinArea.addTextChangedListener(object: TextWatcher {
+
+            binding.pinArea.addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                    if (binding.pinArea.text.toString().filter { it.isDigit() }.count() == 4 && binding.pinArea.text.toString() == loadMode("passkey", "auth")) {
+                    if (checkDigit() && checkPin()) {
                         binding.next.isClickable = true
                         binding.next.isEnabled = true
                     }
                 }
+
+                override fun afterTextChanged(s: Editable?) {}
+            })
+
+            binding.next.setOnClickListener { changePin(2) }
+
+        } else {
+            binding.title.text = getString(R.string.enter_new_pin)
+            binding.pinArea.text?.clear()
+
+            binding.pinArea.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                    if (checkDigit()) {
+                        binding.next.isClickable = true
+                        binding.next.isEnabled = true
+                    }
+                }
+
                 override fun afterTextChanged(s: Editable?) {}
             })
 
             binding.next.setOnClickListener {
-                binding.title.text = getString(R.string.enter_new_pin)
-                binding.pinArea.addTextChangedListener(object: TextWatcher {
-                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                        if (binding.pinArea.text.toString().filter { it.isDigit() }.count() == 4) {
-                            binding.next.isClickable = true
-                            binding.next.isEnabled = true
-                        }
-                    }
-                    override fun afterTextChanged(s: Editable?) {}
-                })
-
-                binding.next.setOnClickListener {
+                if (checkPin())
+                    handleIncorrectPin(2)
+                else {
                     saveMode("passkey", binding.pinArea.text.toString(), "auth")
-                    Toast.makeText(this@PasswordActivity, getString(R.string.pin_created, binding.pinArea.text.toString()), Toast.LENGTH_LONG).show()
+                    saveMode("is_changing", "false", "auth")
                     startActivity(Intent(this, SettingsActivity::class.java))
                     finish()
                 }
             }
-        }*/
-        else {
-            binding.title.text = getString(R.string.enter_your_pin)
-            binding.pinArea.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    count: Int,
-                    after: Int
-                ) {
+        }
+    }
+
+    private fun checkDigit() : Boolean {
+        return binding.pinArea.text.toString().count { it.isDigit() } == 4
+    }
+
+    private fun checkPin(): Boolean {
+        return binding.pinArea.text.toString() == loadMode("passkey", "auth")
+    }
+
+    private fun handleIncorrectPin(mode: Int) {
+        when (mode) {
+            1 -> binding.title.text = getString(R.string.try_again)
+            2 -> binding.title.text = getString(R.string.cant_be_same)
+        }
+
+        vibratePhone()
+        binding.pinArea.text?.clear()
+        binding.lockIcon.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(applicationContext, R.color.red))
+        binding.pinEntry.boxStrokeColor = ContextCompat.getColor(applicationContext, R.color.red)
+        binding.pinArea.isActivated = false
+        binding.pinArea.isClickable = false
+        binding.pinArea.isEnabled = false
+        binding.next.isClickable = false
+        binding.next.isEnabled = false
+
+        val timer = object : CountDownTimer(5000, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                binding.pinArea.hint = getString(R.string.countdown_format, millisUntilFinished / 1000, getString(R.string.seconds))
+            }
+
+            override fun onFinish() {
+                when (mode) {
+                    1 -> binding.title.text = getString(R.string.enter_your_pin)
+                    2 -> binding.title.text = getString(R.string.enter_new_pin)
                 }
 
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                    if (binding.pinArea.text.toString().filter { it.isDigit() }.count() == 4) {
-                        binding.next.isClickable = true
-                        binding.next.isEnabled = true
-                    }
-                }
+                binding.lockIcon.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(applicationContext, R.color.app_accent))
+                binding.pinEntry.boxStrokeColor = ContextCompat.getColor(applicationContext, R.color.app_accent)
+                binding.pinArea.hint = ""
+                binding.pinArea.isActivated = true
+                binding.pinArea.isClickable = true
+                binding.pinArea.isEnabled = true
+                binding.next.isClickable = true
+                binding.next.isEnabled = true
+            }
+        }
+        timer.start()
+    }
 
-                override fun afterTextChanged(s: Editable?) {}
-            })
+    private fun loadMode(type: String, file: String): String? {
+        val pref: SharedPreferences = applicationContext.getSharedPreferences(file, Context.MODE_PRIVATE)
 
-            binding.next.setOnClickListener {
-                if (binding.pinArea.text.toString() == loadMode("passkey", "auth")) {
-                    saveMode("is_locked", "false", "auth")
-                    startActivity(Intent(this, MainActivity::class.java))
-                    finish()
-                } else {
-                    binding.title.text = getString(R.string.try_again)
-                    binding.pinArea.text?.clear()
-                    //  binding.lockIcon.imageTintList = ColorStateList.valueOf(resources.getColor(R.color.red))
-                    binding.pinEntry.boxStrokeColor = resources.getColor(R.color.red)
-                    binding.pinArea.isActivated = false
-                    binding.pinArea.isClickable = false
-                    binding.pinArea.isEnabled = false
-                    binding.next.isClickable = false
-                    binding.next.isEnabled = false
+        return pref.getString(type, "")
+    }
 
-                    val timer = object : CountDownTimer(5000, 1000) {
-                        override fun onTick(millisUntilFinished: Long) {
-                            binding.pinArea.hint = getString(
-                                R.string.countdown_format,
-                                millisUntilFinished / 1000,
-                                getString(R.string.seconds)
-                            )
-                        }
+    private fun saveMode(type: String, data: String, file: String) {
+        val pref: SharedPreferences = applicationContext.getSharedPreferences(file, Context.MODE_PRIVATE)
+        val editor: SharedPreferences.Editor = pref.edit()
 
-                        override fun onFinish() {
-                            //  binding.lockIcon.imageTintList = ColorStateList.valueOf(resources.getColor(R.color.app_accent))
-                            binding.pinEntry.boxStrokeColor = resources.getColor(R.color.app_accent)
-                            binding.pinArea.hint = ""
-                            binding.pinArea.isActivated = true
-                            binding.pinArea.isClickable = true
-                            binding.pinArea.isEnabled = true
-                            binding.next.isClickable = true
-                            binding.next.isEnabled = true
-                        }
-                    }
-                    timer.start()
-                }
+        editor.putString(type, data)
+        editor.apply()
+    }
+
+    private fun vibratePhone() {
+        val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+
+        if (vibrator.hasVibrator()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vibrator.vibrate(
+                    VibrationEffect.createOneShot(
+                        500,
+                        VibrationEffect.DEFAULT_AMPLITUDE
+                    )
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                vibrator.vibrate(500)
             }
         }
     }
 
-        private fun loadMode(type: String, file: String): String? {
-            val pref: SharedPreferences =
-                applicationContext.getSharedPreferences(file, Context.MODE_PRIVATE)
-
-            return pref.getString(type, "")
-        }
-
-        private fun saveMode(type: String, data: String, file: String) {
-            val pref: SharedPreferences =
-                applicationContext.getSharedPreferences(file, Context.MODE_PRIVATE)
-            val editor: SharedPreferences.Editor = pref.edit()
-
-            editor.putString(type, data)
-            editor.apply()
-        }
-
-        @Deprecated("Deprecated in Java", ReplaceWith("finishAffinity()"))
-        override fun onBackPressed() {
-            super.onBackPressed()
-            saveMode("is_locked", "true", "auth")
-            finishAffinity()
-        }
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        super.onBackPressed()
+        saveMode("is_changing", "false", "auth")
+        saveMode("is_locked", "true", "auth")
+        finishAffinity()
     }
+}

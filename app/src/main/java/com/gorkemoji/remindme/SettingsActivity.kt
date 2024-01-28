@@ -1,9 +1,9 @@
 package com.gorkemoji.remindme
 
+import android.app.ActivityOptions
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.content.res.Configuration
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -14,17 +14,23 @@ import com.gorkemoji.remindme.databinding.ActivitySettingsBinding
 
 class SettingsActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySettingsBinding
-    private val DEBOUNCE_DELAY = 300L
+    private val switchDelay = 300L
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        if (!loadMode("passkey", "auth").isNullOrEmpty() && loadMode("is_locked", "auth") == "true") {
-            startActivity(Intent(this, PasswordActivity::class.java))
-            finish()
-        }
-
         super.onCreate(savedInstanceState)
         binding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        if (!loadMode("passkey", "auth").isNullOrEmpty()) {
+            binding.btnPassword.text = getString(R.string.change_pin)
+
+            if (loadMode("is_locked", "auth") == "true") {
+                startActivity(Intent(this, PasswordActivity::class.java))
+                finish()
+            }
+        } else {
+            binding.btnPassword.text = getString(R.string.secure)
+        }
 
         when (loadMode("theme", "preferences")) {
                 "dark" -> {
@@ -40,15 +46,15 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.bottomNavigationView.selectedItemId = R.id.settings
 
-        binding.bottomNavigationView.setOnNavigationItemSelectedListener { item ->
+        binding.bottomNavigationView.setOnItemSelectedListener { item ->
             if (item.itemId == R.id.tasks) {
-                startActivity(Intent(applicationContext, MainActivity::class.java))
-                overridePendingTransition(0, 0)
+                val animationBundle = ActivityOptions.makeCustomAnimation(applicationContext, 0, 0).toBundle()
+                startActivity(Intent(applicationContext, MainActivity::class.java), animationBundle)
                 true
             } else item.itemId == R.id.settings
         }
 
-        var debounceHandler = Handler(Looper.getMainLooper())
+        val debounceHandler = Handler(Looper.getMainLooper())
 
         binding.darkModeSwitch.setOnCheckedChangeListener { _, isChecked ->
             debounceHandler.removeCallbacksAndMessages(null)
@@ -60,14 +66,16 @@ class SettingsActivity : AppCompatActivity() {
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
                     saveMode("theme", "light", "preferences")
                 }
-            }, DEBOUNCE_DELAY)
+            }, switchDelay)
         }
-/*
-        binding.chnPassword.setOnClickListener {
-            saveMode("is_changing", "true", "auth")
+
+        binding.btnPassword.setOnClickListener {
+            if (!loadMode("passkey", "auth").isNullOrEmpty()) {
+                saveMode("is_changing", "true", "auth")
+            }
             startActivity(Intent(this, PasswordActivity::class.java))
             finish()
-        }*/
+        }
     }
 
     private fun loadMode(type: String, file: String): String? {

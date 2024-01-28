@@ -27,4 +27,8 @@
     <string name="reset_pin">PIN\'imi sıfırla</string>
     <string name="change_pin">PIN\'imi değiştir</string>
     <string name="enter_new_pin">Yeni PIN\'inizi girin:</string>
+    <string name="cant_be_same">Farklı bir PIN girin:</string>
+    <string name="success">Başarılı.</string>
+    <string name="secure">Bir PIN ile koru</string>
+    <string name="lock_icon">Kilit simgesi</string>
 </resources>
