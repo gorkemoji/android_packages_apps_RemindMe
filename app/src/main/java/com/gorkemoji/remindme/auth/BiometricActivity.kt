@@ -5,9 +5,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import com.gorkemoji.remindme.MainActivity
@@ -27,7 +24,14 @@ class BiometricActivity : AppCompatActivity() {
         val executor = ContextCompat.getMainExecutor(this)
 
         biometricPrompt = BiometricPrompt(this, executor, object: BiometricPrompt.AuthenticationCallback() {
-            override fun onAuthenticationError(errorCode: Int, errString: CharSequence) { super.onAuthenticationError(errorCode, errString) }
+            override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                super.onAuthenticationError(errorCode, errString)
+
+                if (errorCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON || errorCode == BiometricPrompt.ERROR_USER_CANCELED) {
+                    finishAffinity()
+                    saveMode("is_locked", "true", "auth")
+                }
+            }
 
             override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                 super.onAuthenticationSucceeded(result)
@@ -45,6 +49,9 @@ class BiometricActivity : AppCompatActivity() {
             .build()
 
         biometricPrompt.authenticate(promptInfo)
+
+        promptInfo.negativeButtonText.let {
+        }
     }
 
     private fun loadMode(type: String, file: String): String? {

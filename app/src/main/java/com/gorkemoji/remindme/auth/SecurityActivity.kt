@@ -1,5 +1,6 @@
 package com.gorkemoji.remindme.auth
 
+import android.app.ActivityOptions
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -16,12 +17,12 @@ class SecurityActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.bioTitle.setOnClickListener {
-            startActivity(Intent(this, BiometricScreenActivity::class.java))
+            startActivity(Intent(this, BiometricScreenActivity::class.java), ActivityOptions.makeCustomAnimation(this, R.anim.slide_out_bottom, R.anim.slide_in_bottom).toBundle())
             finish()
         }
 
         binding.pinTitle.setOnClickListener {
-            startActivity(Intent(this, PasswordScreenActivity::class.java))
+            startActivity(Intent(this, PasswordScreenActivity::class.java), ActivityOptions.makeCustomAnimation(this, R.anim.slide_out_bottom, R.anim.slide_in_bottom).toBundle())
             finish()
         }
     }
@@ -29,7 +30,7 @@ class SecurityActivity : AppCompatActivity() {
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         super.onBackPressed()
-        startActivity(Intent(this, SettingsActivity::class.java))
+        startActivity(Intent(this, SettingsActivity::class.java), ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_bottom, R.anim.slide_out_bottom).toBundle())
         finish()
     }
 }

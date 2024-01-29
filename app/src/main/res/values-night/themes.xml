@@ -14,6 +14,8 @@
         <!-- Customize your theme here. -->
         <item name="android:background">?attr/colorOnPrimary</item>
         <item name="android:navigationBarColor">?attr/colorOnPrimary</item>
+        <!-- Ensure light-colored status bar icons -->
+        <item name="android:windowLightStatusBar">false</item>
     </style>
     <style name="BottomNavigationStyle" parent="Widget.MaterialComponents.BottomNavigationView">
         <item name="android:background">?attr/colorOnPrimary</item>

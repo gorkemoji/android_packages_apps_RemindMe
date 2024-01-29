@@ -74,7 +74,8 @@ class SettingsActivity : AppCompatActivity() {
             if (!loadMode("passkey", "auth").isNullOrEmpty()) {
               //  saveMode("is_changing", "true", "auth")
             }
-            startActivity(Intent(this, SecurityActivity::class.java))
+            val animationBundle = ActivityOptions.makeCustomAnimation(this, R.anim.slide_out_bottom, R.anim.slide_in_bottom).toBundle()
+            startActivity(Intent(this, SecurityActivity::class.java), animationBundle)
             finish()
         }
     }

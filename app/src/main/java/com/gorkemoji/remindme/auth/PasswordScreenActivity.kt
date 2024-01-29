@@ -1,5 +1,6 @@
 package com.gorkemoji.remindme.auth
 
+import android.app.ActivityOptions
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
@@ -9,11 +10,12 @@ import android.os.Handler
 import android.os.Looper
 import androidx.core.view.isVisible
 import com.gorkemoji.remindme.R
-import com.gorkemoji.remindme.SettingsActivity
 import com.gorkemoji.remindme.databinding.ActivityPasswordScreenBinding
 
 class PasswordScreenActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPasswordScreenBinding
+    private val switchDelay = 300L
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -27,7 +29,6 @@ class PasswordScreenActivity : AppCompatActivity() {
 
         if (isBioSet()) {
             binding.onOffSwitch.isVisible = false
-
             binding.desc.text = getString(R.string.already_set)
         }
 
@@ -37,7 +38,7 @@ class PasswordScreenActivity : AppCompatActivity() {
             debounceHandler.removeCallbacksAndMessages(null)
             debounceHandler.postDelayed({
                 if (isChecked) {
-                    startActivity(Intent(this, PasswordActivity::class.java))
+                    startActivity(Intent(this, PasswordActivity::class.java), ActivityOptions.makeCustomAnimation(this, R.anim.slide_out_bottom, R.anim.slide_in_bottom).toBundle())
                     finish()
                 } else {
                     saveMode("passkey", "", "auth")
@@ -45,12 +46,12 @@ class PasswordScreenActivity : AppCompatActivity() {
                     startActivity(Intent(this, PasswordActivity::class.java))
                     finish()*/
                 }
-            }, 300L)
+            }, switchDelay)
         }
 
         binding.chnPass.setOnClickListener {
             saveMode("is_changing", "true", "auth")
-            startActivity(Intent(this, PasswordActivity::class.java))
+            startActivity(Intent(this, PasswordActivity::class.java), ActivityOptions.makeCustomAnimation(this, R.anim.slide_out_bottom, R.anim.slide_in_bottom).toBundle())
             finish()
         }
     }
@@ -78,7 +79,7 @@ class PasswordScreenActivity : AppCompatActivity() {
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         super.onBackPressed()
-        startActivity(Intent(this, SecurityActivity::class.java))
+        startActivity(Intent(this, SecurityActivity::class.java), ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_bottom, R.anim.slide_out_bottom).toBundle())
         finish()
     }
 }

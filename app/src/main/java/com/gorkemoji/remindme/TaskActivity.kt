@@ -1,5 +1,6 @@
 package com.gorkemoji.remindme
 
+import android.app.ActivityOptions
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -54,7 +55,7 @@ class TaskActivity : AppCompatActivity() {
                     }
                 }
             }
-            startActivity(Intent(this, MainActivity::class.java))
+            startActivity(Intent(this, MainActivity::class.java), ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_bottom, R.anim.slide_out_bottom).toBundle())
             finish()
         }
     }
@@ -68,6 +69,7 @@ class TaskActivity : AppCompatActivity() {
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         super.onBackPressed()
+        startActivity(Intent(this, MainActivity::class.java), ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_bottom, R.anim.slide_out_bottom).toBundle())
         finish()
     }
 }

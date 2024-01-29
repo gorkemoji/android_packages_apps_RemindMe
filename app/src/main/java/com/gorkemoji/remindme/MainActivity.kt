@@ -54,7 +54,6 @@ class MainActivity : AppCompatActivity() {
             finish()
         }
 
-
         when (isDarkMode(this)) {
             true -> {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)

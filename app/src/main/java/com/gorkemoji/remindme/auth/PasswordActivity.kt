@@ -55,7 +55,6 @@ class PasswordActivity : AppCompatActivity() {
                     binding.next.isEnabled = true
                 }
             }
-
             override fun afterTextChanged(s: Editable?) {}
         })
 
@@ -77,6 +76,9 @@ class PasswordActivity : AppCompatActivity() {
                 if (checkDigit()) {
                     binding.next.isClickable = true
                     binding.next.isEnabled = true
+                } else {
+                    binding.next.isClickable = false
+                    binding.next.isEnabled = false
                 }
             }
 
@@ -102,6 +104,9 @@ class PasswordActivity : AppCompatActivity() {
                     if (checkDigit() && checkPin()) {
                         binding.next.isClickable = true
                         binding.next.isEnabled = true
+                    } else {
+                        binding.next.isClickable = false
+                        binding.next.isEnabled = false
                     }
                 }
 
@@ -121,6 +126,9 @@ class PasswordActivity : AppCompatActivity() {
                     if (checkDigit()) {
                         binding.next.isClickable = true
                         binding.next.isEnabled = true
+                    } else {
+                        binding.next.isClickable = false
+                        binding.next.isEnabled = false
                     }
                 }
 
