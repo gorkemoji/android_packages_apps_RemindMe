@@ -9,6 +9,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.view.isVisible
 import com.gorkemoji.remindme.auth.PasswordActivity
 import com.gorkemoji.remindme.auth.SecurityActivity
 import com.gorkemoji.remindme.databinding.ActivitySettingsBinding
@@ -69,6 +70,9 @@ class SettingsActivity : AppCompatActivity() {
                 }
             }, switchDelay)
         }
+
+        binding.darkModeSwitch.isVisible = false
+        binding.darkModeText.isVisible = false
 
         binding.security.setOnClickListener {
             if (!loadMode("passkey", "auth").isNullOrEmpty()) {
