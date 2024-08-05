@@ -23,4 +23,7 @@
     <style name="CardStyle" parent="Widget.MaterialComponents.CardView">
         <item name="android:background">@color/cardview_light_background</item>
     </style>
+    <style name="TimePickerStyle" parent="Widget.MaterialComponents.TimePicker">
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
 </resources>
