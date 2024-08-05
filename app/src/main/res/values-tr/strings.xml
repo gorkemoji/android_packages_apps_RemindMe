@@ -45,4 +45,7 @@
     <string name="log_in_with_biometric">Kilidi açmak için biyometrik verilerinizi kullanın.</string>
     <string name="cancel">Vazgeç</string>
     <string name="already_set">Başka bir güvenlik yöntemi zaten ayarlı.</string>
+    <string name="set_reminder">Hatırlatıcı kur</string>
+    <string name="reminder">Hatırlatıcı</string>
+    <string name="its_time">Görevinizi yapma zamanı geldi.</string>
 </resources>

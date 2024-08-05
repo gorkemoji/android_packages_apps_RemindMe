@@ -4,19 +4,18 @@ import android.app.ActivityOptions
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.content.res.Configuration
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.PorterDuff
-import android.graphics.PorterDuffXfermode
-import android.graphics.Rect
+import android.graphics.*
 import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.Drawable
+import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DefaultItemAnimator
@@ -38,45 +37,24 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var database: ToDoDatabase
     private val list = arrayListOf<ToDo>()
+    private var travelling = false
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
-        val biometricsEnabled = !loadMode("biometrics", "auth").isNullOrBlank() && loadMode("biometrics", "auth") == "true"
-        val passkeySet = !loadMode("passkey", "auth").isNullOrBlank()
-        val isLocked = loadMode("is_locked", "auth") == "true"
-
-        if (biometricsEnabled && !passkeySet && isLocked) {
-            startActivity(Intent(this, BiometricActivity::class.java))
-            finish()
-        }
-
-        if (passkeySet && (loadMode("biometrics", "auth").isNullOrBlank() || loadMode("biometrics", "auth") == "false") && isLocked) {
-            startActivity(Intent(this, PasswordActivity::class.java))
-            finish()
-        }
-
-        when (isDarkMode(this)) {
-            true -> {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                saveMode("theme", "dark", "preferences")
-            }
-            false -> {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                saveMode("theme", "light", "preferences")
-            }
-        }
-
-        when (loadMode("theme",  "preferences")) {
-            "dark" -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            "light" -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            else -> saveMode("light", "theme", "preferences")
-        }
-
-        if (loadMode("first_start", "preferences").isNullOrEmpty()) {
-            startActivity(Intent(this, OnboardingFragment::class.java))
-            finish()
-        }
-
         super.onCreate(savedInstanceState)
+
+        /*val isLocked = loadMode("is_locked", "auth") == "true"
+        val biometricsEnabled = loadMode("biometrics", "auth") == "true"
+        val passkeySet = !loadMode("passkey", "auth").isNullOrBlank()
+
+        if (isLocked)
+            navigateToAuthActivity(biometricsEnabled, passkeySet)*/
+
+        setupTheme()
+        checkFirstStart()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            checkAndRequestNotificationPermission()
 
         database = ToDoDatabase.getDatabase(this)
         adapter = ToDoAdapter(list, database.getDao(), MainScope())
@@ -84,22 +62,67 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.bottomNavigationView.selectedItemId = R.id.tasks
+        setupBottomNavigationView()
+        setupRecyclerView()
+        observeDatabaseChanges()
 
+        ItemTouchHelper(itemTouchCallback).attachToRecyclerView(binding.recyclerView)
+
+        binding.addBtn.setOnClickListener {
+            navigateToTaskActivity(1)
+        }
+    }
+/*
+    private fun navigateToAuthActivity(biometricsEnabled: Boolean, passkeySet: Boolean) {
+        var intent = Intent(this, PasswordActivity::class.java)
+        val animationBundle = ActivityOptions.makeCustomAnimation(this, R.anim.slide_out_bottom, R.anim.slide_in_bottom).toBundle()
+
+        if (biometricsEnabled && !passkeySet)
+            intent = Intent(this, BiometricActivity::class.java)
+
+        travelling = true
+        intent.putExtra("prevActivity", "MainActivity")
+        startActivity(intent, animationBundle)
+        finish()
+    }
+*/
+    private fun setupTheme() {
+        val theme = when (isDarkMode(this)) {
+            true -> "dark"
+            false -> "light"
+        }
+        AppCompatDelegate.setDefaultNightMode(if (theme == "dark") AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO)
+        saveMode("theme", theme, "preferences")
+    }
+
+    private fun checkFirstStart() {
+        if (loadMode("first_start", "preferences").isNullOrEmpty()) {
+            startActivity(Intent(this, OnboardingFragment::class.java))
+            finish()
+        }
+    }
+
+    private fun setupBottomNavigationView() {
+        binding.bottomNavigationView.selectedItemId = R.id.tasks
         binding.bottomNavigationView.setOnItemSelectedListener { item ->
             if (item.itemId == R.id.settings) {
+                travelling = true
                 val animationBundle = ActivityOptions.makeCustomAnimation(this, 0, 0).toBundle()
-                startActivity(Intent(applicationContext, SettingsActivity::class.java), animationBundle)
+                startActivity(Intent(this, SettingsActivity::class.java), animationBundle)
                 true
             } else item.itemId == R.id.tasks
         }
+    }
 
+    private fun setupRecyclerView() {
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(this@MainActivity)
             adapter = this@MainActivity.adapter
             itemAnimator = DefaultItemAnimator()
         }
+    }
 
+    private fun observeDatabaseChanges() {
         database.getDao().getAll().observe(this, Observer { newList ->
             list.apply {
                 clear()
@@ -107,113 +130,102 @@ class MainActivity : AppCompatActivity() {
                 adapter.notifyDataSetChanged()
             }
         })
+    }
 
-        ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
-            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
-                return false
+    private val itemTouchCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+        override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder) = false
+
+        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
+            val position = viewHolder.adapterPosition
+            if (swipeDir == ItemTouchHelper.LEFT) {
+                deleteTask(position)
+            } else if (swipeDir == ItemTouchHelper.RIGHT) {
+                updateTask(position)
             }
+        }
 
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
-                val position = viewHolder.adapterPosition
+        override fun getSwipeThreshold(viewHolder: RecyclerView.ViewHolder) = 0.5f
 
-                when (swipeDir) {
-                    ItemTouchHelper.LEFT -> {
-                        MainScope().launch {
-                            database.getDao().delete(list[position])
-                        }
-                        adapter.notifyItemRemoved(position)
-                    }
-                    ItemTouchHelper.RIGHT -> {
-                        val intent = Intent(this@MainActivity, TaskActivity::class.java)
-                        val animationBundle = ActivityOptions.makeCustomAnimation(applicationContext, R.anim.slide_out_bottom, R.anim.slide_in_bottom).toBundle()
-                        intent.putExtra("mode", 2)
-                        intent.putExtra("id", list[position].id)
-                        intent.putExtra("taskName", list[position].toDoTitle)
-                        intent.putExtra("cbState", list[position].isChecked)
-                        startActivity(intent, animationBundle)
-                        adapter.notifyItemChanged(position)
-                    }
-                }
+        override fun onChildDraw(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
+            if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+                if (dX > 0) setIcon(c, viewHolder, dX, R.drawable.ic_edit, "#e88f2c")
+                else setIcon(c, viewHolder, dX, R.drawable.ic_delete, "#b80f0a")
             }
+            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+        }
+    }
 
-            override fun getSwipeThreshold(viewHolder: RecyclerView.ViewHolder): Float {
-                return 0.5f
+    private fun deleteTask(position: Int) {
+        MainScope().launch {
+            database.getDao().delete(list[position])
+        }
+        adapter.notifyItemRemoved(position)
+    }
+
+    private fun updateTask(position: Int) {
+        travelling = true
+        val intent = Intent(this, TaskActivity::class.java).apply {
+            val animationBundle = ActivityOptions.makeCustomAnimation(this@MainActivity, R.anim.slide_out_bottom, R.anim.slide_in_bottom).toBundle()
+            putExtra("mode", 2)
+            putExtra("id", list[position].id)
+            putExtra("taskName", list[position].toDoTitle)
+            putExtra("cbState", list[position].isChecked)
+            if (list[position].isReminderOn) {
+                putExtra("reminderState", list[position].isReminderOn)
+                putExtra("reminderTime", list[position].dueDate)
             }
+            startActivity(this, animationBundle)
+        }
+        adapter.notifyItemChanged(position)
+    }
 
-            override fun onChildDraw(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
-                if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
-                    if (dX > 0)
-                        setUpdateIcon(c, viewHolder, dX)
-                    else
-                        setDeleteIcon(c, viewHolder, dX)
-                }
-                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
-            }
-        }).attachToRecyclerView(binding.recyclerView)
+    private fun setIcon(c: Canvas, viewHolder: RecyclerView.ViewHolder, dX: Float, iconRes: Int, color: String) {
+        val itemView: View = viewHolder.itemView
+        val icon = ContextCompat.getDrawable(this, iconRes)
+        val width = icon?.intrinsicWidth ?: 0
+        val height = icon?.intrinsicHeight ?: 0
+        val itemHeight = itemView.height
+        val iconTop = itemView.top + (itemHeight - height) / 2
+        val iconMargin = (itemHeight - height) / 2
+        val iconLeft: Int
+        val iconRight: Int
+        if (dX > 0) {
+            iconLeft = itemView.left + iconMargin
+            iconRight = itemView.left + iconMargin + width
+        } else {
+            iconLeft = itemView.right - iconMargin - width
+            iconRight = itemView.right - iconMargin
+        }
+        val iconBottom = iconTop + height
 
-        binding.addBtn.setOnClickListener {
-            val intent = Intent(this, TaskActivity::class.java)
-            val animationBundle = ActivityOptions.makeCustomAnimation(this, R.anim.slide_out_bottom, R.anim.slide_in_bottom).toBundle()
-            intent.putExtra("mode", 1)
-            startActivity(intent, animationBundle)
+        ColorDrawable(Color.parseColor(color)).apply {
+            setBounds(if (dX > 0) itemView.left else (itemView.right + dX).toInt(), itemView.top, if (dX > 0) (itemView.left + dX).toInt() else itemView.right, itemView.bottom)
+            draw(c)
+        }
+        icon?.apply {
+            bounds = Rect(iconLeft, iconTop, iconRight, iconBottom)
+            draw(c)
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        val biometricsEnabled = loadMode("biometrics", "auth") == "true"
+        val passkeySet = !loadMode("passkey", "auth").isNullOrBlank()
+        val isLocked = loadMode("is_locked", "auth") == "true"
+        if (!isLocked && (biometricsEnabled || passkeySet) && !travelling) {
+            saveMode("is_locked", "true", "auth")
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (loadMode("is_locked", "auth") == "true") {
+            val intent = if (loadMode("biometrics", "auth") == "true") Intent(this, BiometricActivity::class.java)
+            else Intent(this, PasswordActivity::class.java)
+            startActivity(intent)
             finish()
         }
-    }
-
-    private fun setDeleteIcon(c: Canvas, viewHolder: RecyclerView.ViewHolder, dX: Float) {
-        val mClearPaint = Paint().apply {
-            xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
-        }
-
-        val itemView : View = viewHolder.itemView
-
-        val mBackground = ColorDrawable().apply {
-            color = Color.parseColor("#b80f0a")
-            setBounds((itemView.right + dX).toInt(), itemView.top, itemView.right, itemView.bottom)
-            draw(c)
-        }
-
-        val deleteDrawable: Drawable? = ContextCompat.getDrawable(this, R.drawable.ic_delete)
-        val width: Int = deleteDrawable?.intrinsicWidth ?: 0
-        val height: Int = deleteDrawable?.intrinsicHeight ?: 0
-
-        val itemHeight: Int = itemView.height
-        val deleteIconTop: Int = itemView.top + (itemHeight - height) / 2
-        val deleteIconMargin: Int = (itemHeight - height) / 2
-        val deleteIconLeft: Int = itemView.right - deleteIconMargin - width
-        val deleteIconRight: Int = itemView.right - deleteIconMargin
-        val deleteIconBottom: Int = deleteIconTop + height
-
-        deleteDrawable?.bounds = Rect(deleteIconLeft, deleteIconTop, deleteIconRight, deleteIconBottom)
-        deleteDrawable?.draw(c)
-    }
-
-    private fun setUpdateIcon(c: Canvas, viewHolder: RecyclerView.ViewHolder, dX: Float) {
-        val mClearPaint = Paint().apply {
-            xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
-        }
-
-        val itemView : View = viewHolder.itemView
-
-        val mBackground = ColorDrawable().apply {
-            color = Color.parseColor("#e88f2c")
-            setBounds(itemView.left, itemView.top, (itemView.left + dX).toInt(), itemView.bottom)
-            draw(c)
-        }
-
-        val updateDrawable: Drawable? = ContextCompat.getDrawable(this, R.drawable.ic_edit)
-        val width: Int = updateDrawable?.intrinsicWidth ?: 0
-        val height: Int = updateDrawable?.intrinsicHeight ?: 0
-
-        val itemHeight: Int = itemView.height
-        val updateIconTop: Int = itemView.top + (itemHeight - height) / 2
-        val updateIconMargin: Int = (itemHeight - height) / 2
-        val updateIconLeft: Int = itemView.left + updateIconMargin
-        val updateIconRight: Int = itemView.left + updateIconMargin + width
-        val updateIconBottom: Int = updateIconTop + height
-
-        updateDrawable?.bounds = Rect(updateIconLeft, updateIconTop, updateIconRight, updateIconBottom)
-        updateDrawable?.draw(c)
     }
 
     private fun isDarkMode(context: Context): Boolean {
@@ -222,17 +234,56 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun loadMode(type: String, file: String): String? {
-        val pref : SharedPreferences = applicationContext.getSharedPreferences(file, Context.MODE_PRIVATE)
-
+        val pref: SharedPreferences = getSharedPreferences(file, Context.MODE_PRIVATE)
         return pref.getString(type, "")
     }
 
     private fun saveMode(type: String, data: String, file: String) {
-        val pref : SharedPreferences = applicationContext.getSharedPreferences(file, Context.MODE_PRIVATE)
-        val editor : SharedPreferences.Editor = pref.edit()
+        val pref: SharedPreferences = getSharedPreferences(file, Context.MODE_PRIVATE)
+        with(pref.edit()) {
+            putString(type, data)
+            apply()
+        }
+    }
 
-        editor.putString(type, data)
-        editor.apply()
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private fun checkAndRequestNotificationPermission() {
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), PERMISSION_REQUEST_CODE)
+        } else {
+            handleNotificationPermissionGranted()
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == PERMISSION_REQUEST_CODE && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            handleNotificationPermissionGranted()
+        } else {
+            handleNotificationPermissionDenied()
+        }
+    }
+
+    private fun handleNotificationPermissionGranted() {
+        Toast.makeText(this, "Notification permission granted", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun handleNotificationPermissionDenied() {
+        Toast.makeText(this, "Notification permission denied", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun navigateToTaskActivity(mode: Int) {
+        travelling = true
+        val intent = Intent(this, TaskActivity::class.java).apply {
+            val animationBundle = ActivityOptions.makeCustomAnimation(this@MainActivity, R.anim.slide_out_bottom, R.anim.slide_in_bottom).toBundle()
+            putExtra("mode", mode)
+            startActivity(this, animationBundle)
+        }
+        finish()
+    }
+
+    companion object {
+        private const val PERMISSION_REQUEST_CODE = 100
     }
 
     @Deprecated("Deprecated in Java")

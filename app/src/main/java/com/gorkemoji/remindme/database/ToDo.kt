@@ -6,6 +6,12 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "ToDos")
 data class ToDo (
+    @ColumnInfo(name = "date")
+    var dueDate: Long? = null,
+
+    @ColumnInfo(name = "reminder_status")
+    var isReminderOn: Boolean = false,
+
     @ColumnInfo(name = "title")
     var toDoTitle: String,
 

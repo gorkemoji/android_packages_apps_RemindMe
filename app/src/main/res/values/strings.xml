@@ -45,4 +45,7 @@
     <string name="log_in_with_biometric">Use your biometric data to unlock the app.</string>
     <string name="cancel">Cancel</string>
     <string name="already_set">Another security method is already set.</string>
+    <string name="set_reminder">Set reminder</string>
+    <string name="reminder">Reminder</string>
+    <string name="its_time">It\'s time to do your task.</string>
 </resources>
