@@ -49,4 +49,8 @@
     <string name="reminder">Hatırlatıcı</string>
     <string name="its_time">Görevinizi yapma zamanı geldi.</string>
     <string name="expand">Genişlet</string>
+    <string name="onboarding_4_title">Haberdar olun!</string>
+    <string name="onboarding_4_desc">Görevinizi yapma zamanı gelince haberiniz olsun! Anlık bildirimler almak için bildirim izinleri gerekir.</string>
+    <string name="txt_error_post_notification">Lütfen bildirim izni vermek için Ayarlar\'a gidin.</string>
+    <string name="goto_settings">Ayarlar\'a git</string>
 </resources>

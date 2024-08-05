@@ -4,14 +4,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".onboarding.SecondScreen">
+    tools:context=".onboarding.FourthScreen">
 
     <ImageView
-        android:id="@+id/alarmIcon"
+        android:id="@+id/notificationIcon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="50dp"
-        android:src="@drawable/ic_alarm"
+        android:src="@drawable/ic_notification"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -21,10 +21,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:text="@string/onboarding_2_title"
+        android:text="@string/onboarding_4_title"
         android:textStyle="bold"
         android:textSize="20sp"
-        app:layout_constraintTop_toBottomOf="@id/alarmIcon"
+        app:layout_constraintTop_toBottomOf="@id/notificationIcon"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/desc"/>
@@ -36,7 +36,7 @@
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
         android:layout_marginTop="20dp"
-        android:text="@string/onboarding_2_desc"
+        android:text="@string/onboarding_4_desc"
         android:textSize="17sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -46,8 +46,8 @@
         android:id="@+id/gif"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="40dp"
-        android:src="@drawable/animated_clock"
+        android:layout_marginTop="40dp"
+        android:src="@drawable/animated_notification"
         app:layout_constraintTop_toBottomOf="@id/desc"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -55,12 +55,12 @@
         android:scaleType="fitXY" />
 
     <Button
-        android:id="@+id/next"
+        android:id="@+id/start"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
         android:backgroundTint="@color/app_accent"
-        android:text="@string/next"
+        android:text="@string/start"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
 

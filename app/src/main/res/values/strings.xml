@@ -49,4 +49,8 @@
     <string name="reminder">Reminder</string>
     <string name="its_time">It\'s time to do your task.</string>
     <string name="expand">Expand</string>
+    <string name="onboarding_4_title">Get notified!</string>
+    <string name="onboarding_4_desc">Get notified when it\'s time to do your task! Notification permissions are required for getting post notifications.</string>
+    <string name="txt_error_post_notification">Please grant notification permission from app settings.</string>
+    <string name="goto_settings">Go to Settings</string>
 </resources>

@@ -35,7 +35,7 @@
         android:id="@+id/alarmIcon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_notification"
+        android:src="@drawable/ic_alarm_flat"
         app:tint="@color/app_accent"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/task_layout"
