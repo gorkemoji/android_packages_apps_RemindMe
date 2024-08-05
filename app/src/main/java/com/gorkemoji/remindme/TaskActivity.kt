@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.gorkemoji.remindme.auth.BiometricActivity
 import com.gorkemoji.remindme.auth.PasswordActivity
 import com.gorkemoji.remindme.database.ToDo
 import com.gorkemoji.remindme.database.ToDoDatabase
@@ -26,8 +27,13 @@ class TaskActivity : AppCompatActivity() {
         ToDoDatabase.getDatabase(this)
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
-        if (!loadMode("passkey", "auth").isNullOrEmpty() && loadMode("is_locked", "auth") == "true") {
+        if (!loadMode("passkey", "auth").isNullOrEmpty() && loadMode(
+                "is_locked",
+                "auth"
+            ) == "true"
+        ) {
             startActivity(Intent(this, PasswordActivity::class.java))
             finish()
         }
@@ -71,10 +77,15 @@ class TaskActivity : AppCompatActivity() {
         binding.saveBtn.setOnClickListener {
             if (binding.taskText.text?.isNotBlank() == true) {
                 if (binding.reminderChk.isChecked && !isReminderSet) {
-                    Toast.makeText(this, "Please set date and time for the reminder", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this,
+                        "Please set date and time for the reminder",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 } else {
                     val toDoTitle: String = binding.taskText.text.toString()
-                    val dueDate: Long? = if (binding.reminderChk.isChecked) calendar.timeInMillis else null
+                    val dueDate: Long? =
+                        if (binding.reminderChk.isChecked) calendar.timeInMillis else null
                     val isReminderOn = binding.reminderChk.isChecked
 
                     GlobalScope.launch(Dispatchers.Main) {
@@ -82,9 +93,25 @@ class TaskActivity : AppCompatActivity() {
                             if (reminderState)
                                 cancelReminder()
                             when (mode) {
-                                1 -> database.getDao().insert(ToDo(toDoTitle = toDoTitle, isChecked = false, isReminderOn = isReminderOn, dueDate = dueDate))
+                                1 -> database.getDao().insert(
+                                    ToDo(
+                                        toDoTitle = toDoTitle,
+                                        isChecked = false,
+                                        isReminderOn = isReminderOn,
+                                        dueDate = dueDate
+                                    )
+                                )
+
                                 2 -> {
-                                    database.getDao().update(ToDo(id = id, toDoTitle = toDoTitle, isChecked = checkBoxState, isReminderOn = isReminderOn, dueDate = dueDate))
+                                    database.getDao().update(
+                                        ToDo(
+                                            id = id,
+                                            toDoTitle = toDoTitle,
+                                            isChecked = checkBoxState,
+                                            isReminderOn = isReminderOn,
+                                            dueDate = dueDate
+                                        )
+                                    )
 
                                     // Update the reminder if it is on
                                     if (isReminderOn) {
@@ -126,22 +153,28 @@ class TaskActivity : AppCompatActivity() {
     }
 
     private fun showDateTimePicker() {
-        val datePickerDialog = DatePickerDialog(this, { _, year, month, dayOfMonth ->
-            calendar.set(year, month, dayOfMonth)
+        val datePickerDialog = DatePickerDialog(
+            this,
+            { _, year, month, dayOfMonth ->
+                calendar.set(year, month, dayOfMonth)
 
-            val timePickerDialog = TimePickerDialog(this, { _, hourOfDay, minute ->
-                calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
-                calendar.set(Calendar.MINUTE, minute)
-                isReminderSet = true
-                updateReminderViews(true)
-            }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true)
+                val timePickerDialog = TimePickerDialog(this, { _, hourOfDay, minute ->
+                    calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
+                    calendar.set(Calendar.MINUTE, minute)
+                    isReminderSet = true
+                    updateReminderViews(true)
+                }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true)
 
-            timePickerDialog.setOnDismissListener {
-                updateReminderDateTimeText()
-            }
+                timePickerDialog.setOnDismissListener {
+                    updateReminderDateTimeText()
+                }
 
-            timePickerDialog.show()
-        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH))
+                timePickerDialog.show()
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        )
 
         datePickerDialog.setOnDismissListener {
             updateReminderDateTimeText()
@@ -155,14 +188,17 @@ class TaskActivity : AppCompatActivity() {
     private fun setReminder(calendar: Calendar) {
         val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(this, ReminderReceiver::class.java)
-        val pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val pendingIntent =
+            PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
     }
 
     private fun cancelReminder() {
         val intent = Intent(this, ReminderReceiver::class.java)
-        val pendingIntent = PendingIntent.getBroadcast(this, 0, intent,
-            PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE)
+        val pendingIntent = PendingIntent.getBroadcast(
+            this, 0, intent,
+            PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+        )
         pendingIntent?.let {
             val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
             alarmManager.cancel(it)
@@ -170,17 +206,49 @@ class TaskActivity : AppCompatActivity() {
         }
     }
 
-
     private fun loadMode(type: String, file: String): String? {
-        val pref : SharedPreferences = applicationContext.getSharedPreferences(file, Context.MODE_PRIVATE)
-
+        val pref: SharedPreferences = getSharedPreferences(file, Context.MODE_PRIVATE)
         return pref.getString(type, "")
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
-        super.onBackPressed()
-        startActivity(Intent(this, MainActivity::class.java), ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_bottom, R.anim.slide_out_bottom).toBundle())
-        finish()
+    private fun saveMode(type: String, data: String, file: String) {
+        val pref: SharedPreferences = getSharedPreferences(file, Context.MODE_PRIVATE)
+        with(pref.edit()) {
+            putString(type, data)
+            apply()
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        val isLocked = loadMode("is_locked", "auth") == "true"
+        val isBiometricsEnabled = loadMode("biometrics", "auth") == "true"
+        val isPasskeySet = !loadMode("passkey", "auth").isNullOrBlank()
+
+        if (!isLocked && (isBiometricsEnabled || isPasskeySet))
+            saveMode("is_locked", "true", "auth")
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+        val isLocked = loadMode("is_locked", "auth") == "true"
+        val isBiometricsEnabled = loadMode("biometrics", "auth") == "true"
+        val isPasskeySet = !loadMode("passkey", "auth").isNullOrBlank()
+
+        if (!isLocked && (isBiometricsEnabled || isPasskeySet))
+            saveMode("is_locked", "true", "auth")
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        if (loadMode("is_locked", "auth") == "true") {
+            val intent = if (loadMode("biometrics", "auth") == "true") Intent(this, BiometricActivity::class.java)
+            else Intent(this, PasswordActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
     }
 }

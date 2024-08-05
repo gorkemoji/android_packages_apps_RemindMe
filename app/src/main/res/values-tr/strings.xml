@@ -48,4 +48,5 @@
     <string name="set_reminder">Hatırlatıcı kur</string>
     <string name="reminder">Hatırlatıcı</string>
     <string name="its_time">Görevinizi yapma zamanı geldi.</string>
+    <string name="expand">Genişlet</string>
 </resources>

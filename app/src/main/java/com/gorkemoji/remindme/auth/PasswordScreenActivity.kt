@@ -15,6 +15,7 @@ import com.gorkemoji.remindme.databinding.ActivityPasswordScreenBinding
 class PasswordScreenActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPasswordScreenBinding
     private val switchDelay = 300L
+    private var travelling = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,48 +39,84 @@ class PasswordScreenActivity : AppCompatActivity() {
             debounceHandler.removeCallbacksAndMessages(null)
             debounceHandler.postDelayed({
                 if (isChecked) {
-                    startActivity(Intent(this, PasswordActivity::class.java), ActivityOptions.makeCustomAnimation(this, R.anim.slide_out_bottom, R.anim.slide_in_bottom).toBundle())
+                    travelling = true
+                    val intent = Intent(this@PasswordScreenActivity, PasswordActivity::class.java)
+                    intent.putExtra("prevActivity", "PasswordScreenActivity")
+                    startActivity(intent, ActivityOptions.makeCustomAnimation(this, R.anim.slide_out_bottom, R.anim.slide_in_bottom).toBundle())
                     finish()
                 } else {
-                    saveMode("passkey", "", "auth")
-                   /* saveMode("is_last", "true", "auth")
-                    startActivity(Intent(this, PasswordActivity::class.java))
-                    finish()*/
+                    removeAuth("passkey")
+                    removeAuth("is_locked")
+                    removeAuth("is_changing")
                 }
             }, switchDelay)
         }
 
         binding.chnPass.setOnClickListener {
+            travelling = true
             saveMode("is_changing", "true", "auth")
-            startActivity(Intent(this, PasswordActivity::class.java), ActivityOptions.makeCustomAnimation(this, R.anim.slide_out_bottom, R.anim.slide_in_bottom).toBundle())
+            val intent = Intent(this@PasswordScreenActivity, PasswordActivity::class.java)
+            intent.putExtra("prevActivity", "PasswordScreenActivity")
+            startActivity(intent, ActivityOptions.makeCustomAnimation(this, R.anim.slide_out_bottom, R.anim.slide_in_bottom).toBundle())
             finish()
         }
     }
 
     private fun isBioSet(): Boolean {
-        if (loadMode("biometrics", "auth") == "true")
-            return true
-        return false
+        return loadMode("biometrics", "auth") == "true"
+    }
+
+    private fun removeAuth(type: String) {
+        val pref: SharedPreferences = getSharedPreferences("auth", Context.MODE_PRIVATE)
+        with(pref.edit()) {
+            remove(type)
+            apply()
+        }
     }
 
     private fun loadMode(type: String, file: String): String? {
-        val pref : SharedPreferences = applicationContext.getSharedPreferences(file, Context.MODE_PRIVATE)
-
+        val pref: SharedPreferences = getSharedPreferences(file, Context.MODE_PRIVATE)
         return pref.getString(type, "")
     }
 
     private fun saveMode(type: String, data: String, file: String) {
-        val pref : SharedPreferences = applicationContext.getSharedPreferences(file, Context.MODE_PRIVATE)
-        val editor : SharedPreferences.Editor = pref.edit()
-
-        editor.putString(type, data)
-        editor.apply()
+        val pref: SharedPreferences = getSharedPreferences(file, Context.MODE_PRIVATE)
+        with(pref.edit()) {
+            putString(type, data)
+            apply()
+        }
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
-        super.onBackPressed()
-        startActivity(Intent(this, SecurityActivity::class.java), ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_bottom, R.anim.slide_out_bottom).toBundle())
-        finish()
+    override fun onStop() {
+        super.onStop()
+
+        val isLocked = loadMode("is_locked", "auth") == "true"
+        val isBiometricsEnabled = loadMode("biometrics", "auth") == "true"
+        val isPasskeySet = !loadMode("passkey", "auth").isNullOrBlank()
+
+        if (!isLocked && (isBiometricsEnabled || isPasskeySet))
+            saveMode("is_locked", "true", "auth")
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+        val isLocked = loadMode("is_locked", "auth") == "true"
+        val isBiometricsEnabled = loadMode("biometrics", "auth") == "true"
+        val isPasskeySet = !loadMode("passkey", "auth").isNullOrBlank()
+
+        if (!isLocked && (isBiometricsEnabled || isPasskeySet))
+            saveMode("is_locked", "true", "auth")
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        if (loadMode("is_locked", "auth") == "true") {
+            val intent = if (loadMode("biometrics", "auth") == "true") Intent(this, BiometricActivity::class.java)
+            else Intent(this, PasswordActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
     }
 }

@@ -27,53 +27,30 @@
         app:layout_constraintTop_toBottomOf="@id/lockIcon"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <ImageView
-        android:id="@+id/bioIcon"
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/bioBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="25dp"
-        android:layout_marginTop="75dp"
-        android:src="@drawable/ic_fingerprint"
-        android:contentDescription="@string/bio_icon"
-        app:layout_constraintTop_toBottomOf="@id/title"
-        app:layout_constraintStart_toStartOf="parent"
-        app:tint="@color/app_accent" />
-
-    <TextView
-        android:id="@+id/bioTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="82dp"
-        android:clickable="true"
-        android:focusable="true"
         android:text="@string/biometrics"
-        android:textSize="20sp"
-        app:layout_constraintTop_toBottomOf="@id/title"
-        app:layout_constraintStart_toEndOf="@id/bioIcon" />
-
-    <ImageView
-        android:id="@+id/pinIcon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="25dp"
-        android:src="@drawable/ic_pin"
-        android:contentDescription="@string/pin_icon"
-        app:layout_constraintTop_toBottomOf="@id/bioIcon"
+        android:layout_margin="30dp"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
+        app:icon="@drawable/ic_fingerprint_button"
+        app:rippleColor="@color/app_accent"
+        app:strokeColor="@color/app_accent"
         app:layout_constraintStart_toStartOf="parent"
-        app:tint="@color/app_accent" />
+        app:layout_constraintTop_toBottomOf="@id/title" />
 
-    <TextView
-        android:id="@+id/pinTitle"
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/pinBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="38dp"
-        android:clickable="true"
-        android:focusable="true"
         android:text="@string/pin"
-        android:textSize="20sp"
-        app:layout_constraintTop_toBottomOf="@id/bioTitle"
-        app:layout_constraintStart_toEndOf="@id/pinIcon" />
+        android:layout_margin="30dp"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
+        app:icon="@drawable/ic_pin_button"
+        app:rippleColor="@color/app_accent"
+        app:strokeColor="@color/app_accent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/title" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -20,7 +20,7 @@ class ThirdScreen : Fragment() {
         val start = binding.start
 
         start.setOnClickListener {
-            saveMode("first_start", "false", "preferences")
+            saveStart()
             startActivity(Intent(activity, MainActivity::class.java))
             onDestroyView()
         }
@@ -28,11 +28,11 @@ class ThirdScreen : Fragment() {
         return view
     }
 
-    private fun saveMode(type: String, data: String, file: String) {
-        val pref: SharedPreferences = requireContext().getSharedPreferences(file, Context.MODE_PRIVATE)
+    private fun saveStart() {
+        val pref: SharedPreferences = requireContext().getSharedPreferences("preferences", Context.MODE_PRIVATE)
         val editor: SharedPreferences.Editor = pref.edit()
 
-        editor.putString(type, data)
+        editor.putString("first_start", "false")
         editor.apply()
     }
 }

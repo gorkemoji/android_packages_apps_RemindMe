@@ -11,7 +11,7 @@ import com.gorkemoji.remindme.databinding.FragmentOnboardingBinding
 class OnboardingFragment : FragmentActivity() {
     private lateinit var binding: FragmentOnboardingBinding
     override fun onCreate(savedInstanceState: Bundle?) {
-        if (!loadMode("passkey", "auth").isNullOrEmpty() && loadMode("is_locked", "auth") == "true") {
+        if (!loadAuthMode("passkey").isNullOrEmpty() && loadAuthMode("is_locked") == "true") {
             startActivity(Intent(this, PasswordActivity::class.java))
             finish()
         }
@@ -31,8 +31,8 @@ class OnboardingFragment : FragmentActivity() {
         setContentView(view)
     }
 
-    private fun loadMode(type: String, file: String): String? {
-        val pref : SharedPreferences = applicationContext.getSharedPreferences(file, Context.MODE_PRIVATE)
+    private fun loadAuthMode(type: String): String? {
+        val pref : SharedPreferences = applicationContext.getSharedPreferences("auth", Context.MODE_PRIVATE)
 
         return pref.getString(type, "")
     }

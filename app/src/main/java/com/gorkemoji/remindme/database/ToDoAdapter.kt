@@ -9,7 +9,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 class ToDoAdapter(private val toDoList: List<ToDo>, private val dao: ToDoDao, private val coroutineScope: CoroutineScope) : RecyclerView.Adapter<ToDoAdapter.ToDoViewHolder>() {
-    class ToDoViewHolder(val binding: TaskLayoutBinding) : RecyclerView.ViewHolder(binding.root) {}
+    class ToDoViewHolder(val binding: TaskLayoutBinding) : RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ToDoViewHolder {
         val binding = TaskLayoutBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -17,31 +17,34 @@ class ToDoAdapter(private val toDoList: List<ToDo>, private val dao: ToDoDao, pr
     }
 
     override fun onBindViewHolder(holder: ToDoViewHolder, position: Int) {
-        holder.binding.text.text = toDoList[position].toDoTitle
-        holder.binding.checkBox.isChecked = toDoList[position].isChecked
+        val currentToDo = toDoList[position]
 
-        if (toDoList[position].isChecked) {
-            holder.binding.text.paintFlags = holder.binding.text.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
-            holder.binding.checkBox.isEnabled = false
-        }
-        else {
-            holder.binding.text.paintFlags = holder.binding.text.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
-            holder.binding.checkBox.isEnabled = true
-        }
+        holder.binding.text.text = currentToDo.toDoTitle
+        holder.binding.checkBox.isChecked = currentToDo.isChecked
 
-        holder.binding.checkBox.setOnCheckedChangeListener { _ , isChecked ->
+        updateTextAppearance(holder.binding, currentToDo.isChecked)
+
+        holder.binding.checkBox.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                toDoList[position].isChecked = isChecked
+                currentToDo.isChecked = true
+                updateTextAppearance(holder.binding, true)
                 coroutineScope.launch {
-                    dao.update(toDoList[position])
-                    holder.binding.text.paintFlags = holder.binding.text.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
-                    holder.binding.checkBox.isEnabled = false
+                    dao.update(currentToDo)
                 }
-            }
+            } else
+                holder.binding.checkBox.isChecked = true
         }
     }
 
-    override fun getItemCount(): Int {
-        return toDoList.size
+    private fun updateTextAppearance(binding: TaskLayoutBinding, isChecked: Boolean) {
+        if (isChecked) {
+            binding.text.paintFlags = binding.text.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+            binding.checkBox.isEnabled = false
+        } else {
+            binding.text.paintFlags = binding.text.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+            binding.checkBox.isEnabled = true
+        }
     }
+
+    override fun getItemCount(): Int = toDoList.size
 }

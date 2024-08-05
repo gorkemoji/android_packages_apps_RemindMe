@@ -20,11 +20,15 @@ import com.gorkemoji.remindme.databinding.ActivityPasswordBinding
 
 class PasswordActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPasswordBinding
+    private var prev: String? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = ActivityPasswordBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        prev = intent.getStringExtra("prevActivity")
 
         if (loadMode("is_last", "auth") == "true") {
             saveMode("passkey", "", "auth")
@@ -61,7 +65,7 @@ class PasswordActivity : AppCompatActivity() {
         binding.next.setOnClickListener {
             if (checkPin()) {
                 saveMode("is_locked", "false", "auth")
-                startActivity(Intent(this, MainActivity::class.java))
+                navigateToPreviousActivity()
                 finish()
             } else
                 handleIncorrectPin(1)
@@ -88,7 +92,7 @@ class PasswordActivity : AppCompatActivity() {
         binding.next.setOnClickListener {
             saveMode("passkey", binding.pinArea.text.toString(), "auth")
             saveMode("is_locked", "false", "auth")
-            startActivity(Intent(this, MainActivity::class.java))
+            navigateToPreviousActivity()
             finish()
         }
     }
@@ -141,7 +145,7 @@ class PasswordActivity : AppCompatActivity() {
                 else {
                     saveMode("passkey", binding.pinArea.text.toString(), "auth")
                     saveMode("is_changing", "false", "auth")
-                    startActivity(Intent(this, SettingsActivity::class.java))
+                    navigateToPreviousActivity()
                     finish()
                 }
             }
@@ -196,20 +200,6 @@ class PasswordActivity : AppCompatActivity() {
         timer.start()
     }
 
-    private fun loadMode(type: String, file: String): String? {
-        val pref: SharedPreferences = applicationContext.getSharedPreferences(file, Context.MODE_PRIVATE)
-
-        return pref.getString(type, "")
-    }
-
-    private fun saveMode(type: String, data: String, file: String) {
-        val pref: SharedPreferences = applicationContext.getSharedPreferences(file, Context.MODE_PRIVATE)
-        val editor: SharedPreferences.Editor = pref.edit()
-
-        editor.putString(type, data)
-        editor.apply()
-    }
-
     private fun vibratePhone() {
         val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
 
@@ -228,11 +218,58 @@ class PasswordActivity : AppCompatActivity() {
         }
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
-        super.onBackPressed()
-        saveMode("is_changing", "false", "auth")
-        saveMode("is_locked", "true", "auth")
-        finishAffinity()
+    private fun navigateToPreviousActivity() {
+        val intent = when (prev) {
+            "MainActivity" -> Intent(this, MainActivity::class.java)
+            "SettingsActivity" -> Intent(this, SettingsActivity::class.java)
+            else -> null
+        }
+        intent?.let { startActivity(it) }
+    }
+
+    private fun loadMode(type: String, file: String): String? {
+        val pref: SharedPreferences = getSharedPreferences(file, Context.MODE_PRIVATE)
+        return pref.getString(type, "")
+    }
+
+    private fun saveMode(type: String, data: String, file: String) {
+        val pref: SharedPreferences = getSharedPreferences(file, Context.MODE_PRIVATE)
+        with(pref.edit()) {
+            putString(type, data)
+            apply()
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        val isLocked = loadMode("is_locked", "auth") == "true"
+        val isBiometricsEnabled = loadMode("biometrics", "auth") == "true"
+        val isPasskeySet = !loadMode("passkey", "auth").isNullOrBlank()
+
+        if (!isLocked && (isBiometricsEnabled || isPasskeySet))
+            saveMode("is_locked", "true", "auth")
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+        val isLocked = loadMode("is_locked", "auth") == "true"
+        val isBiometricsEnabled = loadMode("biometrics", "auth") == "true"
+        val isPasskeySet = !loadMode("passkey", "auth").isNullOrBlank()
+
+        if (!isLocked && (isBiometricsEnabled || isPasskeySet))
+            saveMode("is_locked", "true", "auth")
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        if (loadMode("is_locked", "auth") == "true") {
+            val intent = if (loadMode("biometrics", "auth") == "true") Intent(this, BiometricActivity::class.java)
+            else Intent(this, PasswordActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
     }
 }

@@ -48,4 +48,5 @@
     <string name="set_reminder">Set reminder</string>
     <string name="reminder">Reminder</string>
     <string name="its_time">It\'s time to do your task.</string>
+    <string name="expand">Expand</string>
 </resources>

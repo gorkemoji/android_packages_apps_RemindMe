@@ -1,23 +1,16 @@
 package com.gorkemoji.remindme
 
-import android.app.ActivityOptions
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.view.isVisible
 import com.gorkemoji.remindme.auth.BiometricActivity
 import com.gorkemoji.remindme.auth.PasswordActivity
-import com.gorkemoji.remindme.auth.SecurityActivity
 import com.gorkemoji.remindme.databinding.ActivitySettingsBinding
 
 class SettingsActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySettingsBinding
-    private val switchDelay = 300L
     private var travelling = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,46 +28,6 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.security.isEnabled = false // debugging
         binding.security.isClickable = false // debugging
-
-        when (loadMode("theme", "preferences")) {
-                "dark" -> {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                    binding.darkModeSwitch.isChecked = true
-                }
-                "light" -> {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                    binding.darkModeSwitch.isChecked = false
-                }
-            }
-
-        binding.bottomNavigationView.selectedItemId = R.id.settings
-
-        binding.bottomNavigationView.setOnItemSelectedListener { item ->
-            if (item.itemId == R.id.tasks) {
-                travelling = true
-                val animationBundle = ActivityOptions.makeCustomAnimation(applicationContext, 0, 0).toBundle()
-                startActivity(Intent(applicationContext, MainActivity::class.java), animationBundle)
-                true
-            } else item.itemId == R.id.settings
-        }
-
-        val debounceHandler = Handler(Looper.getMainLooper())
-
-        binding.darkModeSwitch.setOnCheckedChangeListener { _, isChecked ->
-            debounceHandler.removeCallbacksAndMessages(null)
-            debounceHandler.postDelayed({
-                if (isChecked) {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                    saveMode("theme", "dark", "preferences")
-                } else {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                    saveMode("theme", "light", "preferences")
-                }
-            }, switchDelay)
-        }
-
-        binding.darkModeSwitch.isVisible = false
-        binding.darkModeText.isVisible = false
 
         /*
         binding.security.setOnClickListener {
@@ -108,19 +61,28 @@ class SettingsActivity : AppCompatActivity() {
         val passkeySet = !loadMode("passkey", "auth").isNullOrBlank()
         val isLocked = loadMode("is_locked", "auth") == "true"
 
-        if (!isLocked && (isBiometricsEnabled || passkeySet))
-            if (!travelling)
-                saveMode("is_locked", "true", "auth")
+        if (!isLocked && (isBiometricsEnabled || passkeySet) && !travelling)
+            saveMode("is_locked", "true", "auth")
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+        val isLocked = loadMode("is_locked", "auth") == "true"
+        val isBiometricsEnabled = loadMode("biometrics", "auth") == "true"
+        val isPasskeySet = !loadMode("passkey", "auth").isNullOrBlank()
+
+        if (!isLocked && (isBiometricsEnabled || isPasskeySet) && !travelling)
+            saveMode("is_locked", "true", "auth")
     }
 
     override fun onResume() {
         super.onResume()
 
         if (loadMode("is_locked", "auth") == "true") {
-            if (loadMode("biometrics", "auth") == "true")
-                startActivity(Intent(this, BiometricActivity::class.java))
-            else
-                startActivity(Intent(this, PasswordActivity::class.java))
+            val intent = if (loadMode("biometrics", "auth") == "true") Intent(this, BiometricActivity::class.java)
+            else Intent(this, PasswordActivity::class.java)
+            startActivity(intent)
             finish()
         }
     }
@@ -137,12 +99,5 @@ class SettingsActivity : AppCompatActivity() {
 
         editor.putString(type, data)
         editor.apply()
-    }
-
-    @Deprecated("Deprecated in Java", ReplaceWith("finishAffinity()"))
-    override fun onBackPressed() {
-        super.onBackPressed()
-        saveMode("is_locked", "true", "auth")
-        finishAffinity()
     }
 }

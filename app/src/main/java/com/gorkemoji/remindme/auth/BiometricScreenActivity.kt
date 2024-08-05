@@ -1,6 +1,5 @@
 package com.gorkemoji.remindme.auth
 
-import android.app.ActivityOptions
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -16,6 +15,7 @@ import com.gorkemoji.remindme.databinding.ActivityBiometricScreenBinding
 class BiometricScreenActivity : AppCompatActivity() {
     private lateinit var binding: ActivityBiometricScreenBinding
     private val switchDelay = 300L
+    private var travelling = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,36 +48,68 @@ class BiometricScreenActivity : AppCompatActivity() {
                 if (isChecked) {
                     saveMode("biometrics", "true", "auth")
                 } else {
-                    saveMode("biometrics", "false", "auth")
+                    removeAuth("is_locked")
+                    removeAuth("biometrics")
                 }
             }, switchDelay)
         }
     }
 
     private fun isPinSet(): Boolean {
-        if (!loadMode("passkey", "auth").isNullOrBlank())
-            return true
-        return false
+        return !loadMode("passkey", "auth").isNullOrBlank()
+    }
+
+    private fun removeAuth(type: String) {
+        val pref: SharedPreferences = getSharedPreferences("auth", Context.MODE_PRIVATE)
+        with(pref.edit()) {
+            remove(type)
+            apply()
+        }
     }
 
     private fun loadMode(type: String, file: String): String? {
-        val pref : SharedPreferences = applicationContext.getSharedPreferences(file, Context.MODE_PRIVATE)
-
+        val pref: SharedPreferences = getSharedPreferences(file, Context.MODE_PRIVATE)
         return pref.getString(type, "")
     }
 
     private fun saveMode(type: String, data: String, file: String) {
-        val pref : SharedPreferences = applicationContext.getSharedPreferences(file, Context.MODE_PRIVATE)
-        val editor : SharedPreferences.Editor = pref.edit()
-
-        editor.putString(type, data)
-        editor.apply()
+        val pref: SharedPreferences = getSharedPreferences(file, Context.MODE_PRIVATE)
+        with(pref.edit()) {
+            putString(type, data)
+            apply()
+        }
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
-        super.onBackPressed()
-        startActivity(Intent(this, SecurityActivity::class.java), ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_bottom, R.anim.slide_out_bottom).toBundle())
-        finish()
+    override fun onStop() {
+        super.onStop()
+
+        val isLocked = loadMode("is_locked", "auth") == "true"
+        val isBiometricsEnabled = loadMode("biometrics", "auth") == "true"
+        val isPasskeySet = !loadMode("passkey", "auth").isNullOrBlank()
+
+        if (!isLocked && (isBiometricsEnabled || isPasskeySet))
+            saveMode("is_locked", "true", "auth")
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+        val isLocked = loadMode("is_locked", "auth") == "true"
+        val isBiometricsEnabled = loadMode("biometrics", "auth") == "true"
+        val isPasskeySet = !loadMode("passkey", "auth").isNullOrBlank()
+
+        if (!isLocked && (isBiometricsEnabled || isPasskeySet))
+            saveMode("is_locked", "true", "auth")
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        if (loadMode("is_locked", "auth") == "true") {
+            val intent = if (loadMode("biometrics", "auth") == "true") Intent(this, BiometricActivity::class.java)
+            else Intent(this, PasswordActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
     }
 }
