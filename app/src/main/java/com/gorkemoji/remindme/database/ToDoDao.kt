@@ -8,8 +8,11 @@ interface ToDoDao {
     @Query("SELECT * FROM ToDos")
     fun getAll(): LiveData<List<ToDo>>
 
+    @Query("SELECT * FROM ToDos WHERE id = :id")
+    suspend fun getTaskById(id: Long): ToDo
+
     @Insert
-    fun insert(todo: ToDo)
+    fun insert(todo: ToDo): Long
 
     @Delete
     fun delete(todo: ToDo)

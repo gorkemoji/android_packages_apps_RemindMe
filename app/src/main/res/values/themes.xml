@@ -17,9 +17,6 @@
         <!-- Ensure light-colored status bar icons -->
         <item name="android:windowLightStatusBar">true</item>
     </style>
-    <style name="BottomNavigationStyle" parent="Widget.MaterialComponents.BottomNavigationView">
-        <item name="android:background">?attr/colorOnPrimary</item>
-    </style>
     <style name="CardStyle" parent="Widget.MaterialComponents.CardView">
         <item name="android:background">@color/cardview_light_background</item>
     </style>
