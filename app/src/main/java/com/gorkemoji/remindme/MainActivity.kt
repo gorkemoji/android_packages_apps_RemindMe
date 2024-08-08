@@ -33,6 +33,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var database: ToDoDatabase
     private val list = arrayListOf<ToDo>()
     private var fabVisible = false
+    private var isTransitioning = false
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,20 +41,16 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        /*val isLocked = loadMode("is_locked", "auth") == "true"
+        /* val isLocked = loadMode("is_locked", "auth") == "true"
         val isBiometricsEnabled = loadMode("biometrics", "auth") == "true"
         val isPasskeySet = !loadMode("passkey", "auth").isNullOrBlank()
 
-        if (isLocked)
-            navigateToAuthActivity(biometricsEnabled, passkeySet)*/
+        if (isLocked) navigateToAuthActivity(isBiometricsEnabled, isPasskeySet) */
 
         checkFirstStart()
 
         database = ToDoDatabase.getDatabase(this)
         adapter = ToDoAdapter(list, database.getDao(), MainScope())
-
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
         setupRecyclerView()
         observeDatabaseChanges()
@@ -69,9 +66,7 @@ class MainActivity : AppCompatActivity() {
         binding.fabSettings.setOnClickListener { navigateToSettingsActivity() }
     }
 
-    private fun checkFirstStart() {
-        if (loadMode("first_start", "preferences").isNullOrEmpty()) startActivity(Intent(this, OnboardingFragment::class.java))
-    }
+    private fun checkFirstStart() { if (loadMode("first_start", "preferences").isNullOrEmpty()) startActivity(Intent(this, OnboardingFragment::class.java)) }
 
     private fun showFabMenu() {
         fabVisible = true
@@ -87,16 +82,18 @@ class MainActivity : AppCompatActivity() {
         binding.fabSettings.visibility = View.INVISIBLE
     }
 
-    private fun navigateToSettingsActivity() { startActivity(Intent(this, SettingsActivity::class.java)) }
+    private fun navigateToSettingsActivity() {
+        isTransitioning = true
+        startActivity(Intent(this, SettingsActivity::class.java))
+    }
 
-/*
-    private fun navigateToAuthActivity(biometricsEnabled: Boolean, passkeySet: Boolean) {
+    /* private fun navigateToAuthActivity(biometricsEnabled: Boolean, passkeySet: Boolean) {
+        isTransitioning = true
         var intent = Intent(this, PasswordActivity::class.java)
         if (biometricsEnabled && !passkeySet) intent = Intent(this, BiometricActivity::class.java)
 
         startActivity(intent)
-    }
-*/
+    } */
 
     private fun setupRecyclerView() {
         binding.recyclerView.apply {
@@ -142,6 +139,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addTask() {
+        isTransitioning = true
         val intent = Intent(this, TaskActivity::class.java)
         intent.putExtra("mode", 1)
 
@@ -149,6 +147,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateTask(position: Int) {
+        isTransitioning = true
         val intent = Intent(this, TaskActivity::class.java)
         intent.putExtra("mode", 2)
         intent.putExtra("id", list[position].id)
@@ -201,22 +200,12 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-
-        val isLocked = loadMode("is_locked", "auth") == "true"
-        val isBiometricsEnabled = loadMode("biometrics", "auth") == "true"
-        val isPasskeySet = !loadMode("passkey", "auth").isNullOrBlank()
-
-        if (!isLocked && (isBiometricsEnabled || isPasskeySet)) saveMode("is_locked", "true", "auth")
+        if (!isTransitioning) saveLockState()
     }
 
     override fun onPause() {
         super.onPause()
-
-        val isLocked = loadMode("is_locked", "auth") == "true"
-        val isBiometricsEnabled = loadMode("biometrics", "auth") == "true"
-        val isPasskeySet = !loadMode("passkey", "auth").isNullOrBlank()
-
-        if (!isLocked && (isBiometricsEnabled || isPasskeySet)) saveMode("is_locked", "true", "auth")
+        if (!isTransitioning) saveLockState()
     }
 
     override fun onResume() {
@@ -227,6 +216,14 @@ class MainActivity : AppCompatActivity() {
             else Intent(this, PasswordActivity::class.java)
             startActivity(intent)
         }
+    }
+
+    private fun saveLockState() {
+        val isLocked = loadMode("is_locked", "auth") == "true"
+        val isBiometricsEnabled = loadMode("biometrics", "auth") == "true"
+        val isPasskeySet = !loadMode("passkey", "auth").isNullOrBlank()
+
+        if (!isLocked && (isBiometricsEnabled || isPasskeySet)) saveMode("is_locked", "true", "auth")
     }
 
     private fun loadMode(type: String, file: String): String? {

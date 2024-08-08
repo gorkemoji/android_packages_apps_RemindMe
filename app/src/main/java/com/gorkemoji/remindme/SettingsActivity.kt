@@ -11,59 +11,49 @@ import com.gorkemoji.remindme.databinding.ActivitySettingsBinding
 
 class SettingsActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySettingsBinding
+    private var isTransitioning = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        /*val isLocked = loadMode("is_locked", "auth") == "true"
+       /* val isLocked = loadMode("is_locked", "auth") == "true"
         val biometricsEnabled = loadMode("biometrics", "auth") == "true"
         val passkeySet = !loadMode("passkey", "auth").isNullOrBlank()
 
-        if (isLocked) navigateToAuthActivity(biometricsEnabled, passkeySet)
-         */
+        if (isLocked) navigateToAuthActivity(biometricsEnabled, passkeySet) */
 
-        binding.btnBackupRestore.setOnClickListener {startActivity(Intent(this, BackupRestoreActivity::class.java))}
+        binding.btnBackupRestore.setOnClickListener {
+            isTransitioning = true
+            startActivity(Intent(this, BackupRestoreActivity::class.java))
+        }
 
         binding.btnSecurity.isEnabled = false // debugging
         binding.btnSecurity.isClickable = false // debugging
 
-        /*
-        binding.security.setOnClickListener {
-            if (!loadMode("passkey", "auth").isNullOrEmpty()) saveMode("is_changing", "true", "auth")
-
-            startActivity(Intent(this, SecurityActivity::class.java))
-        }*/
+        /*binding.btnSecurity.setOnClickListener {
+            isTransitioning = true
+            startActivity(Intent(this, SecurityActivity::class.java)) }*/
     }
-/*
-    private fun navigateToAuthActivity(biometricsEnabled: Boolean, passkeySet: Boolean) {
+
+/*    private fun navigateToAuthActivity(biometricsEnabled: Boolean, passkeySet: Boolean) {
+        isTransitioning = true
         var intent = Intent(this, PasswordActivity::class.java)
 
         if (biometricsEnabled && !passkeySet) intent = Intent(this, BiometricActivity::class.java)
 
         startActivity(intent)
-        finish()
-    }
-*/
+    }*/
+
     override fun onStop() {
         super.onStop()
-
-        val isBiometricsEnabled = !loadMode("biometrics", "auth").isNullOrBlank() && loadMode("biometrics", "auth") == "true"
-        val passkeySet = !loadMode("passkey", "auth").isNullOrBlank()
-        val isLocked = loadMode("is_locked", "auth") == "true"
-
-        if (!isLocked && (isBiometricsEnabled || passkeySet)) saveMode("is_locked", "true", "auth")
+        if (!isTransitioning) saveLockState()
     }
 
     override fun onPause() {
         super.onPause()
-
-        val isLocked = loadMode("is_locked", "auth") == "true"
-        val isBiometricsEnabled = loadMode("biometrics", "auth") == "true"
-        val isPasskeySet = !loadMode("passkey", "auth").isNullOrBlank()
-
-        if (!isLocked && (isBiometricsEnabled || isPasskeySet)) saveMode("is_locked", "true", "auth")
+        if (!isTransitioning) saveLockState()
     }
 
     override fun onResume() {
@@ -74,6 +64,14 @@ class SettingsActivity : AppCompatActivity() {
             else Intent(this, PasswordActivity::class.java)
             startActivity(intent)
         }
+    }
+
+    private fun saveLockState() {
+        val isLocked = loadMode("is_locked", "auth") == "true"
+        val isBiometricsEnabled = loadMode("biometrics", "auth") == "true"
+        val isPasskeySet = !loadMode("passkey", "auth").isNullOrBlank()
+
+        if (!isLocked && (isBiometricsEnabled || isPasskeySet)) saveMode("is_locked", "true", "auth")
     }
 
     private fun loadMode(type: String, file: String): String? {

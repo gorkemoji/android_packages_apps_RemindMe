@@ -1,6 +1,8 @@
 package com.gorkemoji.remindme
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
@@ -12,6 +14,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.gson.Gson
+import com.gorkemoji.remindme.auth.BiometricActivity
+import com.gorkemoji.remindme.auth.PasswordActivity
 import com.gorkemoji.remindme.database.ToDo
 import com.gorkemoji.remindme.database.ToDoDatabase
 import com.gorkemoji.remindme.databinding.ActivityBackupRestoreBinding
@@ -25,6 +29,8 @@ import java.util.Locale
 
 class BackupRestoreActivity : AppCompatActivity() {
     private lateinit var binding: ActivityBackupRestoreBinding
+    private var isTransitioning = false
+
     private val database by lazy { ToDoDatabase.getDatabase(this) }
 
     private lateinit var requestWritePermissionLauncher: ActivityResultLauncher<Intent>
@@ -35,11 +41,26 @@ class BackupRestoreActivity : AppCompatActivity() {
         binding = ActivityBackupRestoreBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        /* val isLocked = loadMode("is_locked", "auth") == "true"
+        val biometricsEnabled = loadMode("biometrics", "auth") == "true"
+        val passkeySet = !loadMode("passkey", "auth").isNullOrBlank()
+
+        if (isLocked) navigateToAuthActivity(biometricsEnabled, passkeySet) */
+
         setupPermissionLaunchers()
 
         binding.btnBackup.setOnClickListener { handleBackup() }
         binding.btnRestore.setOnClickListener { handleRestore() }
     }
+
+    /* private fun navigateToAuthActivity(biometricsEnabled: Boolean, passkeySet: Boolean) {
+        isTransitioning = true
+        var intent = Intent(this, PasswordActivity::class.java)
+
+        if (biometricsEnabled && !passkeySet) intent = Intent(this, BiometricActivity::class.java)
+
+        startActivity(intent)
+    } */
 
     private fun setupPermissionLaunchers() {
         requestWritePermissionLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -48,12 +69,10 @@ class BackupRestoreActivity : AppCompatActivity() {
         }
 
         requestReadPermissionLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == RESULT_OK && result.data != null)
-                result.data?.data?.let { uri -> restoreData(uri) }
+            if (result.resultCode == RESULT_OK && result.data != null) result.data?.data?.let { uri -> restoreData(uri) }
             // else showToast(resources.getString(R.string.permissions_denied))
         }
     }
-
 
     private fun handleBackup() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) requestMediaStoreWritePermission()
@@ -98,7 +117,9 @@ class BackupRestoreActivity : AppCompatActivity() {
                     val json = Gson().toJson(tasks)
 
                     uri?.let {
-                        contentResolver.openOutputStream(it)?.use { outputStream -> writeDataToOutputStream(outputStream, json) }
+                        contentResolver.openOutputStream(it)?.use { outputStream ->
+                            writeDataToOutputStream(outputStream, json)
+                        }
                         showToast(resources.getString(R.string.backup_successful))
                     } ?: showToast(resources.getString(R.string.couldnt_create_file))
                 } catch (e: Exception) { showToast(resources.getString(R.string.backup_failed) + " ${e.message}") }
@@ -135,5 +156,46 @@ class BackupRestoreActivity : AppCompatActivity() {
     companion object {
         private const val REQUEST_WRITE_PERMISSION = 1
         private const val REQUEST_READ_PERMISSION = 2
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (!isTransitioning) saveLockState()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (!isTransitioning) saveLockState()
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        if (loadMode("is_locked", "auth") == "true") {
+            val intent = if (loadMode("biometrics", "auth") == "true") Intent(this, BiometricActivity::class.java)
+            else Intent(this, PasswordActivity::class.java)
+            startActivity(intent)
+        }
+    }
+
+    private fun saveLockState() {
+        val isLocked = loadMode("is_locked", "auth") == "true"
+        val isBiometricsEnabled = loadMode("biometrics", "auth") == "true"
+        val isPasskeySet = !loadMode("passkey", "auth").isNullOrBlank()
+
+        if (!isLocked && (isBiometricsEnabled || isPasskeySet)) saveMode("is_locked", "true", "auth")
+    }
+
+    private fun loadMode(type: String, file: String): String? {
+        val pref: SharedPreferences = getSharedPreferences(file, Context.MODE_PRIVATE)
+        return pref.getString(type, "")
+    }
+
+    private fun saveMode(type: String, data: String, file: String) {
+        val pref: SharedPreferences = getSharedPreferences(file, Context.MODE_PRIVATE)
+        with(pref.edit()) {
+            putString(type, data)
+            apply()
+        }
     }
 }

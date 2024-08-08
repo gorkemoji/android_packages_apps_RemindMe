@@ -15,17 +15,22 @@ import com.gorkemoji.remindme.databinding.ActivityBiometricScreenBinding
 class BiometricScreenActivity : AppCompatActivity() {
     private lateinit var binding: ActivityBiometricScreenBinding
     private val switchDelay = 300L
-    private var travelling = false
+    private var isTransitioning = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = ActivityBiometricScreenBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        /* val isLocked = loadMode("is_locked", "auth") == "true"
+        val isBiometricsEnabled = loadMode("biometrics", "auth") == "true"
+        val isPasskeySet = !loadMode("passkey", "auth").isNullOrBlank()
+
+        if (isLocked) navigateToAuthActivity(isBiometricsEnabled, isPasskeySet) */
+
         binding.onOffSwitch.isChecked = loadMode("biometrics", "auth") == "true"
 
-        if (isPinSet()) {
+        if (isPasswordSet()) {
             binding.onOffSwitch.isVisible = false
             binding.desc.text = getString(R.string.already_set)
         }
@@ -45,9 +50,8 @@ class BiometricScreenActivity : AppCompatActivity() {
         binding.onOffSwitch.setOnCheckedChangeListener { _, isChecked ->
             debounceHandler.removeCallbacksAndMessages(null)
             debounceHandler.postDelayed({
-                if (isChecked) {
-                    saveMode("biometrics", "true", "auth")
-                } else {
+                if (isChecked) saveMode("biometrics", "true", "auth")
+                else {
                     removeAuth("is_locked")
                     removeAuth("biometrics")
                 }
@@ -55,9 +59,15 @@ class BiometricScreenActivity : AppCompatActivity() {
         }
     }
 
-    private fun isPinSet(): Boolean {
-        return !loadMode("passkey", "auth").isNullOrBlank()
-    }
+    /* private fun navigateToAuthActivity(biometricsEnabled: Boolean, passkeySet: Boolean) {
+        isTransitioning = true
+        var intent = Intent(this, PasswordActivity::class.java)
+        if (biometricsEnabled && !passkeySet) intent = Intent(this, BiometricActivity::class.java)
+
+        startActivity(intent)
+    } */
+
+    private fun isPasswordSet(): Boolean { return !loadMode("passkey", "auth").isNullOrBlank() }
 
     private fun removeAuth(type: String) {
         val pref: SharedPreferences = getSharedPreferences("auth", Context.MODE_PRIVATE)
@@ -82,24 +92,12 @@ class BiometricScreenActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-
-        val isLocked = loadMode("is_locked", "auth") == "true"
-        val isBiometricsEnabled = loadMode("biometrics", "auth") == "true"
-        val isPasskeySet = !loadMode("passkey", "auth").isNullOrBlank()
-
-        if (!isLocked && (isBiometricsEnabled || isPasskeySet))
-            saveMode("is_locked", "true", "auth")
+        if (!isTransitioning) saveLockState()
     }
 
     override fun onPause() {
         super.onPause()
-
-        val isLocked = loadMode("is_locked", "auth") == "true"
-        val isBiometricsEnabled = loadMode("biometrics", "auth") == "true"
-        val isPasskeySet = !loadMode("passkey", "auth").isNullOrBlank()
-
-        if (!isLocked && (isBiometricsEnabled || isPasskeySet))
-            saveMode("is_locked", "true", "auth")
+        if (!isTransitioning) saveLockState()
     }
 
     override fun onResume() {
@@ -109,7 +107,14 @@ class BiometricScreenActivity : AppCompatActivity() {
             val intent = if (loadMode("biometrics", "auth") == "true") Intent(this, BiometricActivity::class.java)
             else Intent(this, PasswordActivity::class.java)
             startActivity(intent)
-            finish()
         }
+    }
+
+    private fun saveLockState() {
+        val isLocked = loadMode("is_locked", "auth") == "true"
+        val isBiometricsEnabled = loadMode("biometrics", "auth") == "true"
+        val isPasskeySet = !loadMode("passkey", "auth").isNullOrBlank()
+
+        if (!isLocked && (isBiometricsEnabled || isPasskeySet)) saveMode("is_locked", "true", "auth")
     }
 }

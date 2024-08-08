@@ -22,6 +22,7 @@ class TaskActivity : AppCompatActivity() {
     private lateinit var binding: ActivityTaskBinding
     private val calendar = Calendar.getInstance()
     private var isReminderSet = false
+    private var isTransitioning = false
 
     private val database by lazy {
         ToDoDatabase.getDatabase(this)
@@ -32,6 +33,12 @@ class TaskActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityTaskBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        /* val isLocked = loadMode("is_locked", "auth") == "true"
+        val biometricsEnabled = loadMode("biometrics", "auth") == "true"
+        val passkeySet = !loadMode("passkey", "auth").isNullOrBlank()
+
+        if (isLocked) navigateToAuthActivity(biometricsEnabled, passkeySet) */
 
         val mode = intent.getIntExtra("mode", 1)
         val id = intent.getLongExtra("id", -1L)
@@ -88,6 +95,7 @@ class TaskActivity : AppCompatActivity() {
                                 }
                             }
                         }
+                        isTransitioning = true
                         startActivity(Intent(this@TaskActivity, MainActivity::class.java))
                         finish()
                     }
@@ -95,6 +103,15 @@ class TaskActivity : AppCompatActivity() {
             } else Toast.makeText(this, resources.getText(R.string.task_cannot_be_empty), Toast.LENGTH_SHORT).show()
         }
     }
+
+    /* private fun navigateToAuthActivity(biometricsEnabled: Boolean, passkeySet: Boolean) {
+        isTransitioning = true
+        var intent = Intent(this, PasswordActivity::class.java)
+
+        if (biometricsEnabled && !passkeySet) intent = Intent(this, BiometricActivity::class.java)
+
+        startActivity(intent)
+    } */
 
     private fun updateReminderViews(isChecked: Boolean) {
         if (isChecked && isReminderSet) {
@@ -174,29 +191,29 @@ class TaskActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
+        if (!isTransitioning) saveLockState()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (!isTransitioning) saveLockState()
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        if (loadMode("is_locked", "auth") == "true") {
+            val intent = if (loadMode("biometrics", "auth") == "true") Intent(this, BiometricActivity::class.java)
+            else Intent(this, PasswordActivity::class.java)
+            startActivity(intent)
+        }
+    }
+
+    private fun saveLockState() {
         val isLocked = loadMode("is_locked", "auth") == "true"
         val isBiometricsEnabled = loadMode("biometrics", "auth") == "true"
         val isPasskeySet = !loadMode("passkey", "auth").isNullOrBlank()
 
         if (!isLocked && (isBiometricsEnabled || isPasskeySet)) saveMode("is_locked", "true", "auth")
-    }
-
-    override fun onPause() {
-        super.onPause()
-        val isLocked = loadMode("is_locked", "auth") == "true"
-        val isBiometricsEnabled = loadMode("biometrics", "auth") == "true"
-        val isPasskeySet = !loadMode("passkey", "auth").isNullOrBlank()
-
-        if (!isLocked && (isBiometricsEnabled or isPasskeySet)) saveMode("is_locked", "true", "auth")
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if (loadMode("is_locked", "auth") == "true") {
-            val intent = if (loadMode("biometrics", "auth") == "true") Intent(this, BiometricActivity::class.java)
-            else Intent(this, PasswordActivity::class.java)
-            startActivity(intent)
-            finish()
-        }
     }
 }

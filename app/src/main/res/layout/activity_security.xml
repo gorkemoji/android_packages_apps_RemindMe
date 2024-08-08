@@ -32,7 +32,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/biometrics"
-        android:layout_margin="30dp"
+        android:layout_margin="25dp"
         style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
         app:icon="@drawable/ic_fingerprint_button"
         app:rippleColor="@color/app_accent"
@@ -41,13 +41,13 @@
         app:layout_constraintTop_toBottomOf="@id/title" />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/pinBtn"
+        android:id="@+id/passBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/pin"
-        android:layout_margin="30dp"
+        android:text="@string/password"
+        android:layout_margin="25dp"
         style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
-        app:icon="@drawable/ic_pin_button"
+        app:icon="@drawable/ic_password"
         app:rippleColor="@color/app_accent"
         app:strokeColor="@color/app_accent"
         app:layout_constraintEnd_toEndOf="parent"
