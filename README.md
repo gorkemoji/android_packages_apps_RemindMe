@@ -35,13 +35,14 @@ It's in early stage, it'll have new features.
 - [x] Seperate done tasks 
 - [ ] Add some animations.
 - [x] Add onboarding screens.
-- [ ] Improve dark mode.
-- [ ] Add notification service.
+- [x] Improve dark mode.
+- [x] Add notification service.
 - [ ] Add some UI sounds to make it better.
 - [ ] Take To-Do backups to internal storage.
-- [x] Add password and biometric protection.
+- [ ] Add password and biometric protection.
 - [ ] Add more themes to make it fresh.
 - [ ] Use MVVM architecture and Compose UI.
 - [ ] Add widget support and photos to background.
 - [ ] Migrate to Datastore.
-- [ ] Add priority and grouping feature
+- [ ] Add priority and grouping feature.
+- [ ] Add taking note feature.
