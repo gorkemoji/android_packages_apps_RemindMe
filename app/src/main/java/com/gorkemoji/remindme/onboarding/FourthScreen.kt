@@ -29,42 +29,28 @@ class FourthScreen : Fragment() {
 
         val start = binding.start
 
-        start.setOnClickListener {
-            // notification permissions
-            askNotificationPermission()
-        }
+        start.setOnClickListener { askNotificationPermission() }
 
         return view
     }
 
     private fun askNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
-                // Permission already granted
-                proceedToMainActivity()
-            } else {
-                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-            }
-        } else {
-            // For devices below Android 13 (TIRAMISU), proceed directly
-            proceedToMainActivity()
-        }
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) proceedToMainActivity()
+                else requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        } else proceedToMainActivity()
     }
 
     private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
-        if (isGranted) {
-            Toast.makeText(requireContext(), "Notifications permission granted", Toast.LENGTH_SHORT).show()
-        } else {
+        if (isGranted) Toast.makeText(requireContext(), resources.getText(R.string.permissions_granted), Toast.LENGTH_SHORT).show()
+        else {
             Snackbar.make(requireView(), getString(R.string.txt_error_post_notification), Snackbar.LENGTH_LONG).setAction(getString(R.string.goto_settings)) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    val settingsIntent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        .putExtra(Settings.EXTRA_APP_PACKAGE, requireContext().packageName)
+                    val settingsIntent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK).putExtra(Settings.EXTRA_APP_PACKAGE, requireContext().packageName)
                     startActivity(settingsIntent)
                 }
             }.show()
         }
-        // Proceed to MainActivity regardless of permission result
         proceedToMainActivity()
     }
 

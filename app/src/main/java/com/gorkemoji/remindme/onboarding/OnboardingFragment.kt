@@ -14,10 +14,8 @@ class OnboardingFragment : FragmentActivity() {
         val fragmentList = arrayListOf(FirstScreen(), SecondScreen(), ThirdScreen(), FourthScreen())
         val adapter = ViewPagerAdapter(fragmentList, supportFragmentManager, lifecycle)
         val vp = binding.viewPager
-       // val indicator = binding.wormDotsIndicator
 
         vp.adapter = adapter
-        //indicator.attachTo(vp)
 
         setContentView(view)
     }
