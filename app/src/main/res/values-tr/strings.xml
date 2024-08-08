@@ -16,6 +16,8 @@
     <string name="onboarding_2_desc">Görevini yapmak için uyarılmak istediğin saate ayarla ve hazırsın!</string>
     <string name="onboarding_3_title">Seri Oluştur!</string>
     <string name="onboarding_3_desc">Yapılmış görevlerinden bir seri oluştur ve bunları bir raporda gör!</string>
+    <string name="onboarding_4_title">Haberdar olun!</string>
+    <string name="onboarding_4_desc">Görevinizi yapma zamanı gelince haberiniz olsun! Anlık bildirimler almak için bildirim izinleri gerekir.</string>
     <string name="next">İleri</string>
     <string name="start">Başlat</string>
     <string name="enter_a_pin">Bir PIN oluşturun:</string>
@@ -49,8 +51,14 @@
     <string name="reminder">Hatırlatıcı</string>
     <string name="its_time">Görevinizi yapma zamanı geldi.</string>
     <string name="expand">Genişlet</string>
-    <string name="onboarding_4_title">Haberdar olun!</string>
-    <string name="onboarding_4_desc">Görevinizi yapma zamanı gelince haberiniz olsun! Anlık bildirimler almak için bildirim izinleri gerekir.</string>
     <string name="txt_error_post_notification">Lütfen bildirim izni vermek için Ayarlar\'a gidin.</string>
     <string name="goto_settings">Ayarlar\'a git</string>
+    <string name="enter_a_date">Lütfen hatırlatıcı için tarih ve saat girin.</string>
+    <string name="task_cannot_be_empty">Görev ismi boş olamaz.</string>
+    <string name="file_icon">Dosya simgesi</string>
+    <string name="notification_icon">Bildirim simgesi</string>
+    <string name="alarm_icon">Alarm simgesi</string>
+    <string name="app_icon">Uygulama ikonu</string>
+    <string name="test">Test</string>
+    <string name="reminder_time">Hatırlatıcı zamanı</string>
 </resources>

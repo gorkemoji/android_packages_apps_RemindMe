@@ -20,7 +20,7 @@ class ReminderReceiver : BroadcastReceiver() {
         val notification = NotificationCompat.Builder(context, "reminder_channel")
             .setContentTitle(context.getString(R.string.reminder))
             .setContentText(context.getString(R.string.its_time))
-            .setSmallIcon(R.drawable.ic_alarm_flat)
+            .setSmallIcon(R.drawable.ic_alarm)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .build()
 

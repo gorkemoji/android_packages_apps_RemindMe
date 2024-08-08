@@ -11,7 +11,6 @@ import com.gorkemoji.remindme.databinding.ActivitySettingsBinding
 
 class SettingsActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySettingsBinding
-    private var travelling = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,8 +21,7 @@ class SettingsActivity : AppCompatActivity() {
         val biometricsEnabled = loadMode("biometrics", "auth") == "true"
         val passkeySet = !loadMode("passkey", "auth").isNullOrBlank()
 
-        if (isLocked)
-            navigateToAuthActivity(biometricsEnabled, passkeySet)
+        if (isLocked) navigateToAuthActivity(biometricsEnabled, passkeySet)
          */
 
         binding.security.isEnabled = false // debugging
@@ -31,26 +29,18 @@ class SettingsActivity : AppCompatActivity() {
 
         /*
         binding.security.setOnClickListener {
-            if (!loadMode("passkey", "auth").isNullOrEmpty())
-              //  saveMode("is_changing", "true", "auth")
+            if (!loadMode("passkey", "auth").isNullOrEmpty()) saveMode("is_changing", "true", "auth")
 
-            travelling = true
-            val animationBundle = ActivityOptions.makeCustomAnimation(this, R.anim.slide_out_bottom, R.anim.slide_in_bottom).toBundle()
-            startActivity(Intent(this, SecurityActivity::class.java), animationBundle)
-            finish()
+            startActivity(Intent(this, SecurityActivity::class.java))
         }*/
     }
 /*
     private fun navigateToAuthActivity(biometricsEnabled: Boolean, passkeySet: Boolean) {
         var intent = Intent(this, PasswordActivity::class.java)
-        val animationBundle = ActivityOptions.makeCustomAnimation(this, R.anim.slide_out_bottom, R.anim.slide_in_bottom).toBundle()
 
-        if (biometricsEnabled && !passkeySet)
-            intent = Intent(this, BiometricActivity::class.java)
+        if (biometricsEnabled && !passkeySet) intent = Intent(this, BiometricActivity::class.java)
 
-        travelling = true
-        intent.putExtra("prevActivity", "MainActivity")
-        startActivity(intent, animationBundle)
+        startActivity(intent)
         finish()
     }
 */
@@ -61,8 +51,7 @@ class SettingsActivity : AppCompatActivity() {
         val passkeySet = !loadMode("passkey", "auth").isNullOrBlank()
         val isLocked = loadMode("is_locked", "auth") == "true"
 
-        if (!isLocked && (isBiometricsEnabled || passkeySet) && !travelling)
-            saveMode("is_locked", "true", "auth")
+        if (!isLocked && (isBiometricsEnabled || passkeySet)) saveMode("is_locked", "true", "auth")
     }
 
     override fun onPause() {
@@ -72,8 +61,7 @@ class SettingsActivity : AppCompatActivity() {
         val isBiometricsEnabled = loadMode("biometrics", "auth") == "true"
         val isPasskeySet = !loadMode("passkey", "auth").isNullOrBlank()
 
-        if (!isLocked && (isBiometricsEnabled || isPasskeySet) && !travelling)
-            saveMode("is_locked", "true", "auth")
+        if (!isLocked && (isBiometricsEnabled || isPasskeySet)) saveMode("is_locked", "true", "auth")
     }
 
     override fun onResume() {
@@ -83,7 +71,6 @@ class SettingsActivity : AppCompatActivity() {
             val intent = if (loadMode("biometrics", "auth") == "true") Intent(this, BiometricActivity::class.java)
             else Intent(this, PasswordActivity::class.java)
             startActivity(intent)
-            finish()
         }
     }
 

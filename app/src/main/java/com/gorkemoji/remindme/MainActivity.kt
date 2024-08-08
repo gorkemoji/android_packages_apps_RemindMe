@@ -33,7 +33,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var database: ToDoDatabase
     private val list = arrayListOf<ToDo>()
     private var fabVisible = false
-    private var travelling = false
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,10 +70,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkFirstStart() {
-        if (loadMode("first_start", "preferences").isNullOrEmpty()) {
-            startActivity(Intent(this, OnboardingFragment::class.java))
-            finish()
-        }
+        if (loadMode("first_start", "preferences").isNullOrEmpty()) startActivity(Intent(this, OnboardingFragment::class.java))
     }
 
     private fun showFabMenu() {
@@ -91,23 +87,14 @@ class MainActivity : AppCompatActivity() {
         binding.fabSettings.visibility = View.INVISIBLE
     }
 
-    private fun navigateToSettingsActivity() {
-        travelling = true
-        startActivity(Intent(this, SettingsActivity::class.java))
-    }
+    private fun navigateToSettingsActivity() { startActivity(Intent(this, SettingsActivity::class.java)) }
 
 /*
     private fun navigateToAuthActivity(biometricsEnabled: Boolean, passkeySet: Boolean) {
         var intent = Intent(this, PasswordActivity::class.java)
-        val animationBundle = ActivityOptions.makeCustomAnimation(this, R.anim.slide_out_bottom, R.anim.slide_in_bottom).toBundle()
+        if (biometricsEnabled && !passkeySet) intent = Intent(this, BiometricActivity::class.java)
 
-        if (biometricsEnabled && !passkeySet)
-            intent = Intent(this, BiometricActivity::class.java)
-
-        travelling = true
-        intent.putExtra("prevActivity", "MainActivity")
-        startActivity(intent, animationBundle)
-        finish()
+        startActivity(intent)
     }
 */
 
@@ -134,9 +121,8 @@ class MainActivity : AppCompatActivity() {
 
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
             val position = viewHolder.adapterPosition
-            if (swipeDir == ItemTouchHelper.LEFT) {
-                deleteTask(position)
-            } else if (swipeDir == ItemTouchHelper.RIGHT) {
+            if (swipeDir == ItemTouchHelper.LEFT) deleteTask(position)
+            else if (swipeDir == ItemTouchHelper.RIGHT) {
                 if (!list[position].isChecked) updateTask(position)
                 else adapter.notifyItemChanged(position)
             }
@@ -156,7 +142,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addTask() {
-        travelling = true
         val intent = Intent(this, TaskActivity::class.java)
         intent.putExtra("mode", 1)
 
@@ -164,8 +149,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateTask(position: Int) {
-        travelling = true
-
         val intent = Intent(this, TaskActivity::class.java)
         intent.putExtra("mode", 2)
         intent.putExtra("id", list[position].id)
@@ -182,9 +165,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun deleteTask(position: Int) {
-        MainScope().launch {
-            database.getDao().delete(list[position])
-        }
+        MainScope().launch { database.getDao().delete(list[position]) }
         adapter.notifyItemRemoved(position)
     }
 
@@ -198,6 +179,7 @@ class MainActivity : AppCompatActivity() {
         val iconMargin = (itemHeight - height) / 2
         val iconLeft: Int
         val iconRight: Int
+
         if (dX > 0) {
             iconLeft = itemView.left + iconMargin
             iconRight = itemView.left + iconMargin + width
@@ -224,8 +206,7 @@ class MainActivity : AppCompatActivity() {
         val isBiometricsEnabled = loadMode("biometrics", "auth") == "true"
         val isPasskeySet = !loadMode("passkey", "auth").isNullOrBlank()
 
-        if (!isLocked && (isBiometricsEnabled || isPasskeySet) && !travelling)
-            saveMode("is_locked", "true", "auth")
+        if (!isLocked && (isBiometricsEnabled || isPasskeySet)) saveMode("is_locked", "true", "auth")
     }
 
     override fun onPause() {
@@ -235,8 +216,7 @@ class MainActivity : AppCompatActivity() {
         val isBiometricsEnabled = loadMode("biometrics", "auth") == "true"
         val isPasskeySet = !loadMode("passkey", "auth").isNullOrBlank()
 
-        if (!isLocked && (isBiometricsEnabled || isPasskeySet) && !travelling)
-            saveMode("is_locked", "true", "auth")
+        if (!isLocked && (isBiometricsEnabled || isPasskeySet)) saveMode("is_locked", "true", "auth")
     }
 
     override fun onResume() {
@@ -246,7 +226,6 @@ class MainActivity : AppCompatActivity() {
             val intent = if (loadMode("biometrics", "auth") == "true") Intent(this, BiometricActivity::class.java)
             else Intent(this, PasswordActivity::class.java)
             startActivity(intent)
-            finish()
         }
     }
 

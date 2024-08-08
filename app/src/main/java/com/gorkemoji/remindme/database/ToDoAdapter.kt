@@ -28,11 +28,8 @@ class ToDoAdapter(private val toDoList: List<ToDo>, private val dao: ToDoDao, pr
             if (isChecked) {
                 currentToDo.isChecked = true
                 updateTextAppearance(holder.binding, true)
-                coroutineScope.launch {
-                    dao.update(currentToDo)
-                }
-            } else
-                holder.binding.checkBox.isChecked = true
+                coroutineScope.launch { dao.update(currentToDo) }
+            } else holder.binding.checkBox.isChecked = true
         }
     }
 

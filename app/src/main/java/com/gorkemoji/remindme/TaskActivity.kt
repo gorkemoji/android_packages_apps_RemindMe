@@ -66,7 +66,7 @@ class TaskActivity : AppCompatActivity() {
         binding.saveBtn.setOnClickListener {
             if (binding.taskText.text?.isNotBlank() == true) {
                 if (binding.reminderChk.isChecked && !isReminderSet)
-                    Toast.makeText(this, "Please set date and time for the reminder", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, resources.getText(R.string.enter_a_date), Toast.LENGTH_SHORT).show()
                 else {
                     val toDoTitle: String = binding.taskText.text.toString()
                     val dueDate: Long? = if (binding.reminderChk.isChecked) calendar.timeInMillis else null
@@ -92,7 +92,7 @@ class TaskActivity : AppCompatActivity() {
                         finish()
                     }
                 }
-            } else Toast.makeText(this, "Task name cannot be empty", Toast.LENGTH_SHORT).show()
+            } else Toast.makeText(this, resources.getText(R.string.task_cannot_be_empty), Toast.LENGTH_SHORT).show()
         }
     }
 

@@ -15,6 +15,8 @@
     <string name="onboarding_2_desc">Set the time you should be warned to do your task and here you go!</string>
     <string name="onboarding_3_title">Build A Streak!</string>
     <string name="onboarding_3_desc">Build a streak when you mark your tasks done and see them in a report!</string>
+    <string name="onboarding_4_title">Get notified!</string>
+    <string name="onboarding_4_desc">Get notified when it\'s time to do your task! Notification permissions are required for getting post notifications.</string>
     <string name="next">Next</string>
     <string name="start">Start</string>
     <string name="enter_a_pin">Create a PIN:</string>
@@ -49,8 +51,14 @@
     <string name="reminder">Reminder</string>
     <string name="its_time">It\'s time to do your task.</string>
     <string name="expand">Expand</string>
-    <string name="onboarding_4_title">Get notified!</string>
-    <string name="onboarding_4_desc">Get notified when it\'s time to do your task! Notification permissions are required for getting post notifications.</string>
     <string name="txt_error_post_notification">Please grant notification permission from app settings.</string>
     <string name="goto_settings">Go to Settings</string>
+    <string name="enter_a_date">Please set date and time for reminder.</string>
+    <string name="task_cannot_be_empty">Task name cannot be empty.</string>
+    <string name="file_icon">File icon</string>
+    <string name="notification_icon">Notification icon</string>
+    <string name="alarm_icon">Alarm icon</string>
+    <string name="app_icon">App icon</string>
+    <string name="test">Test</string>
+    <string name="reminder_time">Reminder Time</string>
 </resources>
