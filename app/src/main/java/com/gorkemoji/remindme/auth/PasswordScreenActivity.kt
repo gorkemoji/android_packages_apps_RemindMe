@@ -1,6 +1,5 @@
 package com.gorkemoji.remindme.auth
 
-import android.app.ActivityOptions
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
@@ -23,7 +22,7 @@ class PasswordScreenActivity : AppCompatActivity() {
         binding = ActivityPasswordScreenBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        var isPinSet = !loadMode("passkey", "auth").isNullOrBlank()
+        val isPinSet = !loadMode("passkey", "auth").isNullOrBlank()
 
         binding.onOffSwitch.isChecked = isPinSet
         binding.chnPass.isVisible = isPinSet
@@ -42,7 +41,7 @@ class PasswordScreenActivity : AppCompatActivity() {
                     travelling = true
                     val intent = Intent(this@PasswordScreenActivity, PasswordActivity::class.java)
                     intent.putExtra("prevActivity", "PasswordScreenActivity")
-                    startActivity(intent, ActivityOptions.makeCustomAnimation(this, R.anim.slide_out_bottom, R.anim.slide_in_bottom).toBundle())
+                   // startActivity(intent, ActivityOptions.makeCustomAnimation(this, R.anim.slide_out_bottom, R.anim.slide_in_bottom).toBundle())
                     finish()
                 } else {
                     removeAuth("passkey")
@@ -57,7 +56,7 @@ class PasswordScreenActivity : AppCompatActivity() {
             saveMode("is_changing", "true", "auth")
             val intent = Intent(this@PasswordScreenActivity, PasswordActivity::class.java)
             intent.putExtra("prevActivity", "PasswordScreenActivity")
-            startActivity(intent, ActivityOptions.makeCustomAnimation(this, R.anim.slide_out_bottom, R.anim.slide_in_bottom).toBundle())
+           // startActivity(intent, ActivityOptions.makeCustomAnimation(this, R.anim.slide_out_bottom, R.anim.slide_in_bottom).toBundle())
             finish()
         }
     }

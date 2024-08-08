@@ -62,4 +62,15 @@
     <string name="test">Test</string>
     <string name="reminder_time">Hatırlatıcı zamanı</string>
     <string name="permissions_granted">İzinler verildi!</string>
+    <string name="backup_restore">Yedekle ve Geri Yükle</string>
+    <string name="backup">Yedekle</string>
+    <string name="restore">Geri yükle</string>
+    <string name="backup_restore_desc">Görevleriniz ve notlarınızı dahili depolamaya yedekleyin. Aynı şekilde geri yükleyebilirsiniz.</string>
+    <string name="permissions_denied">İzinler reddedildi!</string>
+    <string name="backup_successful">Yedekleme başarılı!</string>
+    <string name="restore_successful">Geri yükleme başarılı!</string>
+    <string name="backup_failed">Yedekleme başarısız!</string>
+    <string name="restore_failed">Geri yükleme başarısız!</string>
+    <string name="couldnt_create_file">Dosya oluşturulamadı</string>
+    <string name="couldnt_open_file">Dosya açılamadı</string>
 </resources>

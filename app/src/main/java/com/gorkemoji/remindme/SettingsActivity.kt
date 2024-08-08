@@ -24,8 +24,10 @@ class SettingsActivity : AppCompatActivity() {
         if (isLocked) navigateToAuthActivity(biometricsEnabled, passkeySet)
          */
 
-        binding.security.isEnabled = false // debugging
-        binding.security.isClickable = false // debugging
+        binding.btnBackupRestore.setOnClickListener {startActivity(Intent(this, BackupRestoreActivity::class.java))}
+
+        binding.btnSecurity.isEnabled = false // debugging
+        binding.btnSecurity.isClickable = false // debugging
 
         /*
         binding.security.setOnClickListener {

@@ -1,12 +1,10 @@
 package com.gorkemoji.remindme.auth
 
-import android.app.ActivityOptions
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.gorkemoji.remindme.R
 import com.gorkemoji.remindme.databinding.ActivitySecurityBinding
 
 class SecurityActivity : AppCompatActivity() {
@@ -20,13 +18,13 @@ class SecurityActivity : AppCompatActivity() {
 
         binding.bioBtn.setOnClickListener {
             travelling = true
-            startActivity(Intent(this, BiometricScreenActivity::class.java), ActivityOptions.makeCustomAnimation(this, R.anim.slide_out_bottom, R.anim.slide_in_bottom).toBundle())
+         //   startActivity(Intent(this, BiometricScreenActivity::class.java), ActivityOptions.makeCustomAnimation(this, R.anim.slide_out_bottom, R.anim.slide_in_bottom).toBundle())
             finish()
         }
 
         binding.pinBtn.setOnClickListener {
             travelling = true
-            startActivity(Intent(this, PasswordScreenActivity::class.java), ActivityOptions.makeCustomAnimation(this, R.anim.slide_out_bottom, R.anim.slide_in_bottom).toBundle())
+         //   startActivity(Intent(this, PasswordScreenActivity::class.java), ActivityOptions.makeCustomAnimation(this, R.anim.slide_out_bottom, R.anim.slide_in_bottom).toBundle())
             finish()
         }
     }

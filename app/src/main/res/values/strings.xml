@@ -62,4 +62,15 @@
     <string name="test">Test</string>
     <string name="reminder_time">Reminder Time</string>
     <string name="permissions_granted">Permissions granted!</string>
+    <string name="backup_restore">Backup and Restore</string>
+    <string name="backup">Backup</string>
+    <string name="restore">Restore</string>
+    <string name="backup_restore_desc">Backup your tasks and notes to internal storage. You can restore them from internal storage as well.</string>
+    <string name="permissions_denied">Permissions denied!</string>
+    <string name="backup_successful">Backup successful!</string>
+    <string name="restore_successful">Restore successful!</string>
+    <string name="backup_failed">Backup failed</string>
+    <string name="restore_failed">Restore failed</string>
+    <string name="couldnt_create_file">Couldn\'t create file</string>
+    <string name="couldnt_open_file">Couldn\'t open file</string>
 </resources>
