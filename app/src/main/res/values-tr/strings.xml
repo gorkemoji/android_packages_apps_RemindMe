@@ -73,4 +73,16 @@
     <string name="restore_failed">Geri yükleme başarısız!</string>
     <string name="couldnt_create_file">Dosya oluşturulamadı</string>
     <string name="couldnt_open_file">Dosya açılamadı</string>
+    <string name="theme">Tema</string>
+    <string name="theme_applied">Tema uygulandı, lütfen uygulamayı yeniden başlatın.</string>
+    <string-array name="themes">
+        <item>Mavi</item>
+        <item>Yeşil</item>
+        <item>Kırmızı</item>
+        <item>Sarı</item>
+    </string-array>
+    <string name="blue">Mavi</string>
+    <string name="green">Yeşil</string>
+    <string name="red">Kırmızı</string>
+    <string name="yellow">Sarı</string>
 </resources>

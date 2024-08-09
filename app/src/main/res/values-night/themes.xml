@@ -23,4 +23,28 @@
     <style name="TimePickerStyle" parent="Widget.MaterialComponents.TimePicker">
         <item name="android:windowBackground">@android:color/transparent</item>
     </style>
+    <style name="AppTheme.Red" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/red</item>
+        <item name="colorPrimaryVariant">@color/red</item>
+        <item name="colorSecondary">@color/red</item>
+        <item name="colorSecondaryVariant">@color/red</item>
+        <item name="cardViewStyle">@style/CardStyle</item>
+        <item name="materialTimePickerStyle">@style/TimePickerStyle</item>
+    </style>
+    <style name="AppTheme.Green" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/green</item>
+        <item name="colorPrimaryVariant">@color/green</item>
+        <item name="colorSecondary">@color/green</item>
+        <item name="colorSecondaryVariant">@color/green</item>
+        <item name="cardViewStyle">@style/CardStyle</item>
+        <item name="materialTimePickerStyle">@style/TimePickerStyle</item>
+    </style>
+    <style name="AppTheme.Yellow" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/yellow</item>
+        <item name="colorPrimaryVariant">@color/yellow</item>
+        <item name="colorSecondary">@color/yellow</item>
+        <item name="colorSecondaryVariant">@color/yellow</item>
+        <item name="cardViewStyle">@style/CardStyle</item>
+        <item name="materialTimePickerStyle">@style/TimePickerStyle</item>
+    </style>
 </resources>

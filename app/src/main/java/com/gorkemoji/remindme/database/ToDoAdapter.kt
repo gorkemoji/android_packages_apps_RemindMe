@@ -5,10 +5,11 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.gorkemoji.remindme.databinding.TaskLayoutBinding
+import com.gorkemoji.remindme.sound.SoundManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-class ToDoAdapter(private val toDoList: List<ToDo>, private val dao: ToDoDao, private val coroutineScope: CoroutineScope) : RecyclerView.Adapter<ToDoAdapter.ToDoViewHolder>() {
+class ToDoAdapter(private val toDoList: List<ToDo>, private val dao: ToDoDao, private val coroutineScope: CoroutineScope, private val soundManager: SoundManager) : RecyclerView.Adapter<ToDoAdapter.ToDoViewHolder>() {
     class ToDoViewHolder(val binding: TaskLayoutBinding) : RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ToDoViewHolder {
@@ -28,6 +29,7 @@ class ToDoAdapter(private val toDoList: List<ToDo>, private val dao: ToDoDao, pr
             if (isChecked) {
                 currentToDo.isChecked = true
                 updateTextAppearance(holder.binding, true)
+                soundManager.playClickSound()
                 coroutineScope.launch { dao.update(currentToDo) }
             } else holder.binding.checkBox.isChecked = true
         }

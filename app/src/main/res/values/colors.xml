@@ -10,6 +10,13 @@
     <color name="app_accent">#2C77F3</color>
     <color name="your_outline_color">#FFFFFF</color>
     <color name="dark_card_bg">#191919</color>
-    <color name="red">#972B2B</color>
-    <color name="green">#0D6511</color>
+    <color name="red">#F44336</color>
+    <color name="green">#4CAF50</color>
+    <color name="yellow">#FFC107</color>
+    <color name="red_card_background">#FFCDD2</color>
+    <color name="green_card_background">#C8E6C9</color>
+    <color name="yellow_card_background">#FFF9C4</color>
+    <color name="red_timepicker_background">#EF9A9A</color>
+    <color name="green_timepicker_background">#A5D6A7</color>
+    <color name="yellow_timepicker_background">#FFF59D</color>
 </resources>

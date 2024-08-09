@@ -73,4 +73,16 @@
     <string name="restore_failed">Restore failed</string>
     <string name="couldnt_create_file">Couldn\'t create file</string>
     <string name="couldnt_open_file">Couldn\'t open file</string>
+    <string name="theme">Theme</string>
+    <string name="theme_applied">Theme applied, please restart app for changes.</string>
+    <string-array name="themes">
+        <item>Blue</item>
+        <item>Green</item>
+        <item>Red</item>
+        <item>Yellow</item>
+    </string-array>
+    <string name="blue">Blue</string>
+    <string name="green">Green</string>
+    <string name="red">Red</string>
+    <string name="yellow">Yellow</string>
 </resources>

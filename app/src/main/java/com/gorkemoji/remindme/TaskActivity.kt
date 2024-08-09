@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.gorkemoji.remindme.auth.BiometricActivity
 import com.gorkemoji.remindme.auth.PasswordActivity
 import com.gorkemoji.remindme.database.ToDo
@@ -39,6 +40,11 @@ class TaskActivity : AppCompatActivity() {
         val passkeySet = !loadMode("passkey", "auth").isNullOrBlank()
 
         if (isLocked) navigateToAuthActivity(biometricsEnabled, passkeySet) */
+
+        val themeColor = loadMode("theme_color", "preferences") ?: "blue"
+        setThemeColor(themeColor)
+
+        updateComponentColors(getThemeColorResource(themeColor))
 
         val mode = intent.getIntExtra("mode", 1)
         val id = intent.getLongExtra("id", -1L)
@@ -131,9 +137,7 @@ class TaskActivity : AppCompatActivity() {
     }
 
     private fun showDateTimePicker() {
-        val datePickerDialog = DatePickerDialog(
-            this,
-            { _, year, month, dayOfMonth ->
+        val datePickerDialog = DatePickerDialog(this, { _, year, month, dayOfMonth ->
                 calendar.set(year, month, dayOfMonth)
 
                 val timePickerDialog = TimePickerDialog(this, { _, hourOfDay, minute ->
@@ -215,5 +219,35 @@ class TaskActivity : AppCompatActivity() {
         val isPasskeySet = !loadMode("passkey", "auth").isNullOrBlank()
 
         if (!isLocked && (isBiometricsEnabled || isPasskeySet)) saveMode("is_locked", "true", "auth")
+    }
+
+    private fun setThemeColor(color: String) {
+        when (color) {
+            "red" -> setTheme(R.style.AppTheme_Red)
+            "blue" -> setTheme(R.style.Theme_RemindMe)
+            "yellow" -> setTheme(R.style.AppTheme_Yellow)
+            "green" -> setTheme(R.style.AppTheme_Green)
+        }
+    }
+
+    private fun updateComponentColors(colorResId: Int) {
+        val colorStateList = ContextCompat.getColorStateList(this, colorResId)
+        binding.setDateTimeBtn.backgroundTintList = colorStateList
+        binding.saveBtn.backgroundTintList = colorStateList
+        binding.alarmIcon.imageTintList = colorStateList
+        binding.reminderChk.buttonTintList = colorStateList
+        binding.reminderDate.setTextColor(ContextCompat.getColor(this, colorResId))
+        binding.taskLayout.hintTextColor = colorStateList
+        binding.taskLayout.boxStrokeColor = ContextCompat.getColor(this, colorResId)
+    }
+
+    private fun getThemeColorResource(color: String): Int {
+        return when (color) {
+            "red" -> R.color.red
+            "blue" -> R.color.app_accent
+            "yellow" -> R.color.yellow
+            "green" -> R.color.green
+            else -> R.color.app_accent
+        }
     }
 }

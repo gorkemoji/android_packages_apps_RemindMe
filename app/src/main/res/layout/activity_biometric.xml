@@ -14,8 +14,7 @@
         android:src="@drawable/ic_fingerprint"
         android:contentDescription="@string/lock_icon"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:tint="@color/app_accent" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/title"
@@ -24,6 +23,7 @@
         android:layout_margin="25dp"
         android:text="@string/biometrics"
         android:textSize="25sp"
+        android:textColor="?android:textColorPrimary"
         app:layout_constraintTop_toBottomOf="@id/bioIcon"
         app:layout_constraintStart_toStartOf="parent" />
 

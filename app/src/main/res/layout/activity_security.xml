@@ -14,8 +14,7 @@
         android:src="@drawable/ic_lock"
         android:contentDescription="@string/lock_icon"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:tint="@color/app_accent" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/title"
@@ -24,6 +23,7 @@
         android:layout_margin="25dp"
         android:text="@string/security_type"
         android:textSize="25sp"
+        android:textColor="?android:textColorPrimary"
         app:layout_constraintTop_toBottomOf="@id/lockIcon"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -35,8 +35,6 @@
         android:layout_margin="25dp"
         style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
         app:icon="@drawable/ic_fingerprint_button"
-        app:rippleColor="@color/app_accent"
-        app:strokeColor="@color/app_accent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/title" />
 
@@ -48,8 +46,6 @@
         android:layout_margin="25dp"
         style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
         app:icon="@drawable/ic_password"
-        app:rippleColor="@color/app_accent"
-        app:strokeColor="@color/app_accent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/title" />
 

@@ -37,7 +37,6 @@
         android:layout_height="wrap_content"
         android:contentDescription="@string/alarm_icon"
         android:src="@drawable/ic_alarm"
-        app:tint="@color/app_accent"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/task_layout"
         app:layout_constraintEnd_toStartOf="@id/reminderDate"
@@ -52,7 +51,6 @@
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/task_layout"
         app:layout_constraintEnd_toEndOf="parent"
-        android:textColor="@color/app_accent"
         android:layout_margin="40dp" />
 
     <Button

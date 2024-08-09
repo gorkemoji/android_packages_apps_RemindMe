@@ -24,6 +24,7 @@ import com.gorkemoji.remindme.database.ToDoAdapter
 import com.gorkemoji.remindme.database.ToDoDatabase
 import com.gorkemoji.remindme.databinding.ActivityMainBinding
 import com.gorkemoji.remindme.onboarding.OnboardingFragment
+import com.gorkemoji.remindme.sound.SoundManager
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
@@ -31,6 +32,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var adapter: ToDoAdapter
     private lateinit var binding: ActivityMainBinding
     private lateinit var database: ToDoDatabase
+    private lateinit var soundManager: SoundManager
     private val list = arrayListOf<ToDo>()
     private var fabVisible = false
     private var isTransitioning = false
@@ -47,10 +49,16 @@ class MainActivity : AppCompatActivity() {
 
         if (isLocked) navigateToAuthActivity(isBiometricsEnabled, isPasskeySet) */
 
+        val themeColor = loadMode("theme_color", "preferences") ?: "blue"
+        setThemeColor(themeColor)
+
+        updateComponentColors(getThemeColorResource(themeColor))
+
+        soundManager = SoundManager(this)
         checkFirstStart()
 
         database = ToDoDatabase.getDatabase(this)
-        adapter = ToDoAdapter(list, database.getDao(), MainScope())
+        adapter = ToDoAdapter(list, database.getDao(), MainScope(), soundManager)
 
         setupRecyclerView()
         observeDatabaseChanges()
@@ -236,6 +244,32 @@ class MainActivity : AppCompatActivity() {
         with(pref.edit()) {
             putString(type, data)
             apply()
+        }
+    }
+
+    private fun setThemeColor(color: String) {
+        when (color) {
+            "red" -> setTheme(R.style.AppTheme_Red)
+            "blue" -> setTheme(R.style.Theme_RemindMe)
+            "yellow" -> setTheme(R.style.AppTheme_Yellow)
+            "green" -> setTheme(R.style.AppTheme_Green)
+        }
+    }
+
+    private fun updateComponentColors(colorResId: Int) {
+        val colorStateList = ContextCompat.getColorStateList(this, colorResId)
+        binding.fabWrite.backgroundTintList = colorStateList
+        binding.fabExpand.backgroundTintList = colorStateList
+        binding.fabSettings.backgroundTintList = colorStateList
+    }
+
+    private fun getThemeColorResource(color: String): Int {
+        return when (color) {
+            "red" -> R.color.red
+            "blue" -> R.color.app_accent
+            "yellow" -> R.color.yellow
+            "green" -> R.color.green
+            else -> R.color.app_accent
         }
     }
 }

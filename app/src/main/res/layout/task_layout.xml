@@ -6,7 +6,8 @@
     android:layout_marginHorizontal="5dp"
     android:layout_marginVertical="5dp"
     app:cardCornerRadius="8dp"
-    app:cardElevation="5dp">
+    app:cardElevation="5dp"
+    style="@style/CardStyle" >
 
     <RelativeLayout
         android:id="@+id/cardLayout"
@@ -39,8 +40,7 @@
             android:layout_centerVertical="true"
             android:contentDescription="@string/alarm_icon"
             android:src="@drawable/ic_alarm"
-            android:visibility="gone"
-            app:tint="@color/app_accent" />
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/reminderText"
