@@ -7,6 +7,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
+import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -24,7 +25,6 @@ import com.gorkemoji.remindme.database.ToDoAdapter
 import com.gorkemoji.remindme.database.ToDoDatabase
 import com.gorkemoji.remindme.databinding.ActivityMainBinding
 import com.gorkemoji.remindme.onboarding.OnboardingFragment
-import com.gorkemoji.remindme.sound.SoundManager
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
@@ -32,7 +32,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var adapter: ToDoAdapter
     private lateinit var binding: ActivityMainBinding
     private lateinit var database: ToDoDatabase
-    private lateinit var soundManager: SoundManager
+    private lateinit var player: MediaPlayer
     private val list = arrayListOf<ToDo>()
     private var fabVisible = false
     private var isTransitioning = false
@@ -54,11 +54,11 @@ class MainActivity : AppCompatActivity() {
 
         updateComponentColors(getThemeColorResource(themeColor))
 
-        soundManager = SoundManager(this)
+        player = MediaPlayer.create(this, R.raw.pencil_done)
         checkFirstStart()
 
         database = ToDoDatabase.getDatabase(this)
-        adapter = ToDoAdapter(list, database.getDao(), MainScope(), soundManager)
+        adapter = ToDoAdapter(list, database.getDao(), MainScope(), player)
 
         setupRecyclerView()
         observeDatabaseChanges()
