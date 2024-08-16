@@ -39,7 +39,7 @@ It's in early stage, it'll have new features.
 - [x] Add notification service.
 - [x] Add some UI sounds to make it better.
 - [x] Take To-Do backups to internal storage.
-- [ ] Add password and biometric protection.
+- [x] Add password and biometric protection.
 - [x] Add more themes to make it fresh.
 - [ ] Use MVVM architecture and Compose UI.
 - [ ] Add widget support and photos to background.
