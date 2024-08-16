@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.InputType
+import android.view.View
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -37,8 +38,9 @@ class TaskActivity : AppCompatActivity() {
 
         val themeColor = loadMode("theme_color", "preferences") ?: "blue"
         setThemeColor(themeColor)
-
         updateComponentColors(getThemeColorResource(themeColor))
+
+        selectTipText()
 
         val mode = intent.getIntExtra("mode", 1)
         val id = intent.getLongExtra("id", -1L)
@@ -46,7 +48,6 @@ class TaskActivity : AppCompatActivity() {
         val checkBoxState = intent.getBooleanExtra("cbState", false)
         val reminderTime = intent.getLongExtra("reminderTime", 0)
         val reminderState = intent.getBooleanExtra("reminderState", false)
-        val lockState = intent.getBooleanExtra("lockState", false)
 
         if (mode == 2) {
             binding.taskText.setText(taskName)
@@ -55,102 +56,85 @@ class TaskActivity : AppCompatActivity() {
 
         if (reminderTime > 0) {
             calendar.timeInMillis = reminderTime
-            updateReminderDateTimeText()
+            updateReminderDateTimeText(mode)
             isReminderSet = true
         }
 
-        binding.reminderChk.isChecked = reminderState
-        binding.secureChk.isChecked = lockState
-        binding.setDateTimeBtn.isEnabled = reminderState
-
-        updateReminderViews(reminderState)
-
-        binding.reminderChk.setOnCheckedChangeListener { _, isChecked ->
-            binding.setDateTimeBtn.isEnabled = isChecked
-            updateReminderViews(isChecked)
+        if (reminderState && mode == 2) {
+            updateReminderViews(mode)
         }
 
-        binding.secureChk.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) showSecurityChoiceDialog(getThemeColorResource(themeColor))
-            else {
-                isLocked = false
-                lockType = "null"
-                password = "null"
-            }
-        }
-
-        binding.setDateTimeBtn.setOnClickListener { showDateTimePicker() }
+        binding.secureTxt.visibility = if (isLocked) View.GONE else View.VISIBLE
+        binding.secureTxt.setOnClickListener { showSecurityChoiceDialog(getThemeColorResource(themeColor)) }
+        binding.reminderTxt.setOnClickListener { showDateTimePicker(mode) }
 
         binding.saveBtn.setOnClickListener {
             if (binding.taskText.text?.isNotBlank() == true) {
-                if (binding.reminderChk.isChecked && !isReminderSet) Toast.makeText(this, resources.getText(R.string.enter_a_date), Toast.LENGTH_SHORT).show()
-                else {
-                    val toDoTitle: String = binding.taskText.text.toString()
-                    val dueDate: Long? = if (binding.reminderChk.isChecked) calendar.timeInMillis else null
-                    val isReminderOn = binding.reminderChk.isChecked
-                    val isLocked = binding.secureChk.isChecked
+                val toDoTitle: String = binding.taskText.text.toString()
+                val dueDate: Long? = if (isReminderSet) calendar.timeInMillis else null
 
-                    GlobalScope.launch(Dispatchers.Main) {
-                        withContext(Dispatchers.IO) {
-                            when (mode) {
-                                1 -> {
-                                    val newTaskId = database.getDao().insert(ToDo(toDoTitle = toDoTitle, isChecked = false, isReminderOn = isReminderOn, dueDate = dueDate, isLocked = isLocked, lockType = lockType, password = password))
-                                    if (isReminderOn) setReminder(calendar, newTaskId)
+                GlobalScope.launch(Dispatchers.Main) {
+                    withContext(Dispatchers.IO) {
+                        when (mode) {
+                            1 -> {
+                                val newTaskId = database.getDao().insert(ToDo(toDoTitle = toDoTitle, isChecked = false, isReminderOn = isReminderSet, dueDate = dueDate, isLocked = isLocked, lockType = lockType, password = password))
+                                if (isReminderSet) setReminder(calendar, newTaskId)
+                            }
+                            2 -> {
+                                if (!isLocked) {
+                                    lockType = "null"
+                                    password = "null"
                                 }
-                                2 -> {
-                                    if (!isLocked) {
-                                        lockType = "null"
-                                        password = "null"
-                                    }
-                                    val updatedTask = ToDo(id = id, toDoTitle = toDoTitle, isChecked = checkBoxState, isReminderOn = isReminderOn, dueDate = dueDate, isLocked = isLocked, lockType = lockType, password = password)
-                                    database.getDao().update(updatedTask)
-                                    if (isReminderOn)
-                                        if (!isReminderSet) setReminder(calendar, id)
-                                    else cancelReminder(id)
-                                }
+                                val updatedTask = ToDo(id = id, toDoTitle = toDoTitle, isChecked = checkBoxState, isReminderOn = isReminderSet, dueDate = dueDate, isLocked = isLocked, lockType = lockType, password = password)
+                                database.getDao().update(updatedTask)
+                                if (isReminderSet) setReminder(calendar, id) else cancelReminder(id)
                             }
                         }
-                        startActivity(Intent(this@TaskActivity, MainActivity::class.java))
-                        finish()
                     }
+                    startActivity(Intent(this@TaskActivity, MainActivity::class.java))
+                    finish()
                 }
             } else Toast.makeText(this, resources.getText(R.string.task_cannot_be_empty), Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun updateReminderViews(isChecked: Boolean) {
-        if (isChecked && isReminderSet) {
-            binding.setDateTimeBtn.text = resources.getString(R.string.change_reminder)
-            updateReminderDateTimeText()
+    private fun updateReminderViews(mode: Int) {
+        if (isReminderSet) updateReminderDateTimeText(mode)
+    }
+
+    private fun updateReminderDateTimeText(mode: Int) {
+        if (mode == 2 || isReminderSet) {
+            val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+            val formattedDate = dateFormat.format(calendar.time)
+            binding.reminderTxt.text = formattedDate
         }
     }
 
-    private fun updateReminderDateTimeText() {
-        val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-        val formattedDate = dateFormat.format(calendar.time)
-        binding.reminderChk.text = formattedDate
-    }
-
-    private fun showDateTimePicker() {
+    private fun showDateTimePicker(mode: Int) {
         val datePickerDialog = DatePickerDialog(this, { _, year, month, dayOfMonth ->
-                calendar.set(year, month, dayOfMonth)
+            calendar.set(year, month, dayOfMonth)
 
-                val timePickerDialog = TimePickerDialog(this, { _, hourOfDay, minute ->
-                    calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
-                    calendar.set(Calendar.MINUTE, minute)
-                    isReminderSet = true
-                    updateReminderViews(true)
-                }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true)
+            val timePickerDialog = TimePickerDialog(this, { _, hourOfDay, minute ->
+                calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
+                calendar.set(Calendar.MINUTE, minute)
+                isReminderSet = true
+                updateReminderViews(mode)
+            }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true)
 
-                timePickerDialog.setOnDismissListener { updateReminderDateTimeText() }
-                timePickerDialog.show()
-            },
-            calendar.get(Calendar.YEAR),
-            calendar.get(Calendar.MONTH),
-            calendar.get(Calendar.DAY_OF_MONTH)
+            timePickerDialog.setOnDismissListener {
+                if (isReminderSet) {
+                    updateReminderDateTimeText(mode)
+                }
+            }
+            timePickerDialog.show()
+        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)
         )
 
-        datePickerDialog.setOnDismissListener { updateReminderDateTimeText() }
+        datePickerDialog.setOnDismissListener {
+            if (isReminderSet) {
+                updateReminderDateTimeText(mode)
+            }
+        }
         datePickerDialog.show()
     }
 
@@ -185,7 +169,6 @@ class TaskActivity : AppCompatActivity() {
         val dialog = AlertDialog.Builder(this).setView(dialogBinding.root).create()
 
         updateIconColors(colorResId, dialogBinding)
-        //binding.secureChk.isChecked = true
 
         dialogBinding.passwordTxt.setOnClickListener {
             showPasswordInputDialog()
@@ -195,11 +178,10 @@ class TaskActivity : AppCompatActivity() {
         dialogBinding.biometricTxt.setOnClickListener {
             isLocked = true
             lockType = "biometric"
+            binding.secureIcon.setImageResource(R.drawable.ic_lock_30)
+            binding.secureTxt.text = resources.getString(R.string.locked)
             dialog.dismiss()
         }
-
-        //dialog.setOnDismissListener { if (!isLocked) binding.secureChk.isChecked = false }
-
         dialog.show()
     }
 
@@ -215,11 +197,17 @@ class TaskActivity : AppCompatActivity() {
                     isLocked = true
                     lockType = "password"
                     this.password = password
-                } else {
-                    Toast.makeText(this, R.string.password_cannot_be_empty, Toast.LENGTH_SHORT).show()
-                }
+                    binding.secureIcon.setImageResource(R.drawable.ic_lock_30)
+                    binding.secureTxt.text = resources.getString(R.string.locked)
+                } else Toast.makeText(this, R.string.password_cannot_be_empty, Toast.LENGTH_SHORT).show()
             }
-            .setNegativeButton(android.R.string.cancel) { _, _ -> /*binding.secureChk.isChecked = false*/ }.show()
+            .setNegativeButton(android.R.string.cancel, null).show()
+    }
+
+    private fun selectTipText() {
+        val tipsArray = resources.getStringArray(R.array.tips_array)
+        val randomIndex = (tipsArray.indices).random()
+        binding.tipsTxt.text = tipsArray[randomIndex]
     }
 
     private fun setThemeColor(color: String) {
@@ -233,10 +221,13 @@ class TaskActivity : AppCompatActivity() {
 
     private fun updateComponentColors(colorResId: Int) {
         val colorStateList = ContextCompat.getColorStateList(this, colorResId)
-        binding.setDateTimeBtn.backgroundTintList = colorStateList
         binding.saveBtn.backgroundTintList = colorStateList
         binding.taskLayout.hintTextColor = colorStateList
         binding.taskLayout.boxStrokeColor = ContextCompat.getColor(this, colorResId)
+        binding.reminderIcon.imageTintList = colorStateList
+        binding.secureIcon.imageTintList = colorStateList
+        binding.reminderTxt.setTextColor(ContextCompat.getColor(this, colorResId))
+        binding.secureTxt.setTextColor(ContextCompat.getColor(this, colorResId))
         binding.tipsIcon.imageTintList = colorStateList
         binding.tipsTxt.setTextColor(ContextCompat.getColor(this, colorResId))
     }
@@ -247,10 +238,9 @@ class TaskActivity : AppCompatActivity() {
         dialogBinding.passwordIcon.imageTintList = colorStateList
     }
 
-    private fun getThemeColorResource(color: String): Int {
-        return when (color) {
+    private fun getThemeColorResource(themeColor: String): Int {
+        return when (themeColor) {
             "red" -> R.color.red
-            "blue" -> R.color.app_accent
             "yellow" -> R.color.yellow
             "green" -> R.color.green
             else -> R.color.app_accent

@@ -75,23 +75,32 @@
     <string name="couldnt_open_file">Couldn\'t open file</string>
     <string name="theme">Theme</string>
     <string name="theme_applied">Theme applied, please restart app for changes.</string>
-    <string-array name="themes">
-        <item>Blue</item>
-        <item>Green</item>
-        <item>Red</item>
-        <item>Yellow</item>
-    </string-array>
     <string name="blue">Blue</string>
     <string name="green">Green</string>
     <string name="red">Red</string>
     <string name="yellow">Yellow</string>
+    <string-array name="themes">
+        <item>@string/blue</item>
+        <item>@string/green</item>
+        <item>@string/red</item>
+        <item>@string/yellow</item>
+    </string-array>
     <string name="lock">Lock</string>
     <string name="change_reminder">Change reminder</string>
     <string name="password_cannot_be_empty">Password cannot be empty.\n</string>
     <string name="unlock">Unlock</string>
     <string name="wrong_password">Wrong password\n</string>
     <string name="auth_failed">Authentication failed</string>
-    <string name="tips_security">Try increasing the security with several ways!</string>
-    <string name="tips_icon">Tips icon</string>
     <string name="failed_to_unlock">Failed to unlock</string>
+    <string name="tips_icon">Tips icon</string>
+    <string name="tips_security">Try increasing the security with several ways!</string>
+    <string name="tips_themes">Make the app colorful with various themes!</string>
+    <string name="tips_backup">Never lose your To-Do\'s with backups!</string>
+
+    <string-array name="tips_array">
+        <item>@string/tips_security</item>
+        <item>@string/tips_themes</item>
+        <item>@string/tips_backup</item>
+    </string-array>
+    <string name="locked">Locked</string>
 </resources>

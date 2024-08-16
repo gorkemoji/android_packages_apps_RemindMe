@@ -30,7 +30,7 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.autoCompleteTextView.setAdapter(adapter)
 
-        binding.autoCompleteTextView.setOnItemClickListener { parent, _, position, _ ->
+        binding.autoCompleteTextView.setOnItemClickListener { _, _, position, _ ->
             val selectedTheme = resources.getStringArray(R.array.themes)[position]
 
             val color = when (selectedTheme) {
@@ -75,9 +75,6 @@ class SettingsActivity : AppCompatActivity() {
             isTransitioning = true
             startActivity(Intent(this, BackupRestoreActivity::class.java))
         }
-
-        binding.btnSecurity.isEnabled = false // debugging
-        binding.btnSecurity.isClickable = false // debugging
 
         /*
         binding.btnSecurity.setOnClickListener {
@@ -139,7 +136,6 @@ class SettingsActivity : AppCompatActivity() {
     private fun updateComponentColors(colorResId: Int) {
         val colorStateList = ContextCompat.getColorStateList(this, colorResId)
         binding.btnBackupRestore.backgroundTintList = colorStateList
-        binding.btnSecurity.backgroundTintList = colorStateList
         binding.boxLayout.boxStrokeColor = ContextCompat.getColor(this, colorResId)
         binding.boxLayout.hintTextColor = colorStateList
         binding.boxLayout.setEndIconTintList(colorStateList)

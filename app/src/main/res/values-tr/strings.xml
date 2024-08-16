@@ -75,16 +75,16 @@
     <string name="couldnt_open_file">Dosya açılamadı</string>
     <string name="theme">Tema</string>
     <string name="theme_applied">Tema uygulandı, lütfen uygulamayı yeniden başlatın.</string>
-    <string-array name="themes">
-        <item>Mavi</item>
-        <item>Yeşil</item>
-        <item>Kırmızı</item>
-        <item>Sarı</item>
-    </string-array>
     <string name="blue">Mavi</string>
     <string name="green">Yeşil</string>
     <string name="red">Kırmızı</string>
     <string name="yellow">Sarı</string>
+    <string-array name="themes">
+        <item>@string/blue</item>
+        <item>@string/green</item>
+        <item>@string/red</item>
+        <item>@string/yellow</item>
+    </string-array>
     <string name="lock">Kilitle</string>
     <string name="change_reminder">Hatırlatıcıyı değiştir</string>
     <string name="password_cannot_be_empty">Password cannot be empty.\n</string>
@@ -92,6 +92,15 @@
     <string name="wrong_password">Hatalı parola</string>
     <string name="auth_failed">Doğrulama başarısız</string>
     <string name="failed_to_unlock">Kilit açma başarısız</string>
-    <string name="tips_security">Güvenliği arttırmak için çeşitli yollar deneyin!</string>
     <string name="tips_icon">Tips icon</string>
+    <string name="tips_security">Güvenliği arttırmak için çeşitli yollar deneyin!</string>
+    <string name="tips_themes">Çeşitli temalarla uygulamayı rengarenk yapın!</string>
+    <string name="tips_backup">Görevlerinizi yedekleyerek asla kaybetmezsiniz!</string>
+
+    <string-array name="tips_array">
+        <item>@string/tips_security</item>
+        <item>@string/tips_themes</item>
+        <item>@string/tips_backup</item>
+    </string-array>
+    <string name="locked">Kilitli</string>
 </resources>

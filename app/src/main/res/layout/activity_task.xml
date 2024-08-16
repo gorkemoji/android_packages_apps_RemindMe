@@ -22,44 +22,63 @@
             android:layout_height="wrap_content" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <CheckBox
-        android:id="@+id/reminderChk"
+    <ImageButton
+        android:id="@+id/reminderIcon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/reminder"
+        android:layout_margin="25dp"
+        android:contentDescription="@string/alarm_icon"
+        android:src="@drawable/ic_alarm"
+        android:background="@android:color/transparent"
         app:layout_constraintTop_toBottomOf="@id/task_layout"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_margin="25dp" />
+        app:layout_constraintStart_toStartOf="parent" />
 
-    <Button
-        android:id="@+id/setDateTimeBtn"
+    <TextView
+        android:id="@+id/reminderTxt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:layout_marginStart="10dp"
         android:text="@string/set_reminder"
-        android:enabled="false"
-        app:layout_constraintTop_toBottomOf="@id/reminderChk"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="10dp"
-        android:layout_marginStart="25dp" />
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:textColor="?android:textColorPrimary"
+        app:layout_constraintTop_toBottomOf="@id/task_layout"
+        app:layout_constraintStart_toEndOf="@id/reminderIcon" />
 
-    <CheckBox
-        android:id="@+id/secureChk"
+    <ImageButton
+        android:id="@+id/secureIcon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_margin="25dp"
+        android:contentDescription="@string/lock_icon"
+        android:src="@drawable/ic_unlock_30"
+        android:background="@android:color/transparent"
+        app:layout_constraintTop_toBottomOf="@id/reminderIcon"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/secureTxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:layout_marginStart="10dp"
         android:text="@string/lock"
-        app:layout_constraintTop_toBottomOf="@id/task_layout"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="25dp" />
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:textColor="?android:textColorPrimary"
+        app:layout_constraintTop_toBottomOf="@id/reminderTxt"
+        app:layout_constraintStart_toEndOf="@id/secureIcon" />
 
     <Button
         android:id="@+id/saveBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:layout_marginEnd="25dp"
         android:text="@string/save"
-        app:layout_constraintTop_toBottomOf="@id/secureChk"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="25dp"/>
+        app:layout_constraintTop_toBottomOf="@id/reminderTxt"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <ImageView
         android:id="@+id/tipsIcon"
