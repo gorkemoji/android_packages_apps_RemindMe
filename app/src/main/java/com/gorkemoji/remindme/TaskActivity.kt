@@ -8,6 +8,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.InputType
 import android.view.View
+import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -40,6 +41,11 @@ class TaskActivity : AppCompatActivity() {
         setThemeColor(themeColor)
         updateComponentColors(getThemeColorResource(themeColor))
 
+        val themes = resources.getStringArray(R.array.font_array)
+        val adapter = ArrayAdapter(this, R.layout.dropdown_item, themes)
+
+        binding.autoCompleteTextView.setAdapter(adapter)
+
         selectTipText()
 
         val mode = intent.getIntExtra("mode", 1)
@@ -48,6 +54,26 @@ class TaskActivity : AppCompatActivity() {
         val checkBoxState = intent.getBooleanExtra("cbState", false)
         val reminderTime = intent.getLongExtra("reminderTime", 0)
         val reminderState = intent.getBooleanExtra("reminderState", false)
+        var fontName = intent.getStringExtra("font")
+
+        fontName = fontName.takeUnless { it.isNullOrBlank() } ?: "null"
+
+        val selectedFontPosition = when (fontName) {
+            "pacifico" -> themes.indexOf(getString(R.string.pacifico_font))
+            else -> themes.indexOf(getString(R.string.default_font))
+        }
+
+        binding.autoCompleteTextView.setText(adapter.getItem(selectedFontPosition), false)
+
+        binding.autoCompleteTextView.setOnItemClickListener { _, _, position, _ ->
+            val selectedFont = resources.getStringArray(R.array.font_array)[position]
+
+            fontName = when (selectedFont) {
+                getString(R.string.default_font) -> "default"
+                getString(R.string.pacifico_font) -> "pacifico"
+                else -> "null"
+            }
+        }
 
         if (mode == 2) {
             binding.taskText.setText(taskName)
@@ -60,9 +86,7 @@ class TaskActivity : AppCompatActivity() {
             isReminderSet = true
         }
 
-        if (reminderState && mode == 2) {
-            updateReminderViews(mode)
-        }
+        if (reminderState && mode == 2) updateReminderViews(mode)
 
         binding.secureTxt.visibility = if (isLocked) View.GONE else View.VISIBLE
         binding.secureTxt.setOnClickListener { showSecurityChoiceDialog(getThemeColorResource(themeColor)) }
@@ -77,7 +101,7 @@ class TaskActivity : AppCompatActivity() {
                     withContext(Dispatchers.IO) {
                         when (mode) {
                             1 -> {
-                                val newTaskId = database.getDao().insert(ToDo(toDoTitle = toDoTitle, isChecked = false, isReminderOn = isReminderSet, dueDate = dueDate, isLocked = isLocked, lockType = lockType, password = password))
+                                val newTaskId = database.getDao().insert(ToDo(toDoTitle = toDoTitle, isChecked = false, isReminderOn = isReminderSet, dueDate = dueDate, isLocked = isLocked, lockType = lockType, password = password, font = fontName!!))
                                 if (isReminderSet) setReminder(calendar, newTaskId)
                             }
                             2 -> {
@@ -85,7 +109,7 @@ class TaskActivity : AppCompatActivity() {
                                     lockType = "null"
                                     password = "null"
                                 }
-                                val updatedTask = ToDo(id = id, toDoTitle = toDoTitle, isChecked = checkBoxState, isReminderOn = isReminderSet, dueDate = dueDate, isLocked = isLocked, lockType = lockType, password = password)
+                                val updatedTask = ToDo(id = id, toDoTitle = toDoTitle, isChecked = checkBoxState, isReminderOn = isReminderSet, dueDate = dueDate, isLocked = isLocked, lockType = lockType, password = password, font = fontName!!)
                                 database.getDao().update(updatedTask)
                                 if (isReminderSet) setReminder(calendar, id) else cancelReminder(id)
                             }
@@ -122,18 +146,14 @@ class TaskActivity : AppCompatActivity() {
             }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true)
 
             timePickerDialog.setOnDismissListener {
-                if (isReminderSet) {
-                    updateReminderDateTimeText(mode)
-                }
+                if (isReminderSet) updateReminderDateTimeText(mode)
             }
             timePickerDialog.show()
         }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)
         )
 
         datePickerDialog.setOnDismissListener {
-            if (isReminderSet) {
-                updateReminderDateTimeText(mode)
-            }
+            if (isReminderSet) updateReminderDateTimeText(mode)
         }
         datePickerDialog.show()
     }
@@ -171,8 +191,13 @@ class TaskActivity : AppCompatActivity() {
         updateIconColors(colorResId, dialogBinding)
 
         dialogBinding.passwordTxt.setOnClickListener {
-            showPasswordInputDialog()
+            showPasswordInputDialog(colorResId)
             dialog.dismiss()
+        }
+
+        if (!checkIfBiometricsAvailable()) {
+            dialogBinding.biometricTxt.visibility = View.GONE
+            dialogBinding.biometricIcon.visibility = View.GONE
         }
 
         dialogBinding.biometricTxt.setOnClickListener {
@@ -185,8 +210,11 @@ class TaskActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    private fun showPasswordInputDialog() {
-        val input = EditText(this).apply { inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD }
+    private fun showPasswordInputDialog(colorResId: Int) {
+        val input = EditText(this).apply {
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            setTextColor(ContextCompat.getColor(applicationContext, colorResId))
+        }
 
         AlertDialog.Builder(this)
             .setTitle(getString(R.string.enter_new_password))
@@ -201,7 +229,14 @@ class TaskActivity : AppCompatActivity() {
                     binding.secureTxt.text = resources.getString(R.string.locked)
                 } else Toast.makeText(this, R.string.password_cannot_be_empty, Toast.LENGTH_SHORT).show()
             }
-            .setNegativeButton(android.R.string.cancel, null).show()
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun checkIfBiometricsAvailable(): Boolean {
+        val biometricManager = androidx.biometric.BiometricManager.from(this)
+
+        return biometricManager.canAuthenticate() == androidx.biometric.BiometricManager.BIOMETRIC_SUCCESS
     }
 
     private fun selectTipText() {
@@ -213,9 +248,9 @@ class TaskActivity : AppCompatActivity() {
     private fun setThemeColor(color: String) {
         when (color) {
             "red" -> setTheme(R.style.AppTheme_Red)
-            "blue" -> setTheme(R.style.Theme_RemindMe)
             "yellow" -> setTheme(R.style.AppTheme_Yellow)
             "green" -> setTheme(R.style.AppTheme_Green)
+            else -> setTheme(R.style.Theme_RemindMe)
         }
     }
 
@@ -230,12 +265,17 @@ class TaskActivity : AppCompatActivity() {
         binding.secureTxt.setTextColor(ContextCompat.getColor(this, colorResId))
         binding.tipsIcon.imageTintList = colorStateList
         binding.tipsTxt.setTextColor(ContextCompat.getColor(this, colorResId))
+        binding.boxLayout.hintTextColor = colorStateList
+        binding.boxLayout.boxStrokeColor = ContextCompat.getColor(this, colorResId)
     }
 
     private fun updateIconColors(colorResId: Int, dialogBinding: DialogSecurityChoiceBinding) {
         val colorStateList = ContextCompat.getColorStateList(this, colorResId)
+        dialogBinding.securityTypeText.setTextColor(ContextCompat.getColor(this, colorResId))
         dialogBinding.biometricIcon.imageTintList = colorStateList
         dialogBinding.passwordIcon.imageTintList = colorStateList
+        dialogBinding.passwordTxt.setTextColor(ContextCompat.getColor(this, colorResId))
+        dialogBinding.biometricTxt.setTextColor(ContextCompat.getColor(this, colorResId))
     }
 
     private fun getThemeColorResource(themeColor: String): Int {

@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
 import android.media.MediaPlayer
@@ -36,6 +35,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var database: ToDoDatabase
     private lateinit var player: MediaPlayer
+    private lateinit var themeColor: String
     private val list = arrayListOf<ToDo>()
     private var fabVisible = false
 
@@ -45,7 +45,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val themeColor = loadMode("theme_color", "preferences") ?: "blue"
+        themeColor = loadMode("theme_color", "preferences") ?: "blue"
         setThemeColor(themeColor)
         updateComponentColors(getThemeColorResource(themeColor))
 
@@ -53,7 +53,7 @@ class MainActivity : AppCompatActivity() {
         checkFirstStart()
 
         database = ToDoDatabase.getDatabase(this)
-        adapter = ToDoAdapter(list, database.getDao(), MainScope(), player)
+        adapter = ToDoAdapter(this, list, database.getDao(), MainScope(), player)
 
         setupRecyclerView()
         observeDatabaseChanges()
@@ -114,7 +114,7 @@ class MainActivity : AppCompatActivity() {
             when (swipeDir) {
                 ItemTouchHelper.LEFT -> deleteTask(position)
                 ItemTouchHelper.RIGHT -> {
-                    if (list[position].isLocked) promptUnlock(list[position])
+                    if (list[position].isLocked) promptUnlock(list[position], getThemeColorResource(themeColor))
                     else if (!list[position].isChecked) updateTask(position)
                     else adapter.notifyItemChanged(position)
                 }
@@ -127,23 +127,26 @@ class MainActivity : AppCompatActivity() {
             if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
                 val position = viewHolder.adapterPosition
                 if (dX > 0) {
-                    if (list[position].isLocked) setIcon(c, viewHolder, dX, R.drawable.ic_unlock, "#4CAF50")
-                    else if (!list[position].isChecked) setIcon(c, viewHolder, dX, R.drawable.ic_edit, "#e88f2c")
-                } else setIcon(c, viewHolder, dX, R.drawable.ic_delete, "#b80f0a")
+                    if (list[position].isLocked) setIcon(c, viewHolder, dX, R.drawable.ic_unlock, R.color.green)
+                    else if (!list[position].isChecked) setIcon(c, viewHolder, dX, R.drawable.ic_edit, R.color.yellow)
+                } else setIcon(c, viewHolder, dX, R.drawable.ic_delete, R.color.red)
             }
             super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
         }
     }
 
-    private fun promptUnlock(toDo: ToDo) {
+
+    private fun promptUnlock(toDo: ToDo, colorResId: Int) {
         when (toDo.lockType) {
             "biometric" -> showBiometricPrompt(toDo)
-            "password" -> showPasswordDialog(toDo)
+            "password" -> showPasswordDialog(toDo, colorResId)
         }
     }
 
-    private fun showPasswordDialog(toDo: ToDo) {
-        val input = EditText(this).apply { inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD }
+    private fun showPasswordDialog(toDo: ToDo, colorResId: Int) {
+        val input = EditText(this).apply {
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            setTextColor(ContextCompat.getColor(applicationContext, colorResId)) }
 
         AlertDialog.Builder(this)
             .setTitle(getString(R.string.enter_your_password))
@@ -151,14 +154,16 @@ class MainActivity : AppCompatActivity() {
             .setPositiveButton(resources.getText(R.string.unlock)) { _, _ ->
                 val password = input.text.toString()
                 if (password == toDo.password) isToDoUnlocked(toDo, true)
-                else Toast.makeText(this, resources.getText(R.string.wrong_password), Toast.LENGTH_SHORT).show()
+                else {
+                    Toast.makeText(this, resources.getText(R.string.wrong_password), Toast.LENGTH_SHORT).show()
+                    adapter.notifyItemChanged(list.indexOf(toDo))
+                }
             }
             .setNegativeButton(android.R.string.cancel) { dialog, _ ->
                 adapter.notifyItemChanged(list.indexOf(toDo))
                 dialog.dismiss()
             }.show()
     }
-
 
     private fun showBiometricPrompt(toDo: ToDo) {
         val executor = ContextCompat.getMainExecutor(this)
@@ -213,6 +218,7 @@ class MainActivity : AppCompatActivity() {
         intent.putExtra("id", list[position].id)
         intent.putExtra("taskName", list[position].toDoTitle)
         intent.putExtra("cbState", list[position].isChecked)
+        intent.putExtra("font", list[position].font)
 
         if (list[position].isLocked) intent.putExtra("lockState", list[position].isLocked)
 
@@ -230,7 +236,7 @@ class MainActivity : AppCompatActivity() {
         adapter.notifyItemRemoved(position)
     }
 
-    private fun setIcon(c: Canvas, viewHolder: RecyclerView.ViewHolder, dX: Float, iconRes: Int, color: String) {
+    private fun setIcon(c: Canvas, viewHolder: RecyclerView.ViewHolder, dX: Float, iconRes: Int, colorRes: Int) {
         val itemView: View = viewHolder.itemView
         val icon = ContextCompat.getDrawable(this, iconRes)
         val width = icon?.intrinsicWidth ?: 0
@@ -250,10 +256,9 @@ class MainActivity : AppCompatActivity() {
         }
         val iconBottom = iconTop + height
 
-        val backgroundColor = if (dX > 0 && viewHolder.adapterPosition < list.size && list[viewHolder.adapterPosition].isLocked) "#4CAF50"
-        else color
+        val backgroundColor = ContextCompat.getColor(this, colorRes)
 
-        ColorDrawable(Color.parseColor(backgroundColor)).apply {
+        ColorDrawable(backgroundColor).apply {
             setBounds(if (dX > 0) itemView.left else (itemView.right + dX).toInt(), itemView.top, if (dX > 0) (itemView.left + dX).toInt() else itemView.right, itemView.bottom)
             draw(c)
         }

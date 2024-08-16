@@ -1,16 +1,26 @@
 package com.gorkemoji.remindme.database
 
+import android.content.Context
 import android.graphics.Paint
 import android.media.MediaPlayer
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.gorkemoji.remindme.R
 import com.gorkemoji.remindme.databinding.TaskLayoutBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-class ToDoAdapter(private val toDoList: List<ToDo>, private val dao: ToDoDao, private val coroutineScope: CoroutineScope, private var player: MediaPlayer) : RecyclerView.Adapter<ToDoAdapter.ToDoViewHolder>() {
+class ToDoAdapter(
+    private val context: Context,
+    private val toDoList: List<ToDo>,
+    private val dao: ToDoDao,
+    private val coroutineScope: CoroutineScope,
+    private var player: MediaPlayer
+) : RecyclerView.Adapter<ToDoAdapter.ToDoViewHolder>() {
+
     class ToDoViewHolder(val binding: TaskLayoutBinding) : RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ToDoViewHolder {
@@ -21,9 +31,11 @@ class ToDoAdapter(private val toDoList: List<ToDo>, private val dao: ToDoDao, pr
     override fun onBindViewHolder(holder: ToDoViewHolder, position: Int) {
         val currentToDo = toDoList[position]
 
+        if (currentToDo.font == "pacifico") holder.binding.text.typeface = ResourcesCompat.getFont(context, R.font.pacifico)
+
         holder.binding.text.text =
             if (currentToDo.isLocked) "*".repeat(currentToDo.toDoTitle.length)
-        else currentToDo.toDoTitle
+            else currentToDo.toDoTitle
 
         holder.binding.checkBox.isChecked = currentToDo.isChecked
 
@@ -53,6 +65,7 @@ class ToDoAdapter(private val toDoList: List<ToDo>, private val dao: ToDoDao, pr
             binding.text.paintFlags = binding.text.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
             binding.checkBox.isEnabled = true
         }
+        binding.text.invalidate()
     }
 
     override fun getItemCount(): Int = toDoList.size

@@ -18,7 +18,7 @@
         <item name="android:windowLightStatusBar">false</item>
     </style>
     <style name="CardStyle" parent="Widget.MaterialComponents.CardView">
-        <item name="android:background">@color/cardview_dark_background</item>
+        <item name="android:background">@color/cardview_dark_background</item>33333333333
     </style>
     <style name="TimePickerStyle" parent="Widget.MaterialComponents.TimePicker">
         <item name="android:windowBackground">@android:color/transparent</item>

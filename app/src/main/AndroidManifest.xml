@@ -28,22 +28,7 @@
             android:name=".BackupRestoreActivity"
             android:exported="false" />
         <activity
-            android:name=".auth.PasswordScreenActivity"
-            android:exported="false" />
-        <activity
-            android:name=".auth.BiometricScreenActivity"
-            android:exported="false" />
-        <activity
-            android:name=".auth.SecurityActivity"
-            android:exported="false" />
-        <activity
-            android:name=".auth.BiometricActivity"
-            android:exported="false" />
-        <activity
             android:name=".onboarding.OnboardingFragment"
-            android:exported="false" />
-        <activity
-            android:name=".auth.PasswordActivity"
             android:exported="false" />
         <activity
             android:name=".TaskActivity"
@@ -59,7 +44,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <receiver
             android:name=".ReminderReceiver"
             android:exported="false" />

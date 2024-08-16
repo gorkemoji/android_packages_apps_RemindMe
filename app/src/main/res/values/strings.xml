@@ -103,4 +103,11 @@
         <item>@string/tips_backup</item>
     </string-array>
     <string name="locked">Locked</string>
+    <string name="font">Font</string>
+    <string name="default_font">Default</string>
+    <string name="pacifico_font">Pacifico</string>
+    <string-array name="font_array">
+        <item>@string/default_font</item>
+        <item>@string/pacifico_font</item>
+    </string-array>
 </resources>

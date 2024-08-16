@@ -103,4 +103,11 @@
         <item>@string/tips_backup</item>
     </string-array>
     <string name="locked">Kilitli</string>
+    <string name="font">Yazı tipi</string>
+    <string name="default_font">Varsayılan</string>
+    <string name="pacifico_font">Pacifico</string>
+    <string-array name="font_array">
+        <item>@string/default_font</item>
+        <item>@string/pacifico_font</item>
+    </string-array>
 </resources>

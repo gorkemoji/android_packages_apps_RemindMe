@@ -21,6 +21,9 @@ data class ToDo (
     @ColumnInfo(name = "password")
     var password: String,
 
+    @ColumnInfo(name = "font")
+    var font: String,
+
     @ColumnInfo(name = "title")
     var toDoTitle: String,
 
