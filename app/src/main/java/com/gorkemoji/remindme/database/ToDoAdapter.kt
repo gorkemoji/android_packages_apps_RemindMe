@@ -3,6 +3,7 @@ package com.gorkemoji.remindme.database
 import android.graphics.Paint
 import android.media.MediaPlayer
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.gorkemoji.remindme.databinding.TaskLayoutBinding
@@ -20,10 +21,16 @@ class ToDoAdapter(private val toDoList: List<ToDo>, private val dao: ToDoDao, pr
     override fun onBindViewHolder(holder: ToDoViewHolder, position: Int) {
         val currentToDo = toDoList[position]
 
-        holder.binding.text.text = currentToDo.toDoTitle
+        holder.binding.text.text =
+            if (currentToDo.isLocked) "*".repeat(currentToDo.toDoTitle.length)
+        else currentToDo.toDoTitle
+
         holder.binding.checkBox.isChecked = currentToDo.isChecked
 
         updateTextAppearance(holder.binding, currentToDo.isChecked)
+
+        holder.binding.alarmIcon.visibility = if (currentToDo.isReminderOn) View.VISIBLE else View.GONE
+        holder.binding.lockIcon.visibility = if (currentToDo.isLocked) View.VISIBLE else View.GONE
 
         holder.binding.checkBox.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {

@@ -24,12 +24,12 @@ class SecurityActivity : AppCompatActivity() {
 
         binding.bioBtn.setOnClickListener {
             isTransitioning = true
-            startActivity(Intent(this, BiometricScreenActivity::class.java))
+            //startActivity(Intent(this, BiometricScreenActivity::class.java))
         }
 
         binding.passBtn.setOnClickListener {
             isTransitioning = true
-            startActivity(Intent(this, PasswordScreenActivity::class.java))
+            //startActivity(Intent(this, PasswordScreenActivity::class.java))
         }
     }
 

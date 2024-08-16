@@ -10,16 +10,19 @@ import android.graphics.drawable.ColorDrawable
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
+import android.text.InputType
 import android.view.View
+import android.widget.EditText
+import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.gorkemoji.remindme.auth.BiometricActivity
-import com.gorkemoji.remindme.auth.PasswordActivity
 import com.gorkemoji.remindme.database.ToDo
 import com.gorkemoji.remindme.database.ToDoAdapter
 import com.gorkemoji.remindme.database.ToDoDatabase
@@ -35,7 +38,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var player: MediaPlayer
     private val list = arrayListOf<ToDo>()
     private var fabVisible = false
-    private var isTransitioning = false
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,15 +45,8 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        /* val isLocked = loadMode("is_locked", "auth") == "true"
-        val isBiometricsEnabled = loadMode("biometrics", "auth") == "true"
-        val isPasskeySet = !loadMode("passkey", "auth").isNullOrBlank()
-
-        if (isLocked) navigateToAuthActivity(isBiometricsEnabled, isPasskeySet) */
-
         val themeColor = loadMode("theme_color", "preferences") ?: "blue"
         setThemeColor(themeColor)
-
         updateComponentColors(getThemeColorResource(themeColor))
 
         player = MediaPlayer.create(this, R.raw.pencil_done)
@@ -90,18 +85,7 @@ class MainActivity : AppCompatActivity() {
         binding.fabSettings.visibility = View.INVISIBLE
     }
 
-    private fun navigateToSettingsActivity() {
-        isTransitioning = true
-        startActivity(Intent(this, SettingsActivity::class.java))
-    }
-
-    /* private fun navigateToAuthActivity(biometricsEnabled: Boolean, passkeySet: Boolean) {
-        isTransitioning = true
-        var intent = Intent(this, PasswordActivity::class.java)
-        if (biometricsEnabled && !passkeySet) intent = Intent(this, BiometricActivity::class.java)
-
-        startActivity(intent)
-    } */
+    private fun navigateToSettingsActivity() { startActivity(Intent(this, SettingsActivity::class.java)) }
 
     private fun setupRecyclerView() {
         binding.recyclerView.apply {
@@ -126,10 +110,14 @@ class MainActivity : AppCompatActivity() {
 
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
             val position = viewHolder.adapterPosition
-            if (swipeDir == ItemTouchHelper.LEFT) deleteTask(position)
-            else if (swipeDir == ItemTouchHelper.RIGHT) {
-                if (!list[position].isChecked) updateTask(position)
-                else adapter.notifyItemChanged(position)
+
+            when (swipeDir) {
+                ItemTouchHelper.LEFT -> deleteTask(position)
+                ItemTouchHelper.RIGHT -> {
+                    if (list[position].isLocked) promptUnlock(list[position])
+                    else if (!list[position].isChecked) updateTask(position)
+                    else adapter.notifyItemChanged(position)
+                }
             }
         }
 
@@ -137,17 +125,82 @@ class MainActivity : AppCompatActivity() {
 
         override fun onChildDraw(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
             if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+                val position = viewHolder.adapterPosition
                 if (dX > 0) {
-                    val position = viewHolder.adapterPosition
-                    if (!list[position].isChecked) setIcon(c, viewHolder, dX, R.drawable.ic_edit, "#e88f2c")
+                    if (list[position].isLocked) setIcon(c, viewHolder, dX, R.drawable.ic_unlock, "#4CAF50")
+                    else if (!list[position].isChecked) setIcon(c, viewHolder, dX, R.drawable.ic_edit, "#e88f2c")
                 } else setIcon(c, viewHolder, dX, R.drawable.ic_delete, "#b80f0a")
             }
             super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
         }
     }
 
+    private fun promptUnlock(toDo: ToDo) {
+        when (toDo.lockType) {
+            "biometric" -> showBiometricPrompt(toDo)
+            "password" -> showPasswordDialog(toDo)
+        }
+    }
+
+    private fun showPasswordDialog(toDo: ToDo) {
+        val input = EditText(this).apply { inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD }
+
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.enter_your_password))
+            .setView(input)
+            .setPositiveButton(resources.getText(R.string.unlock)) { _, _ ->
+                val password = input.text.toString()
+                if (password == toDo.password) isToDoUnlocked(toDo, true)
+                else Toast.makeText(this, resources.getText(R.string.wrong_password), Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton(android.R.string.cancel) { dialog, _ ->
+                adapter.notifyItemChanged(list.indexOf(toDo))
+                dialog.dismiss()
+            }.show()
+    }
+
+
+    private fun showBiometricPrompt(toDo: ToDo) {
+        val executor = ContextCompat.getMainExecutor(this)
+        val biometricPrompt = BiometricPrompt(this, executor,
+            object : BiometricPrompt.AuthenticationCallback() {
+                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                    super.onAuthenticationSucceeded(result)
+                    isToDoUnlocked(toDo, true)
+                }
+
+                override fun onAuthenticationFailed() {
+                    super.onAuthenticationFailed()
+                    Toast.makeText(applicationContext, resources.getText(R.string.auth_failed), Toast.LENGTH_SHORT).show()
+                    isToDoUnlocked(toDo, false)
+                }
+            })
+
+        val promptInfo = BiometricPrompt.PromptInfo.Builder()
+            .setTitle(getString(R.string.biometric_auth))
+            .setSubtitle(getString(R.string.log_in_with_biometric))
+            .setNegativeButtonText(getString(R.string.cancel))
+            .build()
+
+        biometricPrompt.authenticate(promptInfo)
+    }
+
+    private fun isToDoUnlocked(toDo: ToDo, status: Boolean) {
+        if (status) {
+            toDo.isLocked = false
+            toDo.lockType = "null"
+            toDo.password = "null"
+
+            MainScope().launch {
+                database.getDao().update(toDo)
+
+                val position = list.indexOfFirst { it.id == toDo.id }
+                if (position != -1) adapter.notifyItemChanged(position)
+            }
+        } else Toast.makeText(applicationContext, resources.getText(R.string.failed_to_unlock), Toast.LENGTH_SHORT).show()
+    }
+
     private fun addTask() {
-        isTransitioning = true
         val intent = Intent(this, TaskActivity::class.java)
         intent.putExtra("mode", 1)
 
@@ -155,12 +208,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateTask(position: Int) {
-        isTransitioning = true
         val intent = Intent(this, TaskActivity::class.java)
         intent.putExtra("mode", 2)
         intent.putExtra("id", list[position].id)
         intent.putExtra("taskName", list[position].toDoTitle)
         intent.putExtra("cbState", list[position].isChecked)
+
+        if (list[position].isLocked) intent.putExtra("lockState", list[position].isLocked)
 
         if (list[position].isReminderOn) {
             intent.putExtra("reminderState", list[position].isReminderOn)
@@ -196,7 +250,10 @@ class MainActivity : AppCompatActivity() {
         }
         val iconBottom = iconTop + height
 
-        ColorDrawable(Color.parseColor(color)).apply {
+        val backgroundColor = if (dX > 0 && viewHolder.adapterPosition < list.size && list[viewHolder.adapterPosition].isLocked) "#4CAF50"
+        else color
+
+        ColorDrawable(Color.parseColor(backgroundColor)).apply {
             setBounds(if (dX > 0) itemView.left else (itemView.right + dX).toInt(), itemView.top, if (dX > 0) (itemView.left + dX).toInt() else itemView.right, itemView.bottom)
             draw(c)
         }
@@ -206,45 +263,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onStop() {
-        super.onStop()
-        if (!isTransitioning) saveLockState()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        if (!isTransitioning) saveLockState()
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        if (loadMode("is_locked", "auth") == "true") {
-            val intent = if (loadMode("biometrics", "auth") == "true") Intent(this, BiometricActivity::class.java)
-            else Intent(this, PasswordActivity::class.java)
-            startActivity(intent)
-        }
-    }
-
-    private fun saveLockState() {
-        val isLocked = loadMode("is_locked", "auth") == "true"
-        val isBiometricsEnabled = loadMode("biometrics", "auth") == "true"
-        val isPasskeySet = !loadMode("passkey", "auth").isNullOrBlank()
-
-        if (!isLocked && (isBiometricsEnabled || isPasskeySet)) saveMode("is_locked", "true", "auth")
-    }
-
     private fun loadMode(type: String, file: String): String? {
         val pref: SharedPreferences = getSharedPreferences(file, Context.MODE_PRIVATE)
         return pref.getString(type, "")
-    }
-
-    private fun saveMode(type: String, data: String, file: String) {
-        val pref: SharedPreferences = getSharedPreferences(file, Context.MODE_PRIVATE)
-        with(pref.edit()) {
-            putString(type, data)
-            apply()
-        }
     }
 
     private fun setThemeColor(color: String) {

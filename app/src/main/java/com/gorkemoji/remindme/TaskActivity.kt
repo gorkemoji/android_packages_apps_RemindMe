@@ -6,15 +6,15 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.view.View
+import android.text.InputType
+import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.gorkemoji.remindme.auth.BiometricActivity
-import com.gorkemoji.remindme.auth.PasswordActivity
 import com.gorkemoji.remindme.database.ToDo
 import com.gorkemoji.remindme.database.ToDoDatabase
 import com.gorkemoji.remindme.databinding.ActivityTaskBinding
+import com.gorkemoji.remindme.databinding.DialogSecurityChoiceBinding
 import kotlinx.coroutines.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -23,23 +23,17 @@ class TaskActivity : AppCompatActivity() {
     private lateinit var binding: ActivityTaskBinding
     private val calendar = Calendar.getInstance()
     private var isReminderSet = false
-    private var isTransitioning = false
+    private var isLocked = false
+    private var lockType: String = "null"
+    private var password: String = "null"
 
-    private val database by lazy {
-        ToDoDatabase.getDatabase(this)
-    }
+    private val database by lazy { ToDoDatabase.getDatabase(this) }
 
     @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityTaskBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        /* val isLocked = loadMode("is_locked", "auth") == "true"
-        val biometricsEnabled = loadMode("biometrics", "auth") == "true"
-        val passkeySet = !loadMode("passkey", "auth").isNullOrBlank()
-
-        if (isLocked) navigateToAuthActivity(biometricsEnabled, passkeySet) */
 
         val themeColor = loadMode("theme_color", "preferences") ?: "blue"
         setThemeColor(themeColor)
@@ -52,6 +46,7 @@ class TaskActivity : AppCompatActivity() {
         val checkBoxState = intent.getBooleanExtra("cbState", false)
         val reminderTime = intent.getLongExtra("reminderTime", 0)
         val reminderState = intent.getBooleanExtra("reminderState", false)
+        val lockState = intent.getBooleanExtra("lockState", false)
 
         if (mode == 2) {
             binding.taskText.setText(taskName)
@@ -65,6 +60,7 @@ class TaskActivity : AppCompatActivity() {
         }
 
         binding.reminderChk.isChecked = reminderState
+        binding.secureChk.isChecked = lockState
         binding.setDateTimeBtn.isEnabled = reminderState
 
         updateReminderViews(reminderState)
@@ -74,26 +70,39 @@ class TaskActivity : AppCompatActivity() {
             updateReminderViews(isChecked)
         }
 
+        binding.secureChk.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) showSecurityChoiceDialog(getThemeColorResource(themeColor))
+            else {
+                isLocked = false
+                lockType = "null"
+                password = "null"
+            }
+        }
+
         binding.setDateTimeBtn.setOnClickListener { showDateTimePicker() }
 
         binding.saveBtn.setOnClickListener {
             if (binding.taskText.text?.isNotBlank() == true) {
-                if (binding.reminderChk.isChecked && !isReminderSet)
-                    Toast.makeText(this, resources.getText(R.string.enter_a_date), Toast.LENGTH_SHORT).show()
+                if (binding.reminderChk.isChecked && !isReminderSet) Toast.makeText(this, resources.getText(R.string.enter_a_date), Toast.LENGTH_SHORT).show()
                 else {
                     val toDoTitle: String = binding.taskText.text.toString()
                     val dueDate: Long? = if (binding.reminderChk.isChecked) calendar.timeInMillis else null
                     val isReminderOn = binding.reminderChk.isChecked
+                    val isLocked = binding.secureChk.isChecked
 
                     GlobalScope.launch(Dispatchers.Main) {
                         withContext(Dispatchers.IO) {
                             when (mode) {
                                 1 -> {
-                                    val newTaskId = database.getDao().insert(ToDo(toDoTitle = toDoTitle, isChecked = false, isReminderOn = isReminderOn, dueDate = dueDate))
+                                    val newTaskId = database.getDao().insert(ToDo(toDoTitle = toDoTitle, isChecked = false, isReminderOn = isReminderOn, dueDate = dueDate, isLocked = isLocked, lockType = lockType, password = password))
                                     if (isReminderOn) setReminder(calendar, newTaskId)
                                 }
                                 2 -> {
-                                    val updatedTask = ToDo(id = id, toDoTitle = toDoTitle, isChecked = checkBoxState, isReminderOn = isReminderOn, dueDate = dueDate)
+                                    if (!isLocked) {
+                                        lockType = "null"
+                                        password = "null"
+                                    }
+                                    val updatedTask = ToDo(id = id, toDoTitle = toDoTitle, isChecked = checkBoxState, isReminderOn = isReminderOn, dueDate = dueDate, isLocked = isLocked, lockType = lockType, password = password)
                                     database.getDao().update(updatedTask)
                                     if (isReminderOn)
                                         if (!isReminderSet) setReminder(calendar, id)
@@ -101,7 +110,6 @@ class TaskActivity : AppCompatActivity() {
                                 }
                             }
                         }
-                        isTransitioning = true
                         startActivity(Intent(this@TaskActivity, MainActivity::class.java))
                         finish()
                     }
@@ -110,30 +118,17 @@ class TaskActivity : AppCompatActivity() {
         }
     }
 
-    /* private fun navigateToAuthActivity(biometricsEnabled: Boolean, passkeySet: Boolean) {
-        isTransitioning = true
-        var intent = Intent(this, PasswordActivity::class.java)
-
-        if (biometricsEnabled && !passkeySet) intent = Intent(this, BiometricActivity::class.java)
-
-        startActivity(intent)
-    } */
-
     private fun updateReminderViews(isChecked: Boolean) {
         if (isChecked && isReminderSet) {
-            binding.alarmIcon.visibility = View.VISIBLE
-            binding.reminderDate.visibility = View.VISIBLE
+            binding.setDateTimeBtn.text = resources.getString(R.string.change_reminder)
             updateReminderDateTimeText()
-        } else {
-            binding.alarmIcon.visibility = View.GONE
-            binding.reminderDate.visibility = View.GONE
         }
     }
 
     private fun updateReminderDateTimeText() {
         val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
         val formattedDate = dateFormat.format(calendar.time)
-        binding.reminderDate.text = formattedDate
+        binding.reminderChk.text = formattedDate
     }
 
     private fun showDateTimePicker() {
@@ -185,40 +180,46 @@ class TaskActivity : AppCompatActivity() {
         return pref.getString(type, "")
     }
 
-    private fun saveMode(type: String, data: String, file: String) {
-        val pref: SharedPreferences = getSharedPreferences(file, Context.MODE_PRIVATE)
-        with(pref.edit()) {
-            putString(type, data)
-            apply()
+    private fun showSecurityChoiceDialog(colorResId: Int) {
+        val dialogBinding = DialogSecurityChoiceBinding.inflate(layoutInflater)
+        val dialog = AlertDialog.Builder(this).setView(dialogBinding.root).create()
+
+        updateIconColors(colorResId, dialogBinding)
+        //binding.secureChk.isChecked = true
+
+        dialogBinding.passwordTxt.setOnClickListener {
+            showPasswordInputDialog()
+            dialog.dismiss()
         }
-    }
 
-    override fun onStop() {
-        super.onStop()
-        if (!isTransitioning) saveLockState()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        if (!isTransitioning) saveLockState()
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        if (loadMode("is_locked", "auth") == "true") {
-            val intent = if (loadMode("biometrics", "auth") == "true") Intent(this, BiometricActivity::class.java)
-            else Intent(this, PasswordActivity::class.java)
-            startActivity(intent)
+        dialogBinding.biometricTxt.setOnClickListener {
+            isLocked = true
+            lockType = "biometric"
+            dialog.dismiss()
         }
+
+        //dialog.setOnDismissListener { if (!isLocked) binding.secureChk.isChecked = false }
+
+        dialog.show()
     }
 
-    private fun saveLockState() {
-        val isLocked = loadMode("is_locked", "auth") == "true"
-        val isBiometricsEnabled = loadMode("biometrics", "auth") == "true"
-        val isPasskeySet = !loadMode("passkey", "auth").isNullOrBlank()
+    private fun showPasswordInputDialog() {
+        val input = EditText(this).apply { inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD }
 
-        if (!isLocked && (isBiometricsEnabled || isPasskeySet)) saveMode("is_locked", "true", "auth")
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.enter_new_password))
+            .setView(input)
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                val password = input.text.toString()
+                if (password.isNotEmpty()) {
+                    isLocked = true
+                    lockType = "password"
+                    this.password = password
+                } else {
+                    Toast.makeText(this, R.string.password_cannot_be_empty, Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton(android.R.string.cancel) { _, _ -> /*binding.secureChk.isChecked = false*/ }.show()
     }
 
     private fun setThemeColor(color: String) {
@@ -234,11 +235,16 @@ class TaskActivity : AppCompatActivity() {
         val colorStateList = ContextCompat.getColorStateList(this, colorResId)
         binding.setDateTimeBtn.backgroundTintList = colorStateList
         binding.saveBtn.backgroundTintList = colorStateList
-        binding.alarmIcon.imageTintList = colorStateList
-        binding.reminderChk.buttonTintList = colorStateList
-        binding.reminderDate.setTextColor(ContextCompat.getColor(this, colorResId))
         binding.taskLayout.hintTextColor = colorStateList
         binding.taskLayout.boxStrokeColor = ContextCompat.getColor(this, colorResId)
+        binding.tipsIcon.imageTintList = colorStateList
+        binding.tipsTxt.setTextColor(ContextCompat.getColor(this, colorResId))
+    }
+
+    private fun updateIconColors(colorResId: Int, dialogBinding: DialogSecurityChoiceBinding) {
+        val colorStateList = ContextCompat.getColorStateList(this, colorResId)
+        dialogBinding.biometricIcon.imageTintList = colorStateList
+        dialogBinding.passwordIcon.imageTintList = colorStateList
     }
 
     private fun getThemeColorResource(color: String): Int {

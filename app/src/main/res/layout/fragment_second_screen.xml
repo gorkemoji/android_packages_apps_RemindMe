@@ -13,7 +13,7 @@
         android:layout_margin="50dp"
         android:contentDescription="@string/alarm_icon"
         android:src="@drawable/ic_alarm"
-        app:tint="@color/app_accent"
+        app:tint="?attr/colorPrimary"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

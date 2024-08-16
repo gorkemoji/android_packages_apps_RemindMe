@@ -12,7 +12,7 @@ interface ToDoDao {
     @Query("SELECT * FROM ToDos")
     suspend fun getAllTasks(): List<ToDo>
 
-    @Query("SELECT * FROM ToDos WHERE id = :id")
+    @Query("SELECT * FROM ToDos WHERE id = :id LIMIT 1")
     suspend fun getTaskById(id: Long): ToDo
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

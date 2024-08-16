@@ -85,4 +85,13 @@
     <string name="green">Yeşil</string>
     <string name="red">Kırmızı</string>
     <string name="yellow">Sarı</string>
+    <string name="lock">Kilitle</string>
+    <string name="change_reminder">Hatırlatıcıyı değiştir</string>
+    <string name="password_cannot_be_empty">Password cannot be empty.\n</string>
+    <string name="unlock">Kilidi aç</string>
+    <string name="wrong_password">Hatalı parola</string>
+    <string name="auth_failed">Doğrulama başarısız</string>
+    <string name="failed_to_unlock">Kilit açma başarısız</string>
+    <string name="tips_security">Güvenliği arttırmak için çeşitli yollar deneyin!</string>
+    <string name="tips_icon">Tips icon</string>
 </resources>

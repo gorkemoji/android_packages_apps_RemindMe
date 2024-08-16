@@ -7,9 +7,9 @@
     android:layout_marginVertical="5dp"
     app:cardCornerRadius="8dp"
     app:cardElevation="5dp"
-    style="@style/CardStyle" >
+    style="@style/CardStyle">
 
-    <RelativeLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cardLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -20,38 +20,50 @@
             android:id="@+id/checkBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="8dp" />
+            android:padding="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
         <TextView
             android:id="@+id/text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/checkBox"
             android:padding="14dp"
             style="@style/CardStyle"
             android:text="@string/test"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@id/checkBox"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
         <ImageView
             android:id="@+id/alarmIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginEnd="5dp"
             android:contentDescription="@string/alarm_icon"
-            android:src="@drawable/ic_alarm"
-            android:visibility="gone" />
-
-        <TextView
-            android:id="@+id/reminderText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toStartOf="@id/alarmIcon"
-            android:layout_centerVertical="true"
-            android:text="@string/reminder_time"
+            android:src="@drawable/ic_alarm_24"
             android:visibility="gone"
-            style="@style/CardStyle" />
+            android:background="@android:color/transparent"
+            app:layout_constraintEnd_toStartOf="@id/lockIcon"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="?attr/colorPrimary" />
 
-    </RelativeLayout>
+        <ImageView
+            android:id="@+id/lockIcon"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginEnd="8dp"
+            android:contentDescription="@string/lock_icon"
+            android:src="@drawable/ic_lock"
+            android:visibility="gone"
+            android:background="@android:color/transparent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="?attr/colorPrimary" />
 
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

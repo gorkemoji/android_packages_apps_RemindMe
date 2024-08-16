@@ -31,28 +31,6 @@
         app:layout_constraintStart_toStartOf="parent"
         android:layout_margin="25dp" />
 
-    <ImageView
-        android:id="@+id/alarmIcon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:contentDescription="@string/alarm_icon"
-        android:src="@drawable/ic_alarm"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/task_layout"
-        app:layout_constraintEnd_toStartOf="@id/reminderDate"
-        android:layout_marginTop="37dp"
-        android:layout_marginEnd="10dp" />
-
-    <TextView
-        android:id="@+id/reminderDate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/reminder"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/task_layout"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="40dp" />
-
     <Button
         android:id="@+id/setDateTimeBtn"
         android:layout_width="wrap_content"
@@ -64,14 +42,45 @@
         android:layout_marginTop="10dp"
         android:layout_marginStart="25dp" />
 
+    <CheckBox
+        android:id="@+id/secureChk"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/lock"
+        app:layout_constraintTop_toBottomOf="@id/task_layout"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="25dp" />
+
     <Button
         android:id="@+id/saveBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/save"
-        app:layout_constraintTop_toBottomOf="@id/reminderChk"
+        app:layout_constraintTop_toBottomOf="@id/secureChk"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="10dp"
         android:layout_marginEnd="25dp"/>
+
+    <ImageView
+        android:id="@+id/tipsIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/tips_icon"
+        android:src="@drawable/ic_tips_50"
+        android:layout_marginStart="25dp"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintBottom_toTopOf="@id/tipsTxt"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/tipsTxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/tips_security"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:layout_margin="25dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

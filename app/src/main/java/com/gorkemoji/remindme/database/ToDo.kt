@@ -12,6 +12,15 @@ data class ToDo (
     @ColumnInfo(name = "reminder_status")
     var isReminderOn: Boolean = false,
 
+    @ColumnInfo(name = "lock_status")
+    var isLocked: Boolean = false,
+
+    @ColumnInfo(name = "lock_type")
+    var lockType: String,
+
+    @ColumnInfo(name = "password")
+    var password: String,
+
     @ColumnInfo(name = "title")
     var toDoTitle: String,
 
