@@ -45,4 +45,3 @@ It's in early stage, it'll have new features.
 - [ ] Add widget support and photos to background.
 - [ ] Migrate to Datastore.
 - [ ] Add priority and grouping feature.
-- [ ] Add taking note feature.
