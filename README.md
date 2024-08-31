@@ -42,6 +42,4 @@ It's in early stage, it'll have new features.
 - [x] Add password and biometric protection.
 - [x] Add more themes to make it fresh.
 - [ ] Use MVVM architecture and Compose UI.
-- [ ] Add widget support and photos to background.
 - [ ] Migrate to Datastore.
-- [ ] Add priority and grouping feature.
