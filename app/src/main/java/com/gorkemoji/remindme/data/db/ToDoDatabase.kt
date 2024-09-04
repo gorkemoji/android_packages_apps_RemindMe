@@ -1,9 +1,11 @@
-package com.gorkemoji.remindme.database
+package com.gorkemoji.remindme.data.db
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.gorkemoji.remindme.data.dao.ToDoDao
+import com.gorkemoji.remindme.data.model.ToDo
 
 @Database(entities = [ToDo::class], version = 1)
 abstract class ToDoDatabase : RoomDatabase() {

@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.viewpager2.widget.ViewPager2
 import com.gorkemoji.remindme.R
 import com.gorkemoji.remindme.databinding.FragmentFirstScreenBinding
@@ -17,6 +18,8 @@ class FirstScreen : Fragment() {
 
         val next = binding.next
         val vp = activity?.findViewById<ViewPager2>(R.id.view_pager)
+
+        binding.appIcon.imageTintList = ContextCompat.getColorStateList(requireContext(), R.color.app_accent)
 
         next.setOnClickListener { vp?.currentItem = 1 }
 

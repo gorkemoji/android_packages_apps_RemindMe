@@ -13,25 +13,28 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.gorkemoji.remindme.database.ToDo
-import com.gorkemoji.remindme.database.ToDoDatabase
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import com.gorkemoji.remindme.data.model.ToDo
 import com.gorkemoji.remindme.databinding.ActivityTaskBinding
 import com.gorkemoji.remindme.databinding.DialogSecurityChoiceBinding
+import com.gorkemoji.remindme.receiver.ReminderReceiver
+import com.gorkemoji.remindme.viewmodel.ToDoViewModel
 import kotlinx.coroutines.*
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.properties.Delegates
 
 class TaskActivity : AppCompatActivity() {
     private lateinit var binding: ActivityTaskBinding
+    private lateinit var viewModel: ToDoViewModel
     private val calendar = Calendar.getInstance()
     private var isReminderSet = false
     private var isLocked = false
     private var lockType: String = "null"
     private var password: String = "null"
+    private var createdTasks: Int? = null
 
-    private val database by lazy { ToDoDatabase.getDatabase(this) }
-
-    @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityTaskBinding.inflate(layoutInflater)
@@ -41,10 +44,16 @@ class TaskActivity : AppCompatActivity() {
         setThemeColor(themeColor)
         updateComponentColors(getThemeColorResource(themeColor))
 
+        val temp = loadMode("created_tasks", "reports")
+
+        if (temp != null)
+            if (temp.isNotEmpty()) createdTasks = temp.let { Integer.parseInt(it) }
+
         val themes = resources.getStringArray(R.array.font_array)
         val adapter = ArrayAdapter(this, R.layout.dropdown_item, themes)
 
         binding.autoCompleteTextView.setAdapter(adapter)
+        viewModel = ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(application))[ToDoViewModel::class.java]
 
         selectTipText()
 
@@ -97,12 +106,16 @@ class TaskActivity : AppCompatActivity() {
                 val toDoTitle: String = binding.taskText.text.toString()
                 val dueDate: Long? = if (isReminderSet) calendar.timeInMillis else null
 
-                GlobalScope.launch(Dispatchers.Main) {
+                lifecycleScope.launch {
                     withContext(Dispatchers.IO) {
                         when (mode) {
                             1 -> {
-                                val newTaskId = database.getDao().insert(ToDo(toDoTitle = toDoTitle, isChecked = false, isReminderOn = isReminderSet, dueDate = dueDate, isLocked = isLocked, lockType = lockType, password = password, font = fontName!!))
+                                var newTaskId by Delegates.notNull<Long>()
+                                lifecycleScope.launch {
+                                    newTaskId = withContext(Dispatchers.IO) { viewModel.insertToDo(ToDo(toDoTitle = toDoTitle, isChecked = false, isReminderOn = isReminderSet, dueDate = dueDate, isLocked = isLocked, lockType = lockType, password = password, font = fontName ?: "default")) }
+                                }
                                 if (isReminderSet) setReminder(calendar, newTaskId)
+                                incrementTaskCount()
                             }
                             2 -> {
                                 if (!isLocked) {
@@ -110,7 +123,7 @@ class TaskActivity : AppCompatActivity() {
                                     password = "null"
                                 }
                                 val updatedTask = ToDo(id = id, toDoTitle = toDoTitle, isChecked = checkBoxState, isReminderOn = isReminderSet, dueDate = dueDate, isLocked = isLocked, lockType = lockType, password = password, font = fontName!!)
-                                database.getDao().update(updatedTask)
+                                viewModel.updateToDo(updatedTask)
                                 if (isReminderSet) setReminder(calendar, id) else cancelReminder(id)
                             }
                         }
@@ -122,9 +135,12 @@ class TaskActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateReminderViews(mode: Int) {
-        if (isReminderSet) updateReminderDateTimeText(mode)
+    private fun incrementTaskCount() {
+        createdTasks = createdTasks!! + 1
+        saveMode("created_tasks", createdTasks.toString(), "reports")
     }
+
+    private fun updateReminderViews(mode: Int) { if (isReminderSet) updateReminderDateTimeText(mode) }
 
     private fun updateReminderDateTimeText(mode: Int) {
         if (mode == 2 || isReminderSet) {
@@ -237,6 +253,14 @@ class TaskActivity : AppCompatActivity() {
         val biometricManager = androidx.biometric.BiometricManager.from(this)
 
         return biometricManager.canAuthenticate() == androidx.biometric.BiometricManager.BIOMETRIC_SUCCESS
+    }
+
+    private fun saveMode(type: String, data: String, file: String) {
+        val pref: SharedPreferences = applicationContext.getSharedPreferences(file, Context.MODE_PRIVATE)
+        with(pref.edit()) {
+            putString(type, data)
+            apply()
+        }
     }
 
     private fun selectTipText() {

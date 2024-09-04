@@ -1,16 +1,18 @@
-package com.gorkemoji.remindme.database
+package com.gorkemoji.remindme.data.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import com.gorkemoji.remindme.data.model.ToDo
 
 @Dao
 interface ToDoDao {
-    @Query("SELECT * FROM ToDos")
+    // Planning combining functions.
+    @Query("SELECT * FROM ToDos ORDER BY id DESC")
     fun getAll(): LiveData<List<ToDo>>
 
     // Normal list for exporting tasks.
-    @Query("SELECT * FROM ToDos")
-    suspend fun getAllTasks(): List<ToDo>
+    @Query("SELECT * FROM ToDos ORDER BY id DESC")
+    suspend fun exportAll(): List<ToDo>
 
     @Query("SELECT * FROM ToDos WHERE id = :id LIMIT 1")
     suspend fun getTaskById(id: Long): ToDo

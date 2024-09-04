@@ -14,8 +14,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.gson.Gson
-import com.gorkemoji.remindme.database.ToDo
-import com.gorkemoji.remindme.database.ToDoDatabase
+import com.gorkemoji.remindme.data.model.ToDo
+import com.gorkemoji.remindme.data.db.ToDoDatabase
 import com.gorkemoji.remindme.databinding.ActivityBackupRestoreBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -52,12 +52,10 @@ class BackupRestoreActivity : AppCompatActivity() {
     private fun setupPermissionLaunchers() {
         requestWritePermissionLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK && result.data != null) result.data?.data?.let { uri -> backupData(uri) }
-            // else showToast(resources.getString(R.string.permissions_denied))
         }
 
         requestReadPermissionLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK && result.data != null) result.data?.data?.let { uri -> restoreData(uri) }
-            // else showToast(resources.getString(R.string.permissions_denied))
         }
     }
 
@@ -97,10 +95,9 @@ class BackupRestoreActivity : AppCompatActivity() {
     }
 
     private fun backupData(uri: Uri?) {
-        runBlocking {
-            launch(Dispatchers.IO) {
+        runBlocking { launch(Dispatchers.IO) {
                 try {
-                    val tasks = database.getDao().getAllTasks()
+                    val tasks = database.getDao().exportAll().filter { !it.isLocked }
                     val json = Gson().toJson(tasks)
 
                     uri?.let {
@@ -115,8 +112,7 @@ class BackupRestoreActivity : AppCompatActivity() {
     }
 
     private fun restoreData(uri: Uri?) {
-        runBlocking {
-            launch(Dispatchers.IO) {
+        runBlocking { launch(Dispatchers.IO) {
                 uri?.let { fileUri ->
                     try {
                         val inputStream = contentResolver.openInputStream(fileUri)
@@ -136,9 +132,7 @@ class BackupRestoreActivity : AppCompatActivity() {
         outputStream.flush()
     }
 
-    private fun showToast(message: String) {
-        runOnUiThread { Toast.makeText(this, message, Toast.LENGTH_SHORT).show() }
-    }
+    private fun showToast(message: String) { runOnUiThread { Toast.makeText(this, message, Toast.LENGTH_SHORT).show() } }
 
     companion object {
         private const val REQUEST_WRITE_PERMISSION = 1
@@ -153,9 +147,9 @@ class BackupRestoreActivity : AppCompatActivity() {
     private fun setThemeColor(color: String) {
         when (color) {
             "red" -> setTheme(R.style.AppTheme_Red)
-            "blue" -> setTheme(R.style.Theme_RemindMe)
             "yellow" -> setTheme(R.style.AppTheme_Yellow)
             "green" -> setTheme(R.style.AppTheme_Green)
+            else -> setTheme(R.style.Theme_RemindMe)
         }
     }
 
@@ -169,7 +163,6 @@ class BackupRestoreActivity : AppCompatActivity() {
     private fun getThemeColorResource(color: String): Int {
         return when (color) {
             "red" -> R.color.red
-            "blue" -> R.color.app_accent
             "yellow" -> R.color.yellow
             "green" -> R.color.green
             else -> R.color.app_accent

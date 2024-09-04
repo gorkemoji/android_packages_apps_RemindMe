@@ -1,4 +1,4 @@
-package com.gorkemoji.remindme.database
+package com.gorkemoji.remindme.adapter
 
 import android.content.Context
 import android.graphics.Paint
@@ -8,14 +8,17 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.gorkemoji.remindme.MainActivity
 import com.gorkemoji.remindme.R
+import com.gorkemoji.remindme.data.dao.ToDoDao
+import com.gorkemoji.remindme.data.model.ToDo
 import com.gorkemoji.remindme.databinding.TaskLayoutBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 class ToDoAdapter(
     private val context: Context,
-    private val toDoList: List<ToDo>,
+    private val toDoList: ArrayList<ToDo>,
     private val dao: ToDoDao,
     private val coroutineScope: CoroutineScope,
     private var player: MediaPlayer
@@ -47,6 +50,8 @@ class ToDoAdapter(
         holder.binding.checkBox.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 currentToDo.isChecked = true
+                (context as MainActivity).incrementTaskDone()
+
                 updateTextAppearance(holder.binding, true)
 
                 try { player.start() }
@@ -69,4 +74,10 @@ class ToDoAdapter(
     }
 
     override fun getItemCount(): Int = toDoList.size
+
+    fun updateList(newList: List<ToDo>) {
+        toDoList.clear()
+        toDoList.addAll(newList)
+        notifyDataSetChanged()
+    }
 }

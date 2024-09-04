@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
+import android.icu.text.SimpleDateFormat
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
@@ -18,24 +19,30 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.gorkemoji.remindme.database.ToDo
-import com.gorkemoji.remindme.database.ToDoAdapter
-import com.gorkemoji.remindme.database.ToDoDatabase
+import com.gorkemoji.remindme.data.model.ToDo
+import com.gorkemoji.remindme.adapter.ToDoAdapter
+import com.gorkemoji.remindme.data.db.ToDoDatabase
 import com.gorkemoji.remindme.databinding.ActivityMainBinding
 import com.gorkemoji.remindme.onboarding.OnboardingFragment
+import com.gorkemoji.remindme.viewmodel.ToDoViewModel
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
+import java.util.Date
+import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
     private lateinit var adapter: ToDoAdapter
     private lateinit var binding: ActivityMainBinding
     private lateinit var database: ToDoDatabase
+    private lateinit var viewModel: ToDoViewModel
     private lateinit var player: MediaPlayer
     private lateinit var themeColor: String
+    private var doneTasks: Int? = null
     private val list = arrayListOf<ToDo>()
     private var fabVisible = false
 
@@ -44,6 +51,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        val temp = loadMode("done_tasks", "reports")
+
+        if (temp != null)
+            if (temp.isNotEmpty()) doneTasks = temp.let { Integer.parseInt(it) }
 
         themeColor = loadMode("theme_color", "preferences") ?: "blue"
         setThemeColor(themeColor)
@@ -55,8 +67,10 @@ class MainActivity : AppCompatActivity() {
         database = ToDoDatabase.getDatabase(this)
         adapter = ToDoAdapter(this, list, database.getDao(), MainScope(), player)
 
+        viewModel = ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(application))[ToDoViewModel::class.java]
+
         setupRecyclerView()
-        observeDatabaseChanges()
+        setViewModel()
 
         ItemTouchHelper(itemTouchCallback).attachToRecyclerView(binding.recyclerView)
 
@@ -66,15 +80,25 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.fabWrite.setOnClickListener { addTask() }
-        binding.fabSettings.setOnClickListener { navigateToSettingsActivity() }
+        binding.fabSettings.setOnClickListener { startActivity(Intent(this, SettingsActivity::class.java)) }
+        binding.fabReport.setOnClickListener { startActivity(Intent(this, ReportActivity::class.java)) }
     }
 
-    private fun checkFirstStart() { if (loadMode("first_start", "preferences").isNullOrEmpty()) startActivity(Intent(this, OnboardingFragment::class.java)) }
+    private fun checkFirstStart() {
+        if (loadMode("first_start", "preferences").isNullOrEmpty()) {
+            val currentDate = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date())
+            saveMode("start_date", currentDate, "reports")
+            saveMode("created_tasks", "0", "reports")
+            saveMode("done_tasks", "0", "reports")
+            startActivity(Intent(this, OnboardingFragment::class.java))
+        }
+    }
 
     private fun showFabMenu() {
         fabVisible = true
 
         binding.fabWrite.visibility = View.VISIBLE
+        binding.fabReport.visibility = View.VISIBLE
         binding.fabSettings.visibility = View.VISIBLE
     }
 
@@ -82,10 +106,9 @@ class MainActivity : AppCompatActivity() {
         fabVisible = false
 
         binding.fabWrite.visibility = View.INVISIBLE
+        binding.fabReport.visibility = View.INVISIBLE
         binding.fabSettings.visibility = View.INVISIBLE
     }
-
-    private fun navigateToSettingsActivity() { startActivity(Intent(this, SettingsActivity::class.java)) }
 
     private fun setupRecyclerView() {
         binding.recyclerView.apply {
@@ -95,13 +118,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun observeDatabaseChanges() {
-        database.getDao().getAll().observe(this) { newList ->
-            list.apply {
-                clear()
-                addAll(newList?.reversed() ?: emptyList())
-                adapter.notifyDataSetChanged()
-            }
+    private fun setViewModel() {
+        viewModel.allToDos.observe(this) { list ->
+            list?.let { adapter.updateList(it) }
         }
     }
 
@@ -134,7 +153,6 @@ class MainActivity : AppCompatActivity() {
             super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
         }
     }
-
 
     private fun promptUnlock(toDo: ToDo, colorResId: Int) {
         when (toDo.lockType) {
@@ -232,7 +250,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun deleteTask(position: Int) {
-        MainScope().launch { database.getDao().delete(list[position]) }
+        viewModel.deleteToDo(list[position])
         adapter.notifyItemRemoved(position)
     }
 
@@ -268,9 +286,22 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun incrementTaskDone() {
+        doneTasks = doneTasks!! + 1
+        saveMode("done_tasks", doneTasks.toString(), "reports")
+    }
+
     private fun loadMode(type: String, file: String): String? {
         val pref: SharedPreferences = getSharedPreferences(file, Context.MODE_PRIVATE)
         return pref.getString(type, "")
+    }
+
+    private fun saveMode(type: String, data: String, file: String) {
+        val pref: SharedPreferences = applicationContext.getSharedPreferences(file, Context.MODE_PRIVATE)
+        with(pref.edit()) {
+            putString(type, data)
+            apply()
+        }
     }
 
     private fun setThemeColor(color: String) {
@@ -285,6 +316,7 @@ class MainActivity : AppCompatActivity() {
     private fun updateComponentColors(colorResId: Int) {
         val colorStateList = ContextCompat.getColorStateList(this, colorResId)
         binding.fabWrite.backgroundTintList = colorStateList
+        binding.fabReport.backgroundTintList = colorStateList
         binding.fabExpand.backgroundTintList = colorStateList
         binding.fabSettings.backgroundTintList = colorStateList
     }

@@ -65,7 +65,7 @@
     <string name="backup_restore">Backup and Restore</string>
     <string name="backup">Backup</string>
     <string name="restore">Restore</string>
-    <string name="backup_restore_desc">Backup your tasks and notes to internal storage. You can restore them from internal storage as well.</string>
+    <string name="backup_restore_desc">Backup your tasks and notes to internal storage. You can restore them from internal storage as well. Locked tasks will not be backed up unless they are unlocked due to security reasons.</string>
     <string name="permissions_denied">Permissions denied!</string>
     <string name="backup_successful">Backup successful!</string>
     <string name="restore_successful">Restore successful!</string>
@@ -96,7 +96,6 @@
     <string name="tips_security">Try increasing the security with several ways!</string>
     <string name="tips_themes">Make the app colorful with various themes!</string>
     <string name="tips_backup">Never lose your To-Do\'s with backups!</string>
-
     <string-array name="tips_array">
         <item>@string/tips_security</item>
         <item>@string/tips_themes</item>
@@ -110,4 +109,8 @@
         <item>@string/default_font</item>
         <item>@string/pacifico_font</item>
     </string-array>
+    <string name="report">Report</string>
+    <string name="created">Created</string>
+    <string name="done">Done</string>
+    <string name="since_app_installation">Since app installation</string>
 </resources>

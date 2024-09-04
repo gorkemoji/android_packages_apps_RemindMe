@@ -26,8 +26,9 @@ class FourthScreen : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentFourthScreenBinding.inflate(inflater, container, false)
         val view = binding.root
-
         val start = binding.start
+
+        binding.notificationIcon.imageTintList = ContextCompat.getColorStateList(requireContext(), R.color.app_accent)
 
         start.setOnClickListener { askNotificationPermission() }
 
