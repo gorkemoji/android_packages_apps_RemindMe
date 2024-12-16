@@ -11,8 +11,10 @@ Never miss a task again with Remind Me, the perfect ToDo app designed to keep yo
 ## Used Technologies
 
 1. Android Studio
-2. Room Library to access SQLite database.
-3. Shared Preferences to configure dark mode.
+2. Room Library
+3. Shared Preferences
+4. LiveData
+5. Kotlin Coroutines
     
 ## Screenshot
 
@@ -41,5 +43,6 @@ It's in early stage, it'll have new features.
 - [x] Take To-Do backups to internal storage.
 - [x] Add password and biometric protection.
 - [x] Add more themes to make it fresh.
-- [ ] Use MVVM architecture and Compose UI.
+- [x] Migrate to MVVM.
+- [ ] Migrate to Compose.
 - [ ] Migrate to Datastore.
