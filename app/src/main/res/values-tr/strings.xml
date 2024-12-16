@@ -114,4 +114,5 @@
     <string name="created">Oluşturulan</string>
     <string name="done">Tamamlanan</string>
     <string name="since_app_installation">Uygulama kurulduğundan beri</string>
+    <string name="search">Arama</string>
 </resources>
