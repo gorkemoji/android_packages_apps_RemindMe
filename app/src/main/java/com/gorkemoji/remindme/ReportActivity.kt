@@ -1,6 +1,7 @@
 package com.gorkemoji.remindme
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.graphics.Color
@@ -11,21 +12,51 @@ import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.gorkemoji.remindme.databinding.ActivityReportBinding
+import com.gorkemoji.remindme.utils.Utils
+import kotlin.properties.Delegates
 
 class ReportActivity : AppCompatActivity() {
     private lateinit var binding: ActivityReportBinding
+    private var themeColor by Delegates.notNull<Int>()
     private var createdTasks: Int? = null
     private var doneTasks: Int? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        themeColor = loadMode("theme_color", "preferences")?.let {
+            if (it.isNotEmpty()) Integer.parseInt(it) else 0
+        } ?: 0
+
+        Utils.onActivityCreateSetTheme(this, themeColor)
+
         super.onCreate(savedInstanceState)
         binding = ActivityReportBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        createdTasks = loadDetails("created_tasks")?.let { Integer.parseInt(it) }
-        doneTasks = loadDetails("done_tasks")?.let { Integer.parseInt(it) }
+        binding.bottomNavigation.background = null
+
+        createdTasks = loadMode("created_tasks", "reports")?.let { Integer.parseInt(it) }
+        doneTasks = loadMode("done_tasks", "reports")?.let { Integer.parseInt(it) }
 
         generateReport()
+
+        binding.bottomNavigation.selectedItemId = R.id.item_report
+        binding.bottomNavigation.setOnItemSelectedListener {
+            when (it.itemId) {
+                R.id.item_home -> {
+                    startActivity(Intent(this, MainActivity::class.java))
+                    overridePendingTransition(0, 0)
+                    return@setOnItemSelectedListener true
+                }
+                R.id.item_settings -> {
+                    startActivity(Intent(this, SettingsActivity::class.java))
+                    overridePendingTransition(0, 0)
+                    return@setOnItemSelectedListener true
+                }
+                else -> {
+                    return@setOnItemSelectedListener false
+                }
+            }
+        }
     }
 
     private fun generateReport() {
@@ -62,8 +93,8 @@ class ReportActivity : AppCompatActivity() {
         return resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
     }
 
-    private fun loadDetails(type: String): String? {
-        val pref: SharedPreferences = applicationContext.getSharedPreferences("reports", Context.MODE_PRIVATE)
+    private fun loadMode(type: String, file: String): String? {
+        val pref: SharedPreferences = applicationContext.getSharedPreferences(file, Context.MODE_PRIVATE)
         return pref.getString(type, "")
     }
 }

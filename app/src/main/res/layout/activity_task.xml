@@ -10,6 +10,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="25dp"
+        app:boxStrokeColor="?colorAccent"
+        app:cursorColor="?colorAccent"
+        app:hintTextColor="?colorAccent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -27,9 +30,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="25dp"
+        android:background="@android:color/transparent"
         android:contentDescription="@string/alarm_icon"
         android:src="@drawable/ic_alarm"
-        android:background="@android:color/transparent"
+        app:tint="?colorAccent"
         app:layout_constraintTop_toBottomOf="@id/task_layout"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -40,9 +44,9 @@
         android:layout_marginTop="28dp"
         android:layout_marginStart="10dp"
         android:text="@string/set_reminder"
-        android:textStyle="bold"
+        android:textColor="?colorAccent"
         android:textSize="18sp"
-        android:textColor="?android:textColorPrimary"
+        android:textStyle="bold"
         app:layout_constraintTop_toBottomOf="@id/task_layout"
         app:layout_constraintStart_toEndOf="@id/reminderIcon" />
 
@@ -51,9 +55,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="25dp"
+        android:background="@android:color/transparent"
         android:contentDescription="@string/lock_icon"
         android:src="@drawable/ic_unlock_30"
-        android:background="@android:color/transparent"
+        app:tint="?colorAccent"
         app:layout_constraintTop_toBottomOf="@id/reminderIcon"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -64,9 +69,9 @@
         android:layout_marginTop="32dp"
         android:layout_marginStart="10dp"
         android:text="@string/lock"
-        android:textStyle="bold"
+        android:textColor="?colorAccent"
         android:textSize="18sp"
-        android:textColor="?android:textColorPrimary"
+        android:textStyle="bold"
         app:layout_constraintTop_toBottomOf="@id/reminderTxt"
         app:layout_constraintStart_toEndOf="@id/secureIcon" />
 
@@ -77,6 +82,7 @@
         android:layout_marginTop="18dp"
         android:layout_marginEnd="25dp"
         android:text="@string/save"
+        android:tint="?colorAccent"
         app:layout_constraintTop_toBottomOf="@id/reminderTxt"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -87,10 +93,13 @@
         android:layout_height="wrap_content"
         android:layout_margin="25dp"
         android:hint="@string/font"
+        app:boxStrokeColor="?colorAccent"
+        app:hintTextColor="?colorAccent"
+        app:startIconDrawable="@drawable/ic_font"
+        app:startIconTint="?colorAccent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/secureIcon"
-        app:startIconDrawable="@drawable/ic_font">
+        app:layout_constraintTop_toBottomOf="@id/secureIcon">
 
         <AutoCompleteTextView
             android:id="@+id/autoCompleteTextView"
@@ -104,10 +113,11 @@
         android:id="@+id/tipsIcon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:layout_marginStart="25dp"
         android:contentDescription="@string/tips_icon"
         android:src="@drawable/ic_tips_50"
-        android:layout_marginStart="25dp"
-        android:layout_marginBottom="10dp"
+        app:tint="?colorAccent"
         app:layout_constraintBottom_toTopOf="@id/tipsTxt"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -115,11 +125,11 @@
         android:id="@+id/tipsTxt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/tips_security"
-        android:textStyle="bold"
-        android:textSize="18sp"
         android:layout_margin="25dp"
+        android:text="@string/tips_security"
+        android:textColor="?colorAccent"
+        android:textSize="18sp"
+        android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

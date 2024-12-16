@@ -1,22 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="app_accent">#2C77F3</color>
-    <color name="your_outline_color">#FFFFFF</color>
-    <color name="dark_card_bg">#191919</color>
-    <color name="red">#C62828</color>
-    <color name="green">#9E9D24</color>
-    <color name="yellow">#F9A825</color>
-    <color name="red_card_background">#FFCDD2</color>
-    <color name="green_card_background">#C8E6C9</color>
-    <color name="yellow_card_background">#FFF9C4</color>
-    <color name="red_timepicker_background">#EF9A9A</color>
-    <color name="green_timepicker_background">#A5D6A7</color>
-    <color name="yellow_timepicker_background">#FFF59D</color>
+    <color name="app_accent">#FF2C77F3</color>
+    <color name="red">#FFC62828</color>
+    <color name="green">#FF9E9D24</color>
+    <color name="yellow">#FFF9A825</color>
+    <color name="gray">#FFE0E0E0</color>
+    <color name="red_card_background">#FFFDEDEC</color>
+    <color name="green_card_background">#FFF4F9E6</color>
+    <color name="yellow_card_background">#FFFFF9E1</color>
+    <color name="blue_card_background">#FFF0F8FF</color>
 </resources>

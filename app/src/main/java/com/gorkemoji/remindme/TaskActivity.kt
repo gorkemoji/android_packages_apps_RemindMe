@@ -19,6 +19,7 @@ import com.gorkemoji.remindme.data.model.ToDo
 import com.gorkemoji.remindme.databinding.ActivityTaskBinding
 import com.gorkemoji.remindme.databinding.DialogSecurityChoiceBinding
 import com.gorkemoji.remindme.receiver.ReminderReceiver
+import com.gorkemoji.remindme.utils.Utils
 import com.gorkemoji.remindme.viewmodel.ToDoViewModel
 import kotlinx.coroutines.*
 import java.text.SimpleDateFormat
@@ -28,6 +29,7 @@ import kotlin.properties.Delegates
 class TaskActivity : AppCompatActivity() {
     private lateinit var binding: ActivityTaskBinding
     private lateinit var viewModel: ToDoViewModel
+    private var themeColor by Delegates.notNull<Int>()
     private val calendar = Calendar.getInstance()
     private var isReminderSet = false
     private var isLocked = false
@@ -36,13 +38,15 @@ class TaskActivity : AppCompatActivity() {
     private var createdTasks: Int? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        themeColor = loadMode("theme_color", "preferences")?.let {
+            if (it.isNotEmpty()) Integer.parseInt(it) else 0
+        } ?: 0
+
+        Utils.onActivityCreateSetTheme(this, themeColor)
+
         super.onCreate(savedInstanceState)
         binding = ActivityTaskBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        val themeColor = loadMode("theme_color", "preferences") ?: "blue"
-        setThemeColor(themeColor)
-        updateComponentColors(getThemeColorResource(themeColor))
 
         val temp = loadMode("created_tasks", "reports")
 
@@ -73,7 +77,6 @@ class TaskActivity : AppCompatActivity() {
         }
 
         binding.autoCompleteTextView.setText(adapter.getItem(selectedFontPosition), false)
-
         binding.autoCompleteTextView.setOnItemClickListener { _, _, position, _ ->
             val selectedFont = resources.getStringArray(R.array.font_array)[position]
 
@@ -98,7 +101,9 @@ class TaskActivity : AppCompatActivity() {
         if (reminderState && mode == 2) updateReminderViews(mode)
 
         binding.secureTxt.visibility = if (isLocked) View.GONE else View.VISIBLE
-        binding.secureTxt.setOnClickListener { showSecurityChoiceDialog(getThemeColorResource(themeColor)) }
+        binding.secureTxt.setOnClickListener { showSecurityChoiceDialog(getThemeColorResource(
+            themeColor.toString()
+        )) }
         binding.reminderTxt.setOnClickListener { showDateTimePicker(mode) }
 
         binding.saveBtn.setOnClickListener {
@@ -204,7 +209,7 @@ class TaskActivity : AppCompatActivity() {
         val dialogBinding = DialogSecurityChoiceBinding.inflate(layoutInflater)
         val dialog = AlertDialog.Builder(this).setView(dialogBinding.root).create()
 
-        updateIconColors(colorResId, dialogBinding)
+        //updateIconColors(colorResId, dialogBinding)
 
         dialogBinding.passwordTxt.setOnClickListener {
             showPasswordInputDialog(colorResId)
@@ -268,31 +273,7 @@ class TaskActivity : AppCompatActivity() {
         val randomIndex = (tipsArray.indices).random()
         binding.tipsTxt.text = tipsArray[randomIndex]
     }
-
-    private fun setThemeColor(color: String) {
-        when (color) {
-            "red" -> setTheme(R.style.AppTheme_Red)
-            "yellow" -> setTheme(R.style.AppTheme_Yellow)
-            "green" -> setTheme(R.style.AppTheme_Green)
-            else -> setTheme(R.style.Theme_RemindMe)
-        }
-    }
-
-    private fun updateComponentColors(colorResId: Int) {
-        val colorStateList = ContextCompat.getColorStateList(this, colorResId)
-        binding.saveBtn.backgroundTintList = colorStateList
-        binding.taskLayout.hintTextColor = colorStateList
-        binding.taskLayout.boxStrokeColor = ContextCompat.getColor(this, colorResId)
-        binding.reminderIcon.imageTintList = colorStateList
-        binding.secureIcon.imageTintList = colorStateList
-        binding.reminderTxt.setTextColor(ContextCompat.getColor(this, colorResId))
-        binding.secureTxt.setTextColor(ContextCompat.getColor(this, colorResId))
-        binding.tipsIcon.imageTintList = colorStateList
-        binding.tipsTxt.setTextColor(ContextCompat.getColor(this, colorResId))
-        binding.boxLayout.hintTextColor = colorStateList
-        binding.boxLayout.boxStrokeColor = ContextCompat.getColor(this, colorResId)
-    }
-
+    /*
     private fun updateIconColors(colorResId: Int, dialogBinding: DialogSecurityChoiceBinding) {
         val colorStateList = ContextCompat.getColorStateList(this, colorResId)
         dialogBinding.securityTypeText.setTextColor(ContextCompat.getColor(this, colorResId))
@@ -300,7 +281,7 @@ class TaskActivity : AppCompatActivity() {
         dialogBinding.passwordIcon.imageTintList = colorStateList
         dialogBinding.passwordTxt.setTextColor(ContextCompat.getColor(this, colorResId))
         dialogBinding.biometricTxt.setTextColor(ContextCompat.getColor(this, colorResId))
-    }
+    }*/
 
     private fun getThemeColorResource(themeColor: String): Int {
         return when (themeColor) {

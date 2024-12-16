@@ -29,11 +29,13 @@ import com.gorkemoji.remindme.adapter.ToDoAdapter
 import com.gorkemoji.remindme.data.db.ToDoDatabase
 import com.gorkemoji.remindme.databinding.ActivityMainBinding
 import com.gorkemoji.remindme.onboarding.OnboardingFragment
+import com.gorkemoji.remindme.utils.Utils
 import com.gorkemoji.remindme.viewmodel.ToDoViewModel
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import java.util.Date
 import java.util.Locale
+import kotlin.properties.Delegates
 
 class MainActivity : AppCompatActivity() {
     private lateinit var adapter: ToDoAdapter
@@ -41,25 +43,29 @@ class MainActivity : AppCompatActivity() {
     private lateinit var database: ToDoDatabase
     private lateinit var viewModel: ToDoViewModel
     private lateinit var player: MediaPlayer
-    private lateinit var themeColor: String
+    private var themeColor by Delegates.notNull<Int>()
     private var doneTasks: Int? = null
     private val list = arrayListOf<ToDo>()
-    private var fabVisible = false
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
+        themeColor = loadMode("theme_color", "preferences")?.let {
+            if (it.isNotEmpty()) Integer.parseInt(it) else 0
+        } ?: 0
+
+        Utils.onActivityCreateSetTheme(this, themeColor)
+
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        binding.bottomNavigation.background = null
+        binding.bottomNavigation.menu.getItem(2).isEnabled = false
 
         val temp = loadMode("done_tasks", "reports")
 
         if (temp != null)
             if (temp.isNotEmpty()) doneTasks = temp.let { Integer.parseInt(it) }
-
-        themeColor = loadMode("theme_color", "preferences") ?: "blue"
-        setThemeColor(themeColor)
-        updateComponentColors(getThemeColorResource(themeColor))
 
         player = MediaPlayer.create(this, R.raw.pencil_done)
         checkFirstStart()
@@ -67,21 +73,57 @@ class MainActivity : AppCompatActivity() {
         database = ToDoDatabase.getDatabase(this)
         adapter = ToDoAdapter(this, list, database.getDao(), MainScope(), player)
 
-        viewModel = ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(application))[ToDoViewModel::class.java]
+        viewModel = ViewModelProvider(
+            this,
+            ViewModelProvider.AndroidViewModelFactory.getInstance(application)
+        )[ToDoViewModel::class.java]
 
         setupRecyclerView()
         setViewModel()
 
         ItemTouchHelper(itemTouchCallback).attachToRecyclerView(binding.recyclerView)
 
-        binding.fabExpand.setOnClickListener {
-            if (!fabVisible) showFabMenu()
-            else closeFabMenu()
-        }
+        binding.fabAdd.setOnClickListener { addTask() }
 
-        binding.fabWrite.setOnClickListener { addTask() }
-        binding.fabSettings.setOnClickListener { startActivity(Intent(this, SettingsActivity::class.java)) }
-        binding.fabReport.setOnClickListener { startActivity(Intent(this, ReportActivity::class.java)) }
+        binding.searchView.clearFocus()
+        binding.searchView.setOnQueryTextListener(object: androidx.appcompat.widget.SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                adapter.getFilter().filter(query)
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                adapter.getFilter().filter(newText)
+                return true
+            }
+        })
+
+        binding.bottomNavigation.selectedItemId = R.id.item_home
+        binding.bottomNavigation.setOnItemSelectedListener {
+            when (it.itemId) {
+                R.id.item_home -> {
+                    binding.searchView.visibility = View.GONE
+                    return@setOnItemSelectedListener true
+                }
+                R.id.item_search -> {
+                    binding.searchView.visibility = View.VISIBLE
+                    return@setOnItemSelectedListener true
+                }
+                R.id.item_report -> {
+                    startActivity(Intent(this, ReportActivity::class.java))
+                    overridePendingTransition(0, 0)
+                    return@setOnItemSelectedListener true
+                }
+                R.id.item_settings -> {
+                    startActivity(Intent(this, SettingsActivity::class.java))
+                    overridePendingTransition(0, 0)
+                    return@setOnItemSelectedListener true
+                }
+                else -> {
+                    return@setOnItemSelectedListener false
+                }
+            }
+        }
     }
 
     private fun checkFirstStart() {
@@ -94,27 +136,23 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun showFabMenu() {
-        fabVisible = true
-
-        binding.fabWrite.visibility = View.VISIBLE
-        binding.fabReport.visibility = View.VISIBLE
-        binding.fabSettings.visibility = View.VISIBLE
-    }
-
-    private fun closeFabMenu() {
-        fabVisible = false
-
-        binding.fabWrite.visibility = View.INVISIBLE
-        binding.fabReport.visibility = View.INVISIBLE
-        binding.fabSettings.visibility = View.INVISIBLE
-    }
-
     private fun setupRecyclerView() {
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(this@MainActivity)
             adapter = this@MainActivity.adapter
             itemAnimator = DefaultItemAnimator()
+
+            /*
+            addOnScrollListener(object: RecyclerView.OnScrollListener() {
+                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                    super.onScrollStateChanged(recyclerView, newState)
+                    if (!recyclerView.canScrollVertically(-1)) {
+                        binding.searchView.visibility = View.VISIBLE
+                    } else {
+                        binding.searchView.visibility = View.GONE
+                    }
+                }
+            })*/
         }
     }
 
@@ -304,29 +342,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setThemeColor(color: String) {
-        when (color) {
-            "red" -> setTheme(R.style.AppTheme_Red)
-            "blue" -> setTheme(R.style.Theme_RemindMe)
-            "yellow" -> setTheme(R.style.AppTheme_Yellow)
-            "green" -> setTheme(R.style.AppTheme_Green)
-        }
-    }
-
-    private fun updateComponentColors(colorResId: Int) {
-        val colorStateList = ContextCompat.getColorStateList(this, colorResId)
-        binding.fabWrite.backgroundTintList = colorStateList
-        binding.fabReport.backgroundTintList = colorStateList
-        binding.fabExpand.backgroundTintList = colorStateList
-        binding.fabSettings.backgroundTintList = colorStateList
-    }
-
-    private fun getThemeColorResource(color: String): Int {
+    private fun getThemeColorResource(color: Int): Int {
         return when (color) {
-            "red" -> R.color.red
-            "blue" -> R.color.app_accent
-            "yellow" -> R.color.yellow
-            "green" -> R.color.green
+            1 -> R.color.red
+            2 -> R.color.green
+            3 -> R.color.yellow
             else -> R.color.app_accent
         }
     }

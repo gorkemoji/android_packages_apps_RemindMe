@@ -11,8 +11,9 @@
         android:layout_height="wrap_content"
         android:text="@string/security_type"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textStyle="bold"
+        android:textColor="?colorAccent"
         android:textSize="18sp"
+        android:textStyle="bold"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -21,9 +22,10 @@
         android:id="@+id/passwordIcon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_password"
-        android:contentDescription="@string/password"
         android:layout_marginTop="20dp"
+        android:contentDescription="@string/password"
+        android:src="@drawable/ic_password"
+        app:tint="?colorAccent"
         app:layout_constraintTop_toBottomOf="@id/securityTypeText"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -31,11 +33,12 @@
         android:id="@+id/passwordTxt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/password"
-        android:textStyle="bold"
-        android:textSize="18sp"
-        android:layout_marginTop="20dp"
         android:layout_marginStart="15dp"
+        android:layout_marginTop="20dp"
+        android:text="@string/password"
+        android:textColor="?colorAccent"
+        android:textSize="18sp"
+        android:textStyle="bold"
         app:layout_constraintTop_toBottomOf="@id/securityTypeText"
         app:layout_constraintStart_toEndOf="@id/passwordIcon" />
 
@@ -43,9 +46,10 @@
         android:id="@+id/biometricIcon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_fingerprint_button"
-        android:contentDescription="@string/biometrics"
         android:layout_marginTop="20dp"
+        android:contentDescription="@string/biometrics"
+        android:src="@drawable/ic_fingerprint_button"
+        app:tint="?colorAccent"
         app:layout_constraintTop_toBottomOf="@id/passwordIcon"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -53,11 +57,12 @@
         android:id="@+id/biometricTxt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/biometrics"
-        android:textStyle="bold"
-        android:textSize="18sp"
-        android:layout_marginTop="20dp"
         android:layout_marginStart="15dp"
+        android:layout_marginTop="20dp"
+        android:text="@string/biometrics"
+        android:textColor="?colorAccent"
+        android:textSize="18sp"
+        android:textStyle="bold"
         app:layout_constraintTop_toBottomOf="@id/passwordTxt"
         app:layout_constraintStart_toEndOf="@id/biometricIcon" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -10,41 +10,56 @@
         <item name="colorSecondaryVariant">?attr/colorPrimaryVariant</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor">?attr/colorOnPrimary</item>
+        <item name="android:statusBarColor">@color/app_accent</item>
         <!-- Customize your theme here. -->
-        <item name="android:background">?attr/colorOnPrimary</item>
-        <item name="android:navigationBarColor">?attr/colorOnPrimary</item>
+        <item name="android:navigationBarColor">@color/app_accent</item>
         <!-- Ensure light-colored status bar icons -->
         <item name="android:windowLightStatusBar">true</item>
+        <item name="cardViewStyle">@style/CardStyle.Blue</item>
     </style>
-    <style name="CardStyle" parent="Widget.MaterialComponents.CardView">
-        <item name="android:background">@color/cardview_light_background</item>
-    </style>
-    <style name="TimePickerStyle" parent="Widget.MaterialComponents.TimePicker">
-        <item name="android:windowBackground">@android:color/transparent</item>
-    </style>
-    <style name="AppTheme.Red" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.RemindMe.Red" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">@color/red</item>
         <item name="colorPrimaryVariant">@color/red</item>
+        <item name="colorOnPrimary">@color/white</item>
         <item name="colorSecondary">@color/red</item>
         <item name="colorSecondaryVariant">@color/red</item>
-        <item name="cardViewStyle">@style/CardStyle</item>
-        <item name="materialTimePickerStyle">@style/TimePickerStyle</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <item name="android:statusBarColor">@color/red</item>
+        <item name="android:navigationBarColor">@color/red</item>
+        <item name="cardViewStyle">@style/CardStyle.Red</item>
     </style>
-    <style name="AppTheme.Green" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.RemindMe.Green" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">@color/green</item>
         <item name="colorPrimaryVariant">@color/green</item>
+        <item name="colorOnPrimary">@color/white</item>
         <item name="colorSecondary">@color/green</item>
         <item name="colorSecondaryVariant">@color/green</item>
-        <item name="cardViewStyle">@style/CardStyle</item>
-        <item name="materialTimePickerStyle">@style/TimePickerStyle</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <item name="android:statusBarColor">@color/green</item>
+        <item name="android:navigationBarColor">@color/green</item>
+        <item name="cardViewStyle">@style/CardStyle.Green</item>
     </style>
-    <style name="AppTheme.Yellow" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.RemindMe.Yellow" parent="Theme.MaterialComponents.DayNight.NoActionBar">
     <item name="colorPrimary">@color/yellow</item>
     <item name="colorPrimaryVariant">@color/yellow</item>
+    <item name="colorOnPrimary">@color/white</item>
     <item name="colorSecondary">@color/yellow</item>
     <item name="colorSecondaryVariant">@color/yellow</item>
-    <item name="cardViewStyle">@style/CardStyle</item>
-    <item name="materialTimePickerStyle">@style/TimePickerStyle</item>
+    <item name="colorOnSecondary">@color/black</item>
+    <item name="android:statusBarColor">@color/yellow</item>
+    <item name="android:navigationBarColor">@color/yellow</item>
+    <item name="cardViewStyle">@style/CardStyle.Yellow</item>
+    </style>
+    <style name="CardStyle.Blue" parent="Widget.MaterialComponents.CardView">
+        <item name="cardBackgroundColor">@color/blue_card_background</item>
+    </style>
+    <style name="CardStyle.Red" parent="Widget.MaterialComponents.CardView">
+        <item name="cardBackgroundColor">@color/red_card_background</item>
+    </style>
+    <style name="CardStyle.Green" parent="Widget.MaterialComponents.CardView">
+        <item name="cardBackgroundColor">@color/green_card_background</item>
+    </style>
+    <style name="CardStyle.Yellow" parent="Widget.MaterialComponents.CardView">
+        <item name="cardBackgroundColor">@color/yellow_card_background</item>
     </style>
 </resources>

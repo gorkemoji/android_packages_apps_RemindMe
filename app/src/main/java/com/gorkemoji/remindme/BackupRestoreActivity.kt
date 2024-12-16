@@ -17,6 +17,7 @@ import com.google.gson.Gson
 import com.gorkemoji.remindme.data.model.ToDo
 import com.gorkemoji.remindme.data.db.ToDoDatabase
 import com.gorkemoji.remindme.databinding.ActivityBackupRestoreBinding
+import com.gorkemoji.remindme.utils.Utils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -24,9 +25,11 @@ import java.io.OutputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.properties.Delegates
 
 class BackupRestoreActivity : AppCompatActivity() {
     private lateinit var binding: ActivityBackupRestoreBinding
+    private var themeColor by Delegates.notNull<Int>()
 
     private val database by lazy { ToDoDatabase.getDatabase(this) }
 
@@ -34,14 +37,15 @@ class BackupRestoreActivity : AppCompatActivity() {
     private lateinit var requestReadPermissionLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        themeColor = loadMode("theme_color", "preferences")?.let {
+            if (it.isNotEmpty()) Integer.parseInt(it) else 0
+        } ?: 0
+
+        Utils.onActivityCreateSetTheme(this, themeColor)
+
         super.onCreate(savedInstanceState)
         binding = ActivityBackupRestoreBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        val themeColor = loadMode("theme_color", "preferences") ?: "blue"
-        setThemeColor(themeColor)
-
-        updateComponentColors(getThemeColorResource(themeColor))
 
         setupPermissionLaunchers()
 
@@ -142,30 +146,5 @@ class BackupRestoreActivity : AppCompatActivity() {
     private fun loadMode(type: String, file: String): String? {
         val pref: SharedPreferences = getSharedPreferences(file, Context.MODE_PRIVATE)
         return pref.getString(type, "")
-    }
-
-    private fun setThemeColor(color: String) {
-        when (color) {
-            "red" -> setTheme(R.style.AppTheme_Red)
-            "yellow" -> setTheme(R.style.AppTheme_Yellow)
-            "green" -> setTheme(R.style.AppTheme_Green)
-            else -> setTheme(R.style.Theme_RemindMe)
-        }
-    }
-
-    private fun updateComponentColors(colorResId: Int) {
-        val colorStateList = ContextCompat.getColorStateList(this, colorResId)
-        binding.fileIcon.imageTintList = colorStateList
-        binding.btnBackup.backgroundTintList = colorStateList
-        binding.btnRestore.backgroundTintList = colorStateList
-    }
-
-    private fun getThemeColorResource(color: String): Int {
-        return when (color) {
-            "red" -> R.color.red
-            "yellow" -> R.color.yellow
-            "green" -> R.color.green
-            else -> R.color.app_accent
-        }
     }
 }
