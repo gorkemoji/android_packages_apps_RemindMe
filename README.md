@@ -5,9 +5,12 @@ Never miss a task again with Remind Me, the perfect ToDo app designed to keep yo
 
 1. Open source and completely free
 2. Offline to make it more secure
-3. Modern and simple design
-4. Dark mode support
-
+3. Modern and simple design with various themes support
+4. User-friendly interface for easy task management
+5. Secure with password and biometric protection
+6. Backup your To-Do list to internal storage
+7. Reminder notifications for tasks
+   
 ## Used Technologies
 
 1. Android Studio
@@ -15,6 +18,9 @@ Never miss a task again with Remind Me, the perfect ToDo app designed to keep yo
 3. Shared Preferences
 4. LiveData
 5. Kotlin Coroutines
+6. BroadcastReceiver for notifications
+7. Hilt for Dependency Injection
+8. Biometric authentication API
     
 ## Screenshot
 
