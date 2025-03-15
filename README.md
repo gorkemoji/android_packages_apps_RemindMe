@@ -26,13 +26,19 @@ Never miss a task again with Remind Me, the perfect ToDo app designed to keep yo
 
 <table>
   <tr>
-    <td> <img src="./screenshots/Screenshot_20240125-095921.png" height="400px" width="200px" /></td>
+    <td> <img src="./screenshots/mainscreen.jpg" height="400px" width="200px" /></td>
    </tr> 
 </table>
 
 <table>
   <tr>
-    <td> <img src="./screenshots/Screenshot_20240125-095945.png" height="400px" width="200px" /></td>
+    <td> <img src="./screenshots/reportscreen.jpg" height="400px" width="200px" /></td>
+   </tr> 
+</table>
+
+<table>
+  <tr>
+    <td> <img src="./screenshots/settingsscreen.jpg" height="400px" width="200px" /></td>
    </tr> 
 </table>
 
