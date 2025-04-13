@@ -115,10 +115,24 @@ class TaskActivity : AppCompatActivity() {
                     withContext(Dispatchers.IO) {
                         when (mode) {
                             1 -> {
-                                var newTaskId by Delegates.notNull<Long>()
+                                /*var newTaskId by Delegates.notNull<Long>()
                                 lifecycleScope.launch {
                                     newTaskId = withContext(Dispatchers.IO) { viewModel.insertToDo(ToDo(toDoTitle = toDoTitle, isChecked = false, isReminderOn = isReminderSet, dueDate = dueDate, isLocked = isLocked, lockType = lockType, password = password, font = fontName ?: "default")) }
+                                }*/
+
+                                val newTaskId = withContext(Dispatchers.IO) {
+                                    viewModel.insertToDo(ToDo(
+                                        toDoTitle = toDoTitle,
+                                        isChecked = false,
+                                        isReminderOn = isReminderSet,
+                                        dueDate = dueDate,
+                                        isLocked = isLocked,
+                                        lockType = lockType,
+                                        password = password,
+                                        font = fontName ?: "default"
+                                    ))
                                 }
+
                                 if (isReminderSet) setReminder(calendar, newTaskId)
                                 incrementTaskCount()
                             }

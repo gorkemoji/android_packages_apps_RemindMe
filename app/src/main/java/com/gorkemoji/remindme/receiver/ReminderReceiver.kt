@@ -13,10 +13,8 @@ class ReminderReceiver : BroadcastReceiver() {
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val notificationID = intent.getIntExtra("notificationID", 0)
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            val channel = NotificationChannel("reminder_channel", "Reminder Channel", NotificationManager.IMPORTANCE_HIGH).apply { description = "This notification contains important announcements, etc." }
-            notificationManager.createNotificationChannel(channel)
-        }
+        val channel = NotificationChannel("reminder_channel", "Reminder Channel", NotificationManager.IMPORTANCE_HIGH).apply { description = "This notification contains important announcements, etc." }
+        notificationManager.createNotificationChannel(channel)
 
         val notification = NotificationCompat.Builder(context, "reminder_channel")
             .setContentTitle(context.getString(R.string.reminder))

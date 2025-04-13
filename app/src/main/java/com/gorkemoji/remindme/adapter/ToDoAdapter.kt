@@ -2,7 +2,8 @@ package com.gorkemoji.remindme.adapter
 
 import android.content.Context
 import android.graphics.Paint
-import android.media.MediaPlayer
+import android.media.AudioAttributes
+import android.media.SoundPool
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,14 +24,29 @@ class ToDoAdapter(
     private val context: Context,
     private val toDoList: ArrayList<ToDo>,
     private val dao: ToDoDao,
-    private val coroutineScope: CoroutineScope,
-    private var player: MediaPlayer
+    private val coroutineScope: CoroutineScope
 ) : RecyclerView.Adapter<ToDoAdapter.ToDoViewHolder>() {
 
-    class ToDoViewHolder(val binding: TaskLayoutBinding) : RecyclerView.ViewHolder(binding.root)
+    private lateinit var soundPool: SoundPool
+    private var soundId: Int = 0
+
+    init {
+        val audioAttributes = AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .build()
+
+        soundPool = SoundPool.Builder()
+            .setMaxStreams(1)
+            .setAudioAttributes(audioAttributes)
+            .build()
+
+        soundId = soundPool.load(context, R.raw.pencil_done, 1)
+    }
+
+    inner class ToDoViewHolder(val binding: TaskLayoutBinding) : RecyclerView.ViewHolder(binding.root)
 
     val initialToDoList = ArrayList<ToDo>().apply { addAll(toDoList) }
-    private var isPlayingSound = false
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ToDoViewHolder {
         val binding = TaskLayoutBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -57,30 +73,13 @@ class ToDoAdapter(
         holder.binding.lockIcon.visibility = if (currentToDo.isLocked) View.VISIBLE else View.GONE
 
         holder.binding.checkBox.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked && !isPlayingSound) {
+            if (isChecked) {
                 currentToDo.isChecked = true
                 (context as MainActivity).incrementTaskDone()
 
-                isPlayingSound = true
-
                 updateTextAppearance(holder.binding, true)
 
-                try {
-                    if (player.isPlaying) {
-                        player.stop()
-                        player.start()
-                    }
-                    player = MediaPlayer.create(context, R.raw.pencil_done)
-                    player.start()
-                    player.setOnCompletionListener {
-                        isPlayingSound = false
-                        it.reset()
-                        it.release()
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    isPlayingSound = false
-                }
+                soundPool.play(soundId, 1f, 1f, 0, 0, 1f)
 
                 coroutineScope.launch { dao.update(currentToDo) }
             } else holder.binding.checkBox.isChecked = true
@@ -139,5 +138,9 @@ class ToDoAdapter(
                 notifyDataSetChanged()
             }
         }
+    }
+
+    fun releaseSoundPool() {
+        soundPool.release()
     }
 }

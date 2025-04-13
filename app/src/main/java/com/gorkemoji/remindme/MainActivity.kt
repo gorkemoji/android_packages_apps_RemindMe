@@ -5,16 +5,12 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Canvas
 import android.graphics.Rect
-import android.graphics.drawable.ColorDrawable
 import android.icu.text.SimpleDateFormat
-import android.media.MediaPlayer
-import android.os.Build
 import android.os.Bundle
 import android.text.InputType
 import android.view.View
 import android.widget.EditText
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricPrompt
@@ -36,18 +32,18 @@ import kotlinx.coroutines.launch
 import java.util.Date
 import java.util.Locale
 import kotlin.properties.Delegates
+import androidx.core.view.get
+import androidx.core.graphics.drawable.toDrawable
 
 class MainActivity : AppCompatActivity() {
     private lateinit var adapter: ToDoAdapter
     private lateinit var binding: ActivityMainBinding
     private lateinit var database: ToDoDatabase
     private lateinit var viewModel: ToDoViewModel
-    private lateinit var player: MediaPlayer
     private var themeColor by Delegates.notNull<Int>()
     private var doneTasks: Int? = null
     private val list = arrayListOf<ToDo>()
 
-    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
         themeColor = loadMode("theme_color", "preferences")?.let {
             if (it.isNotEmpty()) Integer.parseInt(it) else 0
@@ -60,18 +56,17 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.bottomNavigation.background = null
-        binding.bottomNavigation.menu.getItem(2).isEnabled = false
+        binding.bottomNavigation.menu[2].isEnabled = false
 
         val temp = loadMode("done_tasks", "reports")
 
         if (temp != null)
             if (temp.isNotEmpty()) doneTasks = temp.let { Integer.parseInt(it) }
 
-        player = MediaPlayer.create(this, R.raw.pencil_done)
         checkFirstStart()
 
         database = ToDoDatabase.getDatabase(this)
-        adapter = ToDoAdapter(this, list, database.getDao(), MainScope(), player)
+        adapter = ToDoAdapter(this, list, database.getDao(), MainScope())
 
         viewModel = ViewModelProvider(
             this,
@@ -314,7 +309,7 @@ class MainActivity : AppCompatActivity() {
 
         val backgroundColor = ContextCompat.getColor(this, colorRes)
 
-        ColorDrawable(backgroundColor).apply {
+        backgroundColor.toDrawable().apply {
             setBounds(if (dX > 0) itemView.left else (itemView.right + dX).toInt(), itemView.top, if (dX > 0) (itemView.left + dX).toInt() else itemView.right, itemView.bottom)
             draw(c)
         }
@@ -349,5 +344,10 @@ class MainActivity : AppCompatActivity() {
             3 -> R.color.yellow
             else -> R.color.app_accent
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        adapter.releaseSoundPool()
     }
 }
