@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import com.gorkemoji.remindme.data.dao.ToDoDao
 import com.gorkemoji.remindme.data.model.ToDo
 
-@Database(entities = [ToDo::class], version = 1)
+@Database(entities = [ToDo::class], version = 2)
 abstract class ToDoDatabase : RoomDatabase() {
     abstract fun getDao(): ToDoDao
 
@@ -20,7 +20,7 @@ abstract class ToDoDatabase : RoomDatabase() {
             if (tempInstance != null) return tempInstance
 
             synchronized(this) {
-                val instance = Room.databaseBuilder(context.applicationContext, ToDoDatabase::class.java, "tasks").allowMainThreadQueries().build()
+                val instance = Room.databaseBuilder(context.applicationContext, ToDoDatabase::class.java, "tasks").fallbackToDestructiveMigration().allowMainThreadQueries().build()
                 INSTANCE = instance
                 return instance
             }
