@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="gray">#FF212121</color>
-    <color name="blue_card_background">#1E3A63</color>
-    <color name="red_card_background">#631E1E</color>
-    <color name="green_card_background">#2D3A1E</color>
-    <color name="yellow_card_background">#634F1E</color>
+    <color name="metallic_blue_card_background">#FF1E3A63</color>
+    <color name="crimson_card_background">#FF631E1E</color>
+    <color name="olive_green_card_background">#FF2D3A1E</color>
+    <color name="amber_card_background">#FF634F1E</color>
+    <color name="lilac_card_background">#FF3B2F3E</color>
 </resources>

@@ -4,16 +4,29 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <TextView
+        android:id="@+id/taskLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="25dp"
+        android:text="@string/add_task"
+        android:textStyle="bold"
+        android:textColor="?android:textColorPrimary"
+        android:textSize="25sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/task_layout"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="25dp"
-        app:boxStrokeColor="?colorAccent"
-        app:cursorColor="?colorAccent"
-        app:hintTextColor="?colorAccent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:boxStrokeColor="?android:textColorPrimary"
+        app:cursorColor="?android:textColorPrimary"
+        app:hintTextColor="?android:textColorPrimary"
+        app:layout_constraintTop_toBottomOf="@id/taskLabel"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -25,81 +38,19 @@
             android:layout_height="wrap_content" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <ImageButton
-        android:id="@+id/reminderIcon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="25dp"
-        android:background="@android:color/transparent"
-        android:contentDescription="@string/alarm_icon"
-        android:src="@drawable/ic_alarm"
-        app:tint="?colorAccent"
-        app:layout_constraintTop_toBottomOf="@id/task_layout"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <TextView
-        android:id="@+id/reminderTxt"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
-        android:layout_marginStart="10dp"
-        android:text="@string/set_reminder"
-        android:textColor="?colorAccent"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/task_layout"
-        app:layout_constraintStart_toEndOf="@id/reminderIcon" />
-
-    <ImageButton
-        android:id="@+id/secureIcon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="25dp"
-        android:background="@android:color/transparent"
-        android:contentDescription="@string/lock_icon"
-        android:src="@drawable/ic_unlock_30"
-        app:tint="?colorAccent"
-        app:layout_constraintTop_toBottomOf="@id/reminderIcon"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <TextView
-        android:id="@+id/secureTxt"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:layout_marginStart="10dp"
-        android:text="@string/lock"
-        android:textColor="?colorAccent"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/reminderTxt"
-        app:layout_constraintStart_toEndOf="@id/secureIcon" />
-
-    <Button
-        android:id="@+id/saveBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="18dp"
-        android:layout_marginEnd="25dp"
-        android:text="@string/save"
-        android:tint="?colorAccent"
-        app:layout_constraintTop_toBottomOf="@id/reminderTxt"
-        app:layout_constraintEnd_toEndOf="parent" />
-
     <com.google.android.material.textfield.TextInputLayout
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-        android:id="@+id/boxLayout"
-        android:layout_width="match_parent"
+        android:id="@+id/fontBoxLayout"
+        android:layout_width="190dp"
         android:layout_height="wrap_content"
         android:layout_margin="25dp"
         android:hint="@string/font"
-        app:boxStrokeColor="?colorAccent"
-        app:hintTextColor="?colorAccent"
+        app:boxStrokeColor="?android:textColorPrimary"
+        app:hintTextColor="?android:textColorPrimary"
         app:startIconDrawable="@drawable/ic_font"
-        app:startIconTint="?colorAccent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:startIconTint="?android:textColorPrimary"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/secureIcon">
+        app:layout_constraintTop_toBottomOf="@id/task_layout">
 
         <AutoCompleteTextView
             android:id="@+id/autoCompleteTextView"
@@ -108,6 +59,85 @@
             android:layout_weight="1"
             android:inputType="none" />
     </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/reminderButton"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="25dp"
+        android:contentDescription="@string/alarm_icon"
+        android:text="@string/set_reminder"
+        app:icon="@drawable/ic_alarm_24"
+        app:strokeColor="?colorAccent"
+        app:tint="?colorAccent"
+        app:layout_constraintTop_toBottomOf="@id/fontBoxLayout"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/removeReminder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="30dp"
+        android:text="@string/x_text"
+        android:textColor="?android:textColorPrimary"
+        android:textSize="25sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/fontBoxLayout"
+        app:layout_constraintStart_toEndOf="@id/reminderButton" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        android:id="@+id/priorityBoxLayout"
+        android:layout_width="165dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="25dp"
+        android:hint="@string/priority"
+        app:boxStrokeColor="?android:textColorPrimary"
+        app:hintTextColor="?android:textColorPrimary"
+        app:startIconDrawable="@drawable/ic_priority_24"
+        app:startIconTint="?android:textColorPrimary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/task_layout">
+
+        <AutoCompleteTextView
+            android:id="@+id/priorityAutoCompleteTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:inputType="none" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/lockButton"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="18dp"
+        android:contentDescription="@string/lock_icon"
+        android:text="@string/lock"
+        app:icon="@drawable/ic_lock_outlined_24"
+        app:strokeColor="?colorAccent"
+        app:tint="?colorAccent"
+        app:layout_constraintTop_toBottomOf="@id/reminderButton"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/saveBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:layout_marginEnd="25dp"
+        android:text="@string/save"
+        android:textColor="@color/white"
+        android:tint="?colorAccent"
+        app:icon="@drawable/ic_save"
+        app:iconTint="@color/white"
+        app:layout_constraintTop_toBottomOf="@id/reminderButton"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <ImageView
         android:id="@+id/tipsIcon"
@@ -128,7 +158,7 @@
         android:layout_margin="25dp"
         android:text="@string/tips_security"
         android:textColor="?colorAccent"
-        android:textSize="18sp"
+        android:textSize="14sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />

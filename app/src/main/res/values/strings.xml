@@ -75,15 +75,17 @@
     <string name="couldnt_open_file">Couldn\'t open file</string>
     <string name="theme">Theme</string>
     <string name="theme_applied">Theme applied, please restart app for changes.</string>
-    <string name="blue">Blue</string>
-    <string name="green">Green</string>
-    <string name="red">Red</string>
-    <string name="yellow">Yellow</string>
+    <string name="metallic_blue">Metallic blue</string>
+    <string name="olive_green">Olive green</string>
+    <string name="crimson">Crimson</string>
+    <string name="amber">Amber</string>
+    <string name="lilac">Lilac</string>
     <string-array name="themes">
-        <item>@string/blue</item>
-        <item>@string/green</item>
-        <item>@string/red</item>
-        <item>@string/yellow</item>
+        <item>@string/metallic_blue</item>
+        <item>@string/olive_green</item>
+        <item>@string/crimson</item>
+        <item>@string/amber</item>
+        <item>@string/lilac</item>
     </string-array>
     <string name="lock">Lock</string>
     <string name="change_reminder">Change reminder</string>
@@ -109,9 +111,24 @@
         <item>@string/default_font</item>
         <item>@string/pacifico_font</item>
     </string-array>
+    <string-array name="priority_array">
+        <item>@string/high</item>
+        <item>@string/medium</item>
+        <item>@string/low</item>
+    </string-array>
+    <string name="high">High</string>
+    <string name="medium">Medium</string>
+    <string name="low">Low</string>
     <string name="report">Report</string>
     <string name="created">Created</string>
     <string name="done">Done</string>
     <string name="since_app_installation">Since app installation</string>
     <string name="search">Search</string>
+    <string name="add_task">Add Task</string>
+    <string name="task_done">Task done</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="task_done_dialog">Is your task really done?</string>
+    <string name="priority">Priority</string>
+    <string name="x_text" translatable="false">x</string>
 </resources>

@@ -21,13 +21,14 @@
 
     <com.google.android.material.textfield.TextInputLayout
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-        android:id="@+id/boxLayout"
+        android:id="@+id/fontBoxLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="25dp"
         android:hint="@string/theme"
+        app:boxStrokeColor="?android:textColorPrimary"
         app:endIconTint="?colorAccent"
-        app:hintTextColor="?colorAccent"
+        app:hintTextColor="?android:textColorPrimary"
         app:startIconDrawable="@drawable/ic_palette"
         app:startIconTint="?colorAccent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -42,13 +43,16 @@
             android:inputType="none" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnBackupRestore"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="25dp"
         android:text="@string/backup_restore"
+        android:textColor="?android:textColorPrimary"
         android:tint="?colorAccent"
+        app:icon="@drawable/ic_backup"
+        app:iconTint="@color/white"
         app:layout_constraintBottom_toTopOf="@id/container"
         app:layout_constraintStart_toStartOf="parent" />
 

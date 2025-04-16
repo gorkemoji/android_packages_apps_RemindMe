@@ -7,6 +7,10 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import androidx.core.app.NotificationCompat
 import com.gorkemoji.remindme.R
+import com.gorkemoji.remindme.data.db.ToDoDatabase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class ReminderReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
@@ -17,12 +21,22 @@ class ReminderReceiver : BroadcastReceiver() {
         notificationManager.createNotificationChannel(channel)
 
         val notification = NotificationCompat.Builder(context, "reminder_channel")
-            .setContentTitle(context.getString(R.string.reminder))
+            .setContentTitle(context.getString(R.string.app_name))
             .setContentText(context.getString(R.string.its_time))
-            .setSmallIcon(R.drawable.ic_alarm)
+            .setSmallIcon(R.drawable.ic_notification)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .build()
 
         notificationManager.notify(notificationID, notification)
+
+        CoroutineScope(Dispatchers.IO).launch {
+            val db = ToDoDatabase.getDatabase(context)
+            val dao = db.getDao()
+            val task = dao.getTaskById(notificationID.toLong())
+            task.let {
+                val updatedTask = it.copy(isReminderOn = false)
+                dao.update(updatedTask)
+            }
+        }
     }
 }

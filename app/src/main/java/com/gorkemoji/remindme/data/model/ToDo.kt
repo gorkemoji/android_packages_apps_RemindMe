@@ -12,6 +12,9 @@ data class ToDo (
     @ColumnInfo(name = "done")
     var isChecked: Boolean = false,
 
+    @ColumnInfo(name = "priority")
+    var priority: Int,
+
     @ColumnInfo(name = "title")
     var toDoTitle: String,
 

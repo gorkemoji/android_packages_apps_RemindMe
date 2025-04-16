@@ -14,24 +14,36 @@
         android:layout_height="wrap_content"
         android:padding="8dp">
 
+        <!-- Öncelik göstergesi (sol çizgi) -->
+        <View
+            android:id="@+id/priorityIndicator"
+            android:layout_width="6dp"
+            android:layout_height="0dp"
+            android:layout_marginEnd="6dp"
+            android:background="@drawable/priority_indicator_shape"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
         <com.google.android.material.checkbox.MaterialCheckBox
             android:id="@+id/checkBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="8dp"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@id/priorityIndicator"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
 
         <TextView
             android:id="@+id/text"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:padding="14dp"
             android:text="@string/test"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/checkBox"
+            app:layout_constraintEnd_toStartOf="@id/alarmIcon"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView

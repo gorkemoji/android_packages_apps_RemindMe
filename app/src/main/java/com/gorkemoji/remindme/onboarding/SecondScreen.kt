@@ -19,7 +19,7 @@ class SecondScreen : Fragment() {
         val next = binding.next
         val vp = activity?.findViewById<ViewPager2>(R.id.view_pager)
 
-        binding.alarmIcon.imageTintList = ContextCompat.getColorStateList(requireContext(), R.color.app_accent)
+        binding.alarmIcon.imageTintList = ContextCompat.getColorStateList(requireContext(), R.color.metallic_blue)
 
         next.setOnClickListener { vp?.currentItem = 2 }
 

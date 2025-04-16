@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Filter
+import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.gorkemoji.remindme.MainActivity
@@ -59,6 +60,14 @@ class ToDoAdapter(
         if (currentToDo.font == "pacifico") holder.binding.text.typeface =
             ResourcesCompat.getFont(context, R.font.pacifico)
 
+        val indicator = holder.binding.priorityIndicator
+
+        when (currentToDo.priority) {
+            0 -> indicator.setBackgroundColor(ContextCompat.getColor(context, android.R.color.holo_green_dark))
+            1 -> indicator.setBackgroundColor(ContextCompat.getColor(context, android.R.color.holo_orange_dark))
+            2 -> indicator.setBackgroundColor(ContextCompat.getColor(context, android.R.color.holo_red_dark))
+        }
+
         holder.binding.text.text =
             if (currentToDo.isLocked) "*".repeat(currentToDo.toDoTitle.length)
             else currentToDo.toDoTitle
@@ -76,10 +85,13 @@ class ToDoAdapter(
             if (isChecked) {
                 currentToDo.isChecked = true
                 (context as MainActivity).incrementTaskDone()
+                context.cancelReminder(currentToDo.id)
 
                 updateTextAppearance(holder.binding, true)
-
                 soundPool.play(soundId, 1f, 1f, 0, 0, 1f)
+
+                currentToDo.isReminderOn = false
+                holder.binding.alarmIcon.visibility = View.GONE
 
                 coroutineScope.launch { dao.update(currentToDo) }
             } else holder.binding.checkBox.isChecked = true
@@ -101,7 +113,7 @@ class ToDoAdapter(
 
     fun updateList(newList: List<ToDo>) {
         toDoList.clear()
-        toDoList.addAll(newList)
+        toDoList.addAll(newList.sortedByDescending { it.priority })
         initialToDoList.clear()
         initialToDoList.addAll(newList)
         notifyDataSetChanged()
@@ -113,28 +125,24 @@ class ToDoAdapter(
 
     private val toDoFilter = object : Filter() {
         override fun performFiltering(constraint: CharSequence?): FilterResults {
-            val filteredList: ArrayList<ToDo> = ArrayList()
-
-            if (constraint.isNullOrEmpty()) {
-                initialToDoList.let { filteredList.addAll(it) }
+            val filteredList: List<ToDo> = if (constraint.isNullOrEmpty()) {
+                initialToDoList
             } else {
-                val query = constraint.toString().trim().lowercase()
-                initialToDoList.forEach {
-                    if (it.toDoTitle.lowercase(Locale.ROOT).contains(query)) {
-                        filteredList.add(it)
-                    }
+                val query = constraint.toString().trim().lowercase(Locale.ROOT)
+                initialToDoList.filter {
+                    it.toDoTitle.lowercase(Locale.ROOT).contains(query)
                 }
             }
 
             val results = FilterResults()
-            results.values = filteredList
+            results.values = filteredList.sortedByDescending { it.priority }
             return results
         }
 
         override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
-            if (results?.values is ArrayList<*>) {
+            if (results?.values is List<*>) {
                 toDoList.clear()
-                toDoList.addAll(results.values as ArrayList<ToDo>)
+                toDoList.addAll(results.values as List<ToDo>)
                 notifyDataSetChanged()
             }
         }

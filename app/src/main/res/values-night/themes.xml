@@ -3,67 +3,82 @@
     <style name="Theme.RemindMe" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/ic_launcher_background</item>
-        <item name="colorPrimaryVariant">@color/app_accent</item>
+        <item name="colorPrimaryVariant">@color/metallic_blue</item>
         <item name="colorOnPrimary">@color/black</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">?attr/colorPrimary</item>
         <item name="colorSecondaryVariant">?attr/colorPrimaryVariant</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor">@color/app_accent</item>
+        <item name="android:statusBarColor">@color/black</item>
         <!-- Customize your theme here. -->
-        <item name="android:navigationBarColor">@color/app_accent</item>
+        <item name="android:navigationBarColor">@color/black</item>
         <item name="android:windowBackground">@color/black</item>
         <!-- Ensure light-colored status bar icons -->
         <item name="android:windowLightStatusBar">false</item>
-        <item name="cardViewStyle">@style/CardStyle.Blue</item>
+        <item name="cardViewStyle">@style/CardStyle.MetallicBlue</item>
     </style>
-    <style name="Theme.RemindMe.Red" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/red</item>
-        <item name="colorPrimaryVariant">@color/red</item>
+    <style name="Theme.RemindMe.Crimson" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/crimson</item>
+        <item name="colorPrimaryVariant">@color/crimson</item>
         <item name="colorOnPrimary">@color/black</item>
-        <item name="colorSecondary">@color/red</item>
-        <item name="colorSecondaryVariant">@color/red</item>
+        <item name="colorSecondary">@color/crimson</item>
+        <item name="colorSecondaryVariant">@color/crimson</item>
         <item name="colorOnSecondary">@color/black</item>
-        <item name="android:statusBarColor">@color/red</item>
-        <item name="android:navigationBarColor">@color/red</item>
+        <item name="android:statusBarColor">@color/black</item>
+        <item name="android:navigationBarColor">@color/black</item>
         <item name="android:windowBackground">@color/black</item>
-        <item name="cardViewStyle">@style/CardStyle.Red</item>
+        <item name="cardViewStyle">@style/CardStyle.Crimson</item>
     </style>
-    <style name="Theme.RemindMe.Green" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/green</item>
-        <item name="colorPrimaryVariant">@color/green</item>
+    <style name="Theme.RemindMe.OliveGreen" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/olive_green</item>
+        <item name="colorPrimaryVariant">@color/olive_green</item>
         <item name="colorOnPrimary">@color/black</item>
-        <item name="colorSecondary">@color/green</item>
-        <item name="colorSecondaryVariant">@color/green</item>
+        <item name="colorSecondary">@color/olive_green</item>
+        <item name="colorSecondaryVariant">@color/olive_green</item>
         <item name="colorOnSecondary">@color/black</item>
-        <item name="android:statusBarColor">@color/green</item>
-        <item name="android:navigationBarColor">@color/green</item>
+        <item name="android:statusBarColor">@color/black</item>
+        <item name="android:navigationBarColor">@color/black</item>
         <item name="android:windowBackground">@color/black</item>
-        <item name="cardViewStyle">@style/CardStyle.Green</item>
+        <item name="cardViewStyle">@style/CardStyle.OliveGreen</item>
     </style>
-    <style name="Theme.RemindMe.Yellow" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/yellow</item>
-        <item name="colorPrimaryVariant">@color/yellow</item>
+    <style name="Theme.RemindMe.Amber" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/amber</item>
+        <item name="colorPrimaryVariant">@color/amber</item>
         <item name="colorOnPrimary">@color/black</item>
-        <item name="colorSecondary">@color/yellow</item>
-        <item name="colorSecondaryVariant">@color/yellow</item>
+        <item name="colorSecondary">@color/amber</item>
+        <item name="colorSecondaryVariant">@color/amber</item>
         <item name="colorOnSecondary">@color/black</item>
-        <item name="android:statusBarColor">@color/yellow</item>
-        <item name="android:navigationBarColor">@color/yellow</item>
+        <item name="android:statusBarColor">@color/black</item>
+        <item name="android:navigationBarColor">@color/black</item>
         <item name="android:windowBackground">@color/black</item>
-        <item name="cardViewStyle">@style/CardStyle.Yellow</item>
+        <item name="cardViewStyle">@style/CardStyle.Amber</item>
     </style>
-    <style name="CardStyle.Blue" parent="Widget.MaterialComponents.CardView">
-        <item name="cardBackgroundColor">@color/blue_card_background</item>
+    <style name="Theme.RemindMe.Lilac" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/lilac</item>
+        <item name="colorPrimaryVariant">@color/lilac</item>
+        <item name="colorOnPrimary">@color/black</item>
+        <item name="colorSecondary">@color/lilac</item>
+        <item name="colorSecondaryVariant">@color/lilac</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <item name="android:statusBarColor">@color/black</item>
+        <item name="android:navigationBarColor">@color/black</item>
+        <item name="android:windowBackground">@color/black</item>
+        <item name="cardViewStyle">@style/CardStyle.Lilac</item>
     </style>
-    <style name="CardStyle.Red" parent="Widget.MaterialComponents.CardView">
-        <item name="cardBackgroundColor">@color/red_card_background</item>
+    <style name="CardStyle.MetallicBlue" parent="Widget.MaterialComponents.CardView">
+        <item name="cardBackgroundColor">@color/metallic_blue_card_background</item>
     </style>
-    <style name="CardStyle.Green" parent="Widget.MaterialComponents.CardView">
-        <item name="cardBackgroundColor">@color/green_card_background</item>
+    <style name="CardStyle.Crimson" parent="Widget.MaterialComponents.CardView">
+        <item name="cardBackgroundColor">@color/crimson_card_background</item>
     </style>
-    <style name="CardStyle.Yellow" parent="Widget.MaterialComponents.CardView">
-        <item name="cardBackgroundColor">@color/yellow_card_background</item>
+    <style name="CardStyle.OliveGreen" parent="Widget.MaterialComponents.CardView">
+        <item name="cardBackgroundColor">@color/olive_green_card_background</item>
+    </style>
+    <style name="CardStyle.Amber" parent="Widget.MaterialComponents.CardView">
+        <item name="cardBackgroundColor">@color/amber_card_background</item>
+    </style>
+    <style name="CardStyle.Lilac" parent="Widget.MaterialComponents.CardView">
+        <item name="cardBackgroundColor">@color/lilac_card_background</item>
     </style>
 </resources>

@@ -19,7 +19,7 @@ class ThirdScreen : Fragment() {
 
         val vp = activity?.findViewById<ViewPager2>(R.id.view_pager)
 
-        binding.fileIcon.imageTintList = ContextCompat.getColorStateList(requireContext(), R.color.app_accent)
+        binding.fileIcon.imageTintList = ContextCompat.getColorStateList(requireContext(), R.color.metallic_blue)
 
         next.setOnClickListener { vp?.currentItem = 3 }
 

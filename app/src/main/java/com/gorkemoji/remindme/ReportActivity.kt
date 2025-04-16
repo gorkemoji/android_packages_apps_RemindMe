@@ -12,7 +12,7 @@ import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.gorkemoji.remindme.databinding.ActivityReportBinding
-import com.gorkemoji.remindme.utils.Utils
+import com.gorkemoji.remindme.utils.ThemeUtil
 import kotlin.properties.Delegates
 
 class ReportActivity : AppCompatActivity() {
@@ -26,7 +26,7 @@ class ReportActivity : AppCompatActivity() {
             if (it.isNotEmpty()) Integer.parseInt(it) else 0
         } ?: 0
 
-        Utils.onActivityCreateSetTheme(this, themeColor)
+        ThemeUtil.onActivityCreateSetTheme(this, themeColor)
 
         super.onCreate(savedInstanceState)
         binding = ActivityReportBinding.inflate(layoutInflater)
@@ -65,9 +65,9 @@ class ReportActivity : AppCompatActivity() {
         },
             doneTasks?.let { PieEntry(it.toFloat(), resources.getString(R.string.done)) })
 
-        val accentColor = resources.getColor(R.color.app_accent, null)
-        val greenColor = resources.getColor(R.color.green, null)
-        val colors = arrayListOf(accentColor, greenColor)
+        val metallicBlueColor = resources.getColor(R.color.metallic_blue, null)
+        val oliveGreenColor = resources.getColor(R.color.olive_green, null)
+        val colors = arrayListOf(metallicBlueColor, oliveGreenColor)
 
         val dataset = PieDataSet(entries, resources.getString(R.string.report))
         dataset.colors = colors

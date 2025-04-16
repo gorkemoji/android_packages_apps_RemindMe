@@ -5,6 +5,7 @@ import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.text.InputType
 import android.view.View
@@ -15,11 +16,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.button.MaterialButton
 import com.gorkemoji.remindme.data.model.ToDo
 import com.gorkemoji.remindme.databinding.ActivityTaskBinding
 import com.gorkemoji.remindme.databinding.DialogSecurityChoiceBinding
 import com.gorkemoji.remindme.receiver.ReminderReceiver
-import com.gorkemoji.remindme.utils.Utils
+import com.gorkemoji.remindme.utils.ThemeUtil
 import com.gorkemoji.remindme.viewmodel.ToDoViewModel
 import kotlinx.coroutines.*
 import java.text.SimpleDateFormat
@@ -42,7 +44,7 @@ class TaskActivity : AppCompatActivity() {
             if (it.isNotEmpty()) Integer.parseInt(it) else 0
         } ?: 0
 
-        Utils.onActivityCreateSetTheme(this, themeColor)
+        ThemeUtil.onActivityCreateSetTheme(this, themeColor)
 
         super.onCreate(savedInstanceState)
         binding = ActivityTaskBinding.inflate(layoutInflater)
@@ -54,9 +56,13 @@ class TaskActivity : AppCompatActivity() {
             if (temp.isNotEmpty()) createdTasks = temp.let { Integer.parseInt(it) }
 
         val themes = resources.getStringArray(R.array.font_array)
-        val adapter = ArrayAdapter(this, R.layout.dropdown_item, themes)
+        val fontAdapter = ArrayAdapter(this, R.layout.dropdown_item, themes)
 
-        binding.autoCompleteTextView.setAdapter(adapter)
+        val priorities = resources.getStringArray(R.array.priority_array)
+        val priorityAdapter = ArrayAdapter(this, R.layout.dropdown_item, priorities)
+
+        binding.autoCompleteTextView.setAdapter(fontAdapter)
+        binding.priorityAutoCompleteTextView.setAdapter(priorityAdapter)
         viewModel = ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(application))[ToDoViewModel::class.java]
 
         selectTipText()
@@ -68,6 +74,7 @@ class TaskActivity : AppCompatActivity() {
         val reminderTime = intent.getLongExtra("reminderTime", 0)
         val reminderState = intent.getBooleanExtra("reminderState", false)
         var fontName = intent.getStringExtra("font")
+        var priority = intent.getIntExtra("priority", 0)
 
         fontName = fontName.takeUnless { it.isNullOrBlank() } ?: "null"
 
@@ -76,7 +83,7 @@ class TaskActivity : AppCompatActivity() {
             else -> themes.indexOf(getString(R.string.default_font))
         }
 
-        binding.autoCompleteTextView.setText(adapter.getItem(selectedFontPosition), false)
+        binding.autoCompleteTextView.setText(fontAdapter.getItem(selectedFontPosition), false)
         binding.autoCompleteTextView.setOnItemClickListener { _, _, position, _ ->
             val selectedFont = resources.getStringArray(R.array.font_array)[position]
 
@@ -87,6 +94,23 @@ class TaskActivity : AppCompatActivity() {
             }
         }
 
+        val selectedPriorityPosition = when (priority) {
+            0 -> priorities.indexOf(getString(R.string.low))
+            1 -> priorities.indexOf(getString(R.string.medium))
+            else -> priorities.indexOf(getString(R.string.high))
+        }
+
+        binding.priorityAutoCompleteTextView.setText(priorityAdapter.getItem(selectedPriorityPosition), false)
+        binding.priorityAutoCompleteTextView.setOnItemClickListener { _, _, position, _ ->
+            val selectedPriority = resources.getStringArray(R.array.priority_array)[position]
+
+            priority = when (selectedPriority) {
+                getString(R.string.low) -> 0
+                getString(R.string.medium) -> 1
+                else -> 2
+            }
+        }
+
         if (mode == 2) {
             binding.taskText.setText(taskName)
             binding.taskText.hint = null
@@ -94,17 +118,35 @@ class TaskActivity : AppCompatActivity() {
 
         if (reminderTime > 0) {
             calendar.timeInMillis = reminderTime
-            updateReminderDateTimeText(mode)
+            updateReminderDateTimeButton(mode)
             isReminderSet = true
         }
 
         if (reminderState && mode == 2) updateReminderViews(mode)
 
-        binding.secureTxt.visibility = if (isLocked) View.GONE else View.VISIBLE
-        binding.secureTxt.setOnClickListener { showSecurityChoiceDialog(getThemeColorResource(
-            themeColor.toString()
-        )) }
-        binding.reminderTxt.setOnClickListener { showDateTimePicker(mode) }
+        binding.removeReminder.setOnClickListener {
+            isReminderSet = false
+            binding.reminderButton.text = resources.getString(R.string.set_reminder)
+            binding.removeReminder.visibility = View.GONE
+            makeButtonOutlined(binding.reminderButton)
+        }
+
+        binding.lockButton.setOnClickListener {
+
+            if (isLocked) {
+                isLocked = false
+                lockType = "null"
+                password = "null"
+                binding.lockButton.icon = getDrawable(R.drawable.ic_lock_outlined_24)
+                binding.lockButton.text = resources.getString(R.string.lock)
+                makeButtonOutlined(binding.lockButton)
+                return@setOnClickListener
+            }
+
+            showSecurityChoiceDialog(getThemeColorResource(themeColor.toString()))
+
+        }
+        binding.reminderButton.setOnClickListener { showDateTimePicker(mode) }
 
         binding.saveBtn.setOnClickListener {
             if (binding.taskText.text?.isNotBlank() == true) {
@@ -129,7 +171,8 @@ class TaskActivity : AppCompatActivity() {
                                         isLocked = isLocked,
                                         lockType = lockType,
                                         password = password,
-                                        font = fontName ?: "default"
+                                        font = fontName ?: "default",
+                                        priority = priority
                                     ))
                                 }
 
@@ -141,7 +184,7 @@ class TaskActivity : AppCompatActivity() {
                                     lockType = "null"
                                     password = "null"
                                 }
-                                val updatedTask = ToDo(id = id, toDoTitle = toDoTitle, isChecked = checkBoxState, isReminderOn = isReminderSet, dueDate = dueDate, isLocked = isLocked, lockType = lockType, password = password, font = fontName!!)
+                                val updatedTask = ToDo(id = id, toDoTitle = toDoTitle, isChecked = checkBoxState, isReminderOn = isReminderSet, dueDate = dueDate, isLocked = isLocked, lockType = lockType, password = password, font = fontName!!, priority = priority)
                                 viewModel.updateToDo(updatedTask)
                                 if (isReminderSet) setReminder(calendar, id) else cancelReminder(id)
                             }
@@ -159,13 +202,32 @@ class TaskActivity : AppCompatActivity() {
         saveMode("created_tasks", createdTasks.toString(), "reports")
     }
 
-    private fun updateReminderViews(mode: Int) { if (isReminderSet) updateReminderDateTimeText(mode) }
+    private fun updateReminderViews(mode: Int) { if (isReminderSet) updateReminderDateTimeButton(mode) }
 
-    private fun updateReminderDateTimeText(mode: Int) {
+    private fun makeButtonFilled(button: MaterialButton) {
+        val color = ContextCompat.getColor(this, getThemeColorResource(themeColor.toString()))
+        button.setBackgroundColor(color)
+        button.setTextColor(ContextCompat.getColor(this, R.color.white))
+        button.setIconTintResource(R.color.white)
+        button.strokeWidth = 0
+    }
+
+    private fun makeButtonOutlined(button: MaterialButton) {
+        val color = ContextCompat.getColor(this, getThemeColorResource(themeColor.toString()))
+        button.setBackgroundColor(ContextCompat.getColor(this, android.R.color.transparent))
+        button.setTextColor(color)
+        button.iconTint = ColorStateList.valueOf(color)
+        button.strokeWidth = 2
+        button.strokeColor = ColorStateList.valueOf(color)
+    }
+
+    private fun updateReminderDateTimeButton(mode: Int) {
         if (mode == 2 || isReminderSet) {
             val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
             val formattedDate = dateFormat.format(calendar.time)
-            binding.reminderTxt.text = formattedDate
+            binding.reminderButton.text = formattedDate
+            makeButtonFilled(binding.reminderButton)
+            binding.removeReminder.visibility = View.VISIBLE
         }
     }
 
@@ -181,14 +243,14 @@ class TaskActivity : AppCompatActivity() {
             }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true)
 
             timePickerDialog.setOnDismissListener {
-                if (isReminderSet) updateReminderDateTimeText(mode)
+                if (isReminderSet) updateReminderDateTimeButton(mode)
             }
             timePickerDialog.show()
         }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)
         )
 
         datePickerDialog.setOnDismissListener {
-            if (isReminderSet) updateReminderDateTimeText(mode)
+            if (isReminderSet) updateReminderDateTimeButton(mode)
         }
         datePickerDialog.show()
     }
@@ -201,7 +263,7 @@ class TaskActivity : AppCompatActivity() {
             putExtra("taskName", binding.taskText.text.toString())
         }
         val pendingIntent = PendingIntent.getBroadcast(this, taskId.toInt(), intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-        alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
+        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
     }
 
     private fun cancelReminder(taskId: Long) {
@@ -223,7 +285,6 @@ class TaskActivity : AppCompatActivity() {
         val dialogBinding = DialogSecurityChoiceBinding.inflate(layoutInflater)
         val dialog = AlertDialog.Builder(this).setView(dialogBinding.root).create()
 
-        //updateIconColors(colorResId, dialogBinding)
 
         dialogBinding.passwordTxt.setOnClickListener {
             showPasswordInputDialog(colorResId)
@@ -238,10 +299,12 @@ class TaskActivity : AppCompatActivity() {
         dialogBinding.biometricTxt.setOnClickListener {
             isLocked = true
             lockType = "biometric"
-            binding.secureIcon.setImageResource(R.drawable.ic_lock_30)
-            binding.secureTxt.text = resources.getString(R.string.locked)
+            binding.lockButton.icon = getDrawable(R.drawable.ic_lock_outlined_24)
+            binding.lockButton.text = resources.getString(R.string.unlock)
+            makeButtonFilled(binding.lockButton)
             dialog.dismiss()
         }
+        dialog.window?.setDimAmount(0.7f)
         dialog.show()
     }
 
@@ -260,12 +323,13 @@ class TaskActivity : AppCompatActivity() {
                     isLocked = true
                     lockType = "password"
                     this.password = password
-                    binding.secureIcon.setImageResource(R.drawable.ic_lock_30)
-                    binding.secureTxt.text = resources.getString(R.string.locked)
+                    binding.lockButton.icon = getDrawable(R.drawable.ic_unlock_30)
+                    binding.lockButton.text = resources.getString(R.string.unlock)
+                    makeButtonFilled(binding.lockButton)
                 } else Toast.makeText(this, R.string.password_cannot_be_empty, Toast.LENGTH_SHORT).show()
             }
             .setNegativeButton(android.R.string.cancel, null)
-            .show()
+            .show().window?.setDimAmount(0.7f)
     }
 
     private fun checkIfBiometricsAvailable(): Boolean {
@@ -287,22 +351,14 @@ class TaskActivity : AppCompatActivity() {
         val randomIndex = (tipsArray.indices).random()
         binding.tipsTxt.text = tipsArray[randomIndex]
     }
-    /*
-    private fun updateIconColors(colorResId: Int, dialogBinding: DialogSecurityChoiceBinding) {
-        val colorStateList = ContextCompat.getColorStateList(this, colorResId)
-        dialogBinding.securityTypeText.setTextColor(ContextCompat.getColor(this, colorResId))
-        dialogBinding.biometricIcon.imageTintList = colorStateList
-        dialogBinding.passwordIcon.imageTintList = colorStateList
-        dialogBinding.passwordTxt.setTextColor(ContextCompat.getColor(this, colorResId))
-        dialogBinding.biometricTxt.setTextColor(ContextCompat.getColor(this, colorResId))
-    }*/
 
     private fun getThemeColorResource(themeColor: String): Int {
         return when (themeColor) {
-            "red" -> R.color.red
-            "yellow" -> R.color.yellow
-            "green" -> R.color.green
-            else -> R.color.app_accent
+            "1" -> R.color.crimson
+            "2" -> R.color.olive_green
+            "3" -> R.color.amber
+            "4" -> R.color.lilac
+            else -> R.color.metallic_blue
         }
     }
 }

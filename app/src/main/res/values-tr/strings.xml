@@ -75,15 +75,17 @@
     <string name="couldnt_open_file">Dosya açılamadı</string>
     <string name="theme">Tema</string>
     <string name="theme_applied">Tema uygulandı, lütfen uygulamayı yeniden başlatın.</string>
-    <string name="blue">Mavi</string>
-    <string name="green">Yeşil</string>
-    <string name="red">Kırmızı</string>
-    <string name="yellow">Sarı</string>
+    <string name="metallic_blue">Metalik mavi</string>
+    <string name="olive_green">Zeytin yeşili</string>
+    <string name="crimson">Kızıl</string>
+    <string name="amber">Kehribar</string>
+    <string name="lilac">Lila</string>
     <string-array name="themes">
-        <item>@string/blue</item>
-        <item>@string/green</item>
-        <item>@string/red</item>
-        <item>@string/yellow</item>
+        <item>@string/metallic_blue</item>
+        <item>@string/olive_green</item>
+        <item>@string/crimson</item>
+        <item>@string/amber</item>
+        <item>@string/lilac</item>
     </string-array>
     <string name="lock">Kilitle</string>
     <string name="change_reminder">Hatırlatıcıyı değiştir</string>
@@ -96,7 +98,6 @@
     <string name="tips_security">Güvenliği arttırmak için çeşitli yollar deneyin!</string>
     <string name="tips_themes">Çeşitli temalarla uygulamayı rengarenk yapın!</string>
     <string name="tips_backup">Görevlerinizi yedekleyerek asla kaybetmezsiniz!</string>
-
     <string-array name="tips_array">
         <item>@string/tips_security</item>
         <item>@string/tips_themes</item>
@@ -110,9 +111,23 @@
         <item>@string/default_font</item>
         <item>@string/pacifico_font</item>
     </string-array>
+    <string-array name="priority_array">
+        <item>@string/high</item>
+        <item>@string/medium</item>
+        <item>@string/low</item>
+    </string-array>
+    <string name="high">Yüksek</string>
+    <string name="medium">Orta</string>
+    <string name="low">Düşük</string>
     <string name="report">Rapor</string>
     <string name="created">Oluşturulan</string>
     <string name="done">Tamamlanan</string>
     <string name="since_app_installation">Uygulama kurulduğundan beri</string>
     <string name="search">Arama</string>
+    <string name="add_task">Görev Oluştur</string>
+    <string name="task_done">Görev tamamlandı</string>
+    <string name="yes">Evet</string>
+    <string name="no">No</string>
+    <string name="task_done_dialog">Görevi tamamladınız mı?</string>
+    <string name="priority">Öncelik</string>
 </resources>

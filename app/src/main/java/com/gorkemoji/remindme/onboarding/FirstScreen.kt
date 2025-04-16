@@ -19,7 +19,7 @@ class FirstScreen : Fragment() {
         val next = binding.next
         val vp = activity?.findViewById<ViewPager2>(R.id.view_pager)
 
-        binding.appIcon.imageTintList = ContextCompat.getColorStateList(requireContext(), R.color.app_accent)
+        binding.appIcon.imageTintList = ContextCompat.getColorStateList(requireContext(), R.color.metallic_blue)
 
         next.setOnClickListener { vp?.currentItem = 1 }
 

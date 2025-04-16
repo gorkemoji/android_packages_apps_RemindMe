@@ -1,5 +1,7 @@
 package com.gorkemoji.remindme
 
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -25,7 +27,7 @@ import com.gorkemoji.remindme.adapter.ToDoAdapter
 import com.gorkemoji.remindme.data.db.ToDoDatabase
 import com.gorkemoji.remindme.databinding.ActivityMainBinding
 import com.gorkemoji.remindme.onboarding.OnboardingFragment
-import com.gorkemoji.remindme.utils.Utils
+import com.gorkemoji.remindme.utils.ThemeUtil
 import com.gorkemoji.remindme.viewmodel.ToDoViewModel
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
@@ -34,6 +36,7 @@ import java.util.Locale
 import kotlin.properties.Delegates
 import androidx.core.view.get
 import androidx.core.graphics.drawable.toDrawable
+import com.gorkemoji.remindme.receiver.ReminderReceiver
 
 class MainActivity : AppCompatActivity() {
     private lateinit var adapter: ToDoAdapter
@@ -49,7 +52,7 @@ class MainActivity : AppCompatActivity() {
             if (it.isNotEmpty()) Integer.parseInt(it) else 0
         } ?: 0
 
-        Utils.onActivityCreateSetTheme(this, themeColor)
+        ThemeUtil.onActivityCreateSetTheme(this, themeColor)
 
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -179,9 +182,9 @@ class MainActivity : AppCompatActivity() {
             if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
                 val position = viewHolder.adapterPosition
                 if (dX > 0) {
-                    if (list[position].isLocked) setIcon(c, viewHolder, dX, R.drawable.ic_unlock, R.color.green)
-                    else if (!list[position].isChecked) setIcon(c, viewHolder, dX, R.drawable.ic_edit, R.color.yellow)
-                } else setIcon(c, viewHolder, dX, R.drawable.ic_delete, R.color.red)
+                    if (list[position].isLocked) setIcon(c, viewHolder, dX, R.drawable.ic_unlock, R.color.olive_green)
+                    else if (!list[position].isChecked) setIcon(c, viewHolder, dX, R.drawable.ic_edit, R.color.amber)
+                } else setIcon(c, viewHolder, dX, R.drawable.ic_delete, R.color.crimson)
             }
             super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
         }
@@ -270,6 +273,7 @@ class MainActivity : AppCompatActivity() {
         intent.putExtra("taskName", list[position].toDoTitle)
         intent.putExtra("cbState", list[position].isChecked)
         intent.putExtra("font", list[position].font)
+        intent.putExtra("priority", list[position].priority)
 
         if (list[position].isLocked) intent.putExtra("lockState", list[position].isLocked)
 
@@ -285,6 +289,16 @@ class MainActivity : AppCompatActivity() {
     private fun deleteTask(position: Int) {
         viewModel.deleteToDo(list[position])
         adapter.notifyItemRemoved(position)
+    }
+
+    fun cancelReminder(taskId: Long) {
+        val intent = Intent(this, ReminderReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(this, taskId.toInt(), intent, PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE)
+        pendingIntent?.let {
+            val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            alarmManager.cancel(it)
+            it.cancel()
+        }
     }
 
     private fun setIcon(c: Canvas, viewHolder: RecyclerView.ViewHolder, dX: Float, iconRes: Int, colorRes: Int) {
@@ -339,10 +353,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun getThemeColorResource(color: Int): Int {
         return when (color) {
-            1 -> R.color.red
-            2 -> R.color.green
-            3 -> R.color.yellow
-            else -> R.color.app_accent
+            1 -> R.color.crimson
+            2 -> R.color.olive_green
+            3 -> R.color.amber
+            4 -> R.color.lilac
+            else -> R.color.metallic_blue
         }
     }
 

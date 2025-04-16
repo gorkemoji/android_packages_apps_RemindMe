@@ -28,7 +28,7 @@ class FourthScreen : Fragment() {
         val view = binding.root
         val start = binding.start
 
-        binding.notificationIcon.imageTintList = ContextCompat.getColorStateList(requireContext(), R.color.app_accent)
+        binding.notificationIcon.imageTintList = ContextCompat.getColorStateList(requireContext(), R.color.metallic_blue)
 
         start.setOnClickListener { askNotificationPermission() }
 

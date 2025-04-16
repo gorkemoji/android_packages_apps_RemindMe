@@ -17,7 +17,7 @@ import com.google.gson.Gson
 import com.gorkemoji.remindme.data.model.ToDo
 import com.gorkemoji.remindme.data.db.ToDoDatabase
 import com.gorkemoji.remindme.databinding.ActivityBackupRestoreBinding
-import com.gorkemoji.remindme.utils.Utils
+import com.gorkemoji.remindme.utils.ThemeUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -41,7 +41,7 @@ class BackupRestoreActivity : AppCompatActivity() {
             if (it.isNotEmpty()) Integer.parseInt(it) else 0
         } ?: 0
 
-        Utils.onActivityCreateSetTheme(this, themeColor)
+        ThemeUtil.onActivityCreateSetTheme(this, themeColor)
 
         super.onCreate(savedInstanceState)
         binding = ActivityBackupRestoreBinding.inflate(layoutInflater)

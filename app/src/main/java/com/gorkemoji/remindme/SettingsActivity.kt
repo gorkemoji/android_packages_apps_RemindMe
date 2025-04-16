@@ -5,10 +5,9 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.ArrayAdapter
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.gorkemoji.remindme.databinding.ActivitySettingsBinding
-import com.gorkemoji.remindme.utils.Utils
+import com.gorkemoji.remindme.utils.ThemeUtil
 import kotlin.properties.Delegates
 
 class SettingsActivity : AppCompatActivity() {
@@ -20,7 +19,7 @@ class SettingsActivity : AppCompatActivity() {
             if (it.isNotEmpty()) Integer.parseInt(it) else 0
         } ?: 0
 
-        Utils.onActivityCreateSetTheme(this, themeColor)
+        ThemeUtil.onActivityCreateSetTheme(this, themeColor)
 
         super.onCreate(savedInstanceState)
         binding = ActivitySettingsBinding.inflate(layoutInflater)
@@ -33,18 +32,29 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.autoCompleteTextView.setAdapter(adapter)
 
+        val currentThemeName = when (themeColor) {
+            1 -> getString(R.string.crimson)
+            2 -> getString(R.string.olive_green)
+            3 -> getString(R.string.amber)
+            4 -> getString(R.string.lilac)
+            else -> getString(R.string.metallic_blue)
+        }
+
+        binding.autoCompleteTextView.setText(currentThemeName, false)
+
         binding.autoCompleteTextView.setOnItemClickListener { _, _, position, _ ->
             val selectedTheme = resources.getStringArray(R.array.themes)[position]
 
             val color = when (selectedTheme) {
-                getString(R.string.red) -> 1
-                getString(R.string.green) -> 2
-                getString(R.string.yellow) -> 3
+                getString(R.string.crimson) -> 1
+                getString(R.string.olive_green) -> 2
+                getString(R.string.amber) -> 3
+                getString(R.string.lilac) -> 4
                 else -> 0
             }
 
             saveMode("theme_color", color.toString(), "preferences")
-            Utils.applyTheme(this, color)
+            ThemeUtil.applyTheme(this, color)
 
             restartApp()
             //showToast(resources.getString(R.string.theme_applied))

@@ -2,13 +2,15 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="app_accent">#FF2C77F3</color>
-    <color name="red">#FFC62828</color>
-    <color name="green">#FF9E9D24</color>
-    <color name="yellow">#FFF9A825</color>
+    <color name="metallic_blue">#FF2C77F3</color>
+    <color name="crimson">#FFC62828</color>
+    <color name="olive_green">#FF9E9D24</color>
+    <color name="amber">#FFF9A825</color>
+    <color name="lilac">#FF9C27B0</color>
     <color name="gray">#FFE0E0E0</color>
-    <color name="red_card_background">#FFFDEDEC</color>
-    <color name="green_card_background">#FFF4F9E6</color>
-    <color name="yellow_card_background">#FFFFF9E1</color>
-    <color name="blue_card_background">#FFF0F8FF</color>
+    <color name="crimson_card_background">#FFFDEDEC</color>
+    <color name="olive_green_card_background">#FFF4F9E6</color>
+    <color name="amber_card_background">#FFFFF9E1</color>
+    <color name="metallic_blue_card_background">#FFF0F8FF</color>
+    <color name="lilac_card_background">#FFEFD7F5</color>
 </resources>
